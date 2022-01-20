@@ -8,13 +8,24 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type ApiRouter struct {
+	*mux.Router
+}
+
+func (r *ApiRouter) RegisterApi() *ApiRouter {
+	return r
+}
+
 func main() {
 	db := mongodb.NewDatabase()
 
-	userApi := user.NewApi(user.NewService(db.GetUserRepository()))
-
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/api/v1/user", userApi.GetUsers).Methods("GET")
+	r := &ApiRouter{router}
+	r.RegisterApi()
+
+	apiRouter := router.PathPrefix("/api/v1").Subrouter()
+
+	user.NewMuxRouterApi(apiRouter, user.NewService(db.GetUserRepository()))
 
 	http.ListenAndServe("127.0.0.1:5000", router)
 }
