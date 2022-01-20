@@ -8,6 +8,7 @@ import (
 )
 
 type Api interface {
+	RegisterRoutes(r *mux.Router)
 	GetUsers(w http.ResponseWriter, r *http.Request)
 	GetUserById(w http.ResponseWriter, r *http.Request)
 	CreateUser(w http.ResponseWriter, r *http.Request)
@@ -32,11 +33,11 @@ func NewMuxRouterApi(r *mux.Router, s Service) Api {
 }
 
 func (api *api) RegisterRoutes(r *mux.Router) {
-	//r.HandleFunc("/user", api.CreateUser).Methods("POST")
-	r.HandleFunc("/user", api.GetUsers).Methods("GET")
-	r.HandleFunc("/user/{id}", api.GetUserById).Methods("GET")
-	//r.HandleFunc("/user/{id}", api.UpdateUser).Methods("PUT", "PATCH")
-	//r.HandleFunc("/user/{id}", api.DeleteUser).Methods("DELETE")
+	r.HandleFunc("/api/v1/user", api.CreateUser).Methods("POST")
+	r.HandleFunc("/api/v1/user", api.GetUsers).Methods("GET")
+	r.HandleFunc("/api/v1/user/{id}", api.GetUserById).Methods("GET")
+	r.HandleFunc("/api/v1/user/{id}", api.UpdateUser).Methods("PUT", "PATCH")
+	r.HandleFunc("/api/v1/user/{id}", api.DeleteUser).Methods("DELETE")
 }
 
 func (api *api) GetUsers(w http.ResponseWriter, r *http.Request) {
