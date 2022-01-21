@@ -4,8 +4,17 @@ Open source Cloud Business Management suite
 ---
 
 ## Introduction
-Cloud Business Management is an open source web application to handle and centralize daily business activities.
-
+Cloud Business Management is an open source web application to handle daily business activities.
+Available modules
+- N/A
+Future modules
+- Employee management
+- Customer management
+- Product management
+- Project management
+- Invoice mangement
+- Time registration
+- Service desk
 
 ## Getting started
 
