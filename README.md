@@ -46,7 +46,7 @@ docker run -d -p 5000:80 cloudbm/community:dev
 *comming soon*
 
 [DEB-ICT] will provide a hosted version of the application, known as enterprise edition.\
-Enterprise edition is a multi-tenant saas microservice version designed for [Kubernetes environment].
+Enterprise edition is a multi-tenant microservice version designed for [Kubernetes environment].
 
 
 More information: https://www.cloudbm.eu

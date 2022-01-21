@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	"html/template"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/deb-ict/cloudbm-community/pkg/http/web"
 	"github.com/deb-ict/cloudbm-community/pkg/http/webhost"
 	"github.com/deb-ict/cloudbm-community/pkg/module/customer"
 	"github.com/deb-ict/cloudbm-community/pkg/module/employee"
@@ -15,6 +18,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/module/timesheet"
 	"github.com/deb-ict/cloudbm-community/pkg/module/user"
 	"github.com/deb-ict/cloudbm-community/pkg/storage/mongodb"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
 
@@ -26,6 +30,28 @@ func GetConfigPath(configPath string) string {
 		configPath = "/etc/cloudbm/webhost.yaml"
 	}
 	return configPath
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	page := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/404.html",
+	))
+	page.Execute(w, web.Page{
+		Title:       "Page not found",
+		ShowSideBar: false,
+	})
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	page := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/home.html",
+	))
+	page.Execute(w, web.Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
 }
 
 func main() {
@@ -44,8 +70,17 @@ func main() {
 	}
 	configPath = GetConfigPath(configPath)
 
+	// Setup the router
+	router := mux.NewRouter().StrictSlash(true)
+	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+	router.HandleFunc("/", homeHandler)
+
+	// Serve the static files
+	fs := http.FileServer(http.Dir("./web/static/"))
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
+
 	// Initialize the webhost
-	host := webhost.NewWebHost()
+	host := webhost.NewWebHost(router)
 	err = host.GetConfig().Load(configPath)
 	if err != nil {
 		log.Fatal(err)

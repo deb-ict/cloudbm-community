@@ -27,10 +27,10 @@ type webHost struct {
 	httpServer *http.Server
 }
 
-func NewWebHost() WebHost {
+func NewWebHost(r *mux.Router) WebHost {
 	host := &webHost{
 		config:     NewConfig(),
-		httpRouter: mux.NewRouter().StrictSlash(true),
+		httpRouter: r,
 	}
 	return host
 }

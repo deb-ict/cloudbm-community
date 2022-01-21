@@ -1,0 +1,12 @@
+main, header, footer {
+    padding-left: 300px;
+}
+nav {
+    padding-right: 305px;
+}
+
+@media only screen and (max-width: 992px) {
+    main, header, footer {
+        padding-left: 0px;
+    }
+}
