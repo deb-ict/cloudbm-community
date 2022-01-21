@@ -6,10 +6,10 @@ Open source Cloud Business Management suite
 ## Introduction
 Cloud Business Management is an open source web application to handle daily business activities.
 
-Available modules
+**Available modules**
 - N/A
 
-Future modules
+**Future modules**
 - Employee management
 - Customer management
 - Product management
@@ -20,7 +20,7 @@ Future modules
 
 ## Getting started
 
-##### You have a working [Go environment].
+##### Running on [Go environment].
 
 ```
 mkdir -p $GOPATH/src/deb-ict
@@ -30,5 +30,20 @@ cd cloudbm-community
 go run ./cmd/webhost
 ```
 
+##### Running on [Docker environment].
+
+```
+docker build -f build/container/Dockerfile -t cloudbm/community:dev .
+docker run -d -p 5000:80 cloudbm/community:dev
+```
+
+##### Running on [Kubernetes environment].
+
+*comming soon*
+
 ## Cloud Hosted CloudBm
 https://www.cloudbm.eu
+
+[Go environment]: https://golang.org/doc/install
+[Docker environment]: https://docs.docker.com/engine
+[Kubernetes environment]: https://kubernetes.io
