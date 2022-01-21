@@ -1,5 +1,5 @@
 # CloudBM Community
-Open source Cloud Business Management suite
+Open Source Cloud Business Management suite
 
 ---
 
@@ -41,13 +41,12 @@ docker run -d -p 5000:80 cloudbm/community:dev
 
 *comming soon*
 
-## Hosted CloudBm (Enterprise version)
+## Hosted Cloud Business Management (Enterprise edition)
 
 *comming soon*
 
-[DEB-ICT] will provide a hosted version of the application, known as enterprise version.
-
-This version is a saas microservice version hosted on [Kubernetes environment].
+[DEB-ICT] will provide a hosted version of the application, known as enterprise edition.
+Enterprise edition is a multi-tenant saas microservice version designed for [Kubernetes environment].
 
 
 More information: https://www.cloudbm.eu
