@@ -1,10 +1,10 @@
 package webhost
 
 import (
-	"io/ioutil"
 	"os"
+	"strconv"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type Config interface {
@@ -15,10 +15,10 @@ type Config interface {
 }
 
 type config struct {
-	http HttpConfig `yaml:"http"`
+	Http httpConfig `yaml:"http"`
 }
 
-type HttpConfig struct {
+type httpConfig struct {
 	Bind string `yaml:"bind"`
 	Port string `yaml:"port"`
 	Api  bool   `yaml:"api"`
@@ -26,7 +26,7 @@ type HttpConfig struct {
 
 func NewConfig() Config {
 	return &config{
-		http: HttpConfig{
+		Http: httpConfig{
 			Bind: "0.0.0.0",
 			Port: "80",
 			Api:  false,
@@ -35,15 +35,15 @@ func NewConfig() Config {
 }
 
 func (cfg *config) GetHttpBind() string {
-	return cfg.http.Bind
+	return cfg.Http.Bind
 }
 
 func (cfg *config) GetHttpPort() string {
-	return cfg.http.Port
+	return cfg.Http.Port
 }
 
 func (cfg *config) IsApiEnabled() bool {
-	return cfg.http.Api
+	return cfg.Http.Api
 }
 
 func (cfg *config) Load(configPath string) error {
@@ -54,30 +54,15 @@ func (cfg *config) Load(configPath string) error {
 
 func (cfg *config) loadYaml(configPath string) error {
 	// Open the config file
-	/*
-		file, err := os.Open(configPath)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-	*/
-
-	yamlData, err := ioutil.ReadFile(configPath)
+	file, err := os.Open(configPath)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
 	// Read the config file
-	//decoder := yaml.NewDecoder(file)
-	/*
-		err = decoder.Decode(cfg)
-		if err != nil {
-			return err
-		}
-	*/
-
-	var config config
-	err = yaml.Unmarshal(yamlData, &config)
+	decoder := yaml.NewDecoder(file)
+	err = decoder.Decode(cfg)
 	if err != nil {
 		return err
 	}
@@ -88,10 +73,17 @@ func (cfg *config) loadYaml(configPath string) error {
 func (cfg *config) LoadEnvironment() {
 	http_bind, ok := os.LookupEnv("HTTP_BIND")
 	if ok && len(http_bind) > 0 {
-		cfg.http.Bind = http_bind
+		cfg.Http.Bind = http_bind
 	}
 	http_port, ok := os.LookupEnv("HTTP_PORT")
 	if ok && len(http_port) > 0 {
-		cfg.http.Port = http_port
+		cfg.Http.Port = http_port
+	}
+	api_enabled, ok := os.LookupEnv("API_ENABLED")
+	if ok {
+		api_enable_value, err := strconv.ParseBool(api_enabled)
+		if err == nil {
+			cfg.Http.Api = api_enable_value
+		}
 	}
 }

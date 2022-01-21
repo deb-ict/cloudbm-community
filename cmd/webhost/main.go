@@ -2,18 +2,19 @@ package main
 
 import (
 	"flag"
+	"log"
 	"os"
 	"time"
 
-	"github.com/deb-ict/cloudbm-community/pkg/customer"
-	"github.com/deb-ict/cloudbm-community/pkg/employee"
-	"github.com/deb-ict/cloudbm-community/pkg/product"
-	"github.com/deb-ict/cloudbm-community/pkg/project"
+	"github.com/deb-ict/cloudbm-community/pkg/http/webhost"
+	"github.com/deb-ict/cloudbm-community/pkg/module/customer"
+	"github.com/deb-ict/cloudbm-community/pkg/module/employee"
+	"github.com/deb-ict/cloudbm-community/pkg/module/product"
+	"github.com/deb-ict/cloudbm-community/pkg/module/project"
+	"github.com/deb-ict/cloudbm-community/pkg/module/ticket"
+	"github.com/deb-ict/cloudbm-community/pkg/module/timesheet"
+	"github.com/deb-ict/cloudbm-community/pkg/module/user"
 	"github.com/deb-ict/cloudbm-community/pkg/storage/mongodb"
-	"github.com/deb-ict/cloudbm-community/pkg/ticket"
-	"github.com/deb-ict/cloudbm-community/pkg/timesheet"
-	"github.com/deb-ict/cloudbm-community/pkg/user"
-	"github.com/deb-ict/cloudbm-community/pkg/webhost"
 	"github.com/joho/godotenv"
 )
 
@@ -28,6 +29,8 @@ func GetConfigPath(configPath string) string {
 }
 
 func main() {
+	var err error
+
 	// Parse arguments
 	var configPath string
 	var wait time.Duration
@@ -43,10 +46,21 @@ func main() {
 
 	// Initialize the webhost
 	host := webhost.NewWebHost()
-	host.GetConfig().Load(configPath)
+	err = host.GetConfig().Load(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Setup the api
 	db := mongodb.NewDatabase()
+	err = db.GetConfig().Load(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Initialize the service
 	userService := user.NewService(db.GetUserRepository())

@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"github.com/deb-ict/cloudbm-community/pkg/customer"
-	"github.com/deb-ict/cloudbm-community/pkg/employee"
-	"github.com/deb-ict/cloudbm-community/pkg/product"
-	"github.com/deb-ict/cloudbm-community/pkg/project"
-	"github.com/deb-ict/cloudbm-community/pkg/ticket"
-	"github.com/deb-ict/cloudbm-community/pkg/timesheet"
-	"github.com/deb-ict/cloudbm-community/pkg/user"
+	"github.com/deb-ict/cloudbm-community/pkg/module/customer"
+	"github.com/deb-ict/cloudbm-community/pkg/module/employee"
+	"github.com/deb-ict/cloudbm-community/pkg/module/product"
+	"github.com/deb-ict/cloudbm-community/pkg/module/project"
+	"github.com/deb-ict/cloudbm-community/pkg/module/ticket"
+	"github.com/deb-ict/cloudbm-community/pkg/module/timesheet"
+	"github.com/deb-ict/cloudbm-community/pkg/module/user"
 )
 
 type RepositoryFactory interface {
