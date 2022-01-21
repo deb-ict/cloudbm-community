@@ -41,9 +41,18 @@ docker run -d -p 5000:80 cloudbm/community:dev
 
 *comming soon*
 
-## Cloud Hosted CloudBm
-https://www.cloudbm.eu
+## Hosted CloudBm (Enterprise version)
 
+*comming soon*
+
+[DEB-ICT] will provide a hosted version of the application, known as enterprise version.
+
+This version is a saas microservice version hosted on [Kubernetes environment].
+
+
+More information: https://www.cloudbm.eu
+
+[DEB-ICT]: https://www.deb-ict.com
 [Go environment]: https://golang.org/doc/install
 [Docker environment]: https://docs.docker.com/engine
 [Kubernetes environment]: https://kubernetes.io
