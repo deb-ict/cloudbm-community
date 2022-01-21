@@ -42,7 +42,8 @@ func (api *api) RegisterRoutes(r *mux.Router) {
 }
 
 func (api *api) GetUsers(w http.ResponseWriter, r *http.Request) {
-	result, err := api.svc.GetUsers(r.Context(), 0, 25)
+	paging := rest.GetPaging(r)
+	result, err := api.svc.GetUsers(r.Context(), paging.PageIndex, paging.PageSize)
 	if err != nil {
 		rest.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
