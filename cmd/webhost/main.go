@@ -73,7 +73,9 @@ func main() {
 	// Setup the router
 	router := mux.NewRouter().StrictSlash(true)
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
-	router.HandleFunc("/", homeHandler)
+	router.HandleFunc("/", homeHandler).Methods("GET")
+	router.HandleFunc("/home", homeHandler).Methods("GET")
+	router.HandleFunc("/index", homeHandler).Methods("GET")
 
 	// Serve the static files
 	fs := http.FileServer(http.Dir("./web/static/"))
