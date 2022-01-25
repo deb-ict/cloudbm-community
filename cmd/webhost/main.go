@@ -8,7 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/deb-ict/cloudbm-community/pkg/http/web"
 	"github.com/deb-ict/cloudbm-community/pkg/http/webhost"
 	"github.com/deb-ict/cloudbm-community/pkg/module/customer"
 	"github.com/deb-ict/cloudbm-community/pkg/module/employee"
@@ -22,6 +21,21 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Menu struct {
+	Name  string
+	Href  string
+	Items []MenuItem
+}
+
+type MenuItem struct {
+}
+
+type Page struct {
+	Title       string
+	ShowSideBar bool
+	Model       interface{}
+}
+
 func GetConfigPath(configPath string) string {
 	if len(configPath) == 0 {
 		configPath = os.Getenv("CONFIG_PATH")
@@ -33,24 +47,111 @@ func GetConfigPath(configPath string) string {
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	page := template.Must(template.ParseFiles(
+	template := template.Must(template.ParseFiles(
 		"./web/layout/public.html",
 		"./web/pages/404.html",
 	))
-	page.Execute(w, web.Page{
+	template.Execute(w, Page{
 		Title:       "Page not found",
 		ShowSideBar: false,
 	})
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	page := template.Must(template.ParseFiles(
+	template := template.Must(template.ParseFiles(
 		"./web/layout/public.html",
 		"./web/pages/home.html",
 	))
-	page.Execute(w, web.Page{
+	template.Execute(w, Page{
 		Title:       "Home",
 		ShowSideBar: true,
+	})
+}
+
+// ADMIN - CRM - COMPANY
+func adminCrmCompanyOverview_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/company/overview.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+func adminCrmCompanyDetail_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/company/detail.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+func adminCrmCompanyCreate_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/company/create.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+func adminCrmCompanyUpdate_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/company/edit.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+
+// ADMIN - CRM - CONTACT
+
+func adminCrmContactOverview_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/contact/overview.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+func adminCrmContactDetail_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/contact/detail.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+func adminCrmContactCreate_GetHandler(w http.ResponseWriter, r *http.Request) {
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/contact/create.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+	})
+}
+func adminCrmContactUpdate_GetHandler(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	template := template.Must(template.ParseFiles(
+		"./web/layout/public.html",
+		"./web/pages/admin/crm/contact/overview.html",
+	))
+	template.Execute(w, Page{
+		Title:       "Home",
+		ShowSideBar: true,
+		Model:       id,
 	})
 }
 
@@ -76,6 +177,40 @@ func main() {
 	router.HandleFunc("/", homeHandler).Methods("GET")
 	router.HandleFunc("/home", homeHandler).Methods("GET")
 	router.HandleFunc("/index", homeHandler).Methods("GET")
+
+	// Public - ServiceDesk
+	router.HandleFunc("/servicedesk", homeHandler).Methods("GET")
+	router.HandleFunc("/servicedesk/tickets", homeHandler).Methods("GET")
+	router.HandleFunc("/servicedesk/tickets/{id}", homeHandler).Methods("GET")
+	router.HandleFunc("/servicedesk/tickets/submit", homeHandler).Methods("GET")
+
+	// Agent - ServiceDesk
+	router.HandleFunc("/servicedesk/agent/dashboard", homeHandler).Methods("GET")
+	router.HandleFunc("/servicedesk/agent/tickets", homeHandler).Methods("GET")
+	router.HandleFunc("/servicedesk/agent/tickets/{id}", homeHandler).Methods("GET")
+
+	// Admin - HrEmployees
+	router.HandleFunc("/admin/hr/employees", homeHandler).Methods("GET")
+	router.HandleFunc("/admin/hr/employees/{id}", homeHandler).Methods("GET")
+	router.HandleFunc("/admin/hr/employees/create", homeHandler).Methods("GET")
+	router.HandleFunc("/admin/hr/employees/edit/{id}", homeHandler).Methods("GET")
+
+	// Admin - CrmCompanies
+	router.HandleFunc("/admin/crm/companies", adminCrmCompanyOverview_GetHandler).Methods("GET")
+	router.HandleFunc("/admin/crm/companies/{id}", adminCrmCompanyDetail_GetHandler).Methods("GET")
+	router.HandleFunc("/admin/crm/companies/create", adminCrmCompanyCreate_GetHandler).Methods("GET")
+	router.HandleFunc("/admin/crm/companies/edit/{id}", adminCrmCompanyUpdate_GetHandler).Methods("GET")
+
+	// Admin - CrmContacts
+	router.HandleFunc("/admin/crm/contacts", adminCrmContactOverview_GetHandler).Methods("GET")
+	router.HandleFunc("/admin/crm/contacts/{id}", adminCrmContactDetail_GetHandler).Methods("GET")
+	router.HandleFunc("/admin/crm/contacts/create", adminCrmContactCreate_GetHandler).Methods("GET")
+	router.HandleFunc("/admin/crm/contacts/edit/{id}", adminCrmContactUpdate_GetHandler).Methods("GET")
+
+	// Admin - ServiceDesk (metadata)
+	router.HandleFunc("/admin/servicedesk/types", homeHandler).Methods("GET")
+	router.HandleFunc("/admin/servicedesk/statuses", homeHandler).Methods("GET")
+	router.HandleFunc("/admin/servicedesk/priorities", homeHandler).Methods("GET")
 
 	// Serve the static files
 	fs := http.FileServer(http.Dir("./web/static/"))

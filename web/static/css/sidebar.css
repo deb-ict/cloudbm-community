@@ -5,8 +5,19 @@ nav {
     padding-right: 305px;
 }
 
+.sidebar-under-nav {
+    top: 75px;
+}
+
 @media only screen and (max-width: 992px) {
     main, header, footer {
         padding-left: 0px;
+    }
+    nav {
+        padding-right: 5px;
+    }
+    
+    .sidebar-under-nav {
+        top: 0px;
     }
 }
