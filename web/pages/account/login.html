@@ -1,1 +1,33 @@
-{{define "title"}}Home{{end}}
+{{define "title"}}Login{{end}}
+
+{{define "content"}}
+<div class="center-align">
+    <div class="container">
+        <form name="login" method="post" onsubmit="return validateForm()" autocomplete="off">
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="username" name="username" type="text" class="validate" maxlength="30" autocomplete="false" value="{{.Model.Username}}">
+                    <label for="username">Username</label>
+                    {{with .Model.ValidationMessages.Username}}
+                        <p>{{.}}</p>
+                    {{end}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="password" name="password" type="password" class="validate" maxlength="50" value="">
+                    <label for="password">Password</label>
+                    {{with .Model.ValidationMessages.Password}}
+                        <p>{{.}}</p>
+                    {{end}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12 center-align">
+                    <button type="submit" class="btn btn-large">Login</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{{end}}

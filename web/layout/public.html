@@ -28,11 +28,14 @@
                                     <i class="material-icons">notifications</i>
                                 </a>
                             </li>
+                            {{with .Username}}
                             <li>
                                 <a class="waves-effect waves-light" href="javascript:void(0)" data-target="account-dropdown">
                                     <i class="material-icons">account_circle</i>
+                                    {{.}}
                                 </a>
                             </li>
+                            {{end}}
                         </ul>
                     </div>
                     <div class="nav-content">
@@ -49,30 +52,54 @@
         {{if .ShowSideBar}}
         <ul id="sidebar-desktop" class="sidenav sidenav-fixed sidebar-under-nav">
             <li><a class="subheader">Always out except on mobile</a></li>
-            <li class="bold"><a href="/">Home</a></li>
-            <li class="bold"><a href="getting-started.html" class="waves-effect waves-teal">Aan de slag</a></li>
-            <li class="no-padding">
-                <ul class="collapsible collapsible-accordion">
-                    <li class="bold active">
-                        <a class="collapsible-header waves-effect waves-light">CRM</a>
-                        <div class="collapsible-body">
-                            <ul>
-                                <li>
-                                    <a href="/admin/crm/companies">Companies</a>
-                                </li>
-                                <li class="active">
-                                    <a href="/admin/crm/contacts">Contacts</a>
-                                </li>
-                            </ul>
-                        </div>
+            {{range $menu := .NavMenu}}
+                {{if $menu.Items}}
+                    <li class="no-padding">
+                        <ul class="collapsible collapsible-accordion">
+                            <li class="bold {{if $menu.Active}}active{{end}}">
+                                <a class="collapsible-header waves-effect waves-light">{{$menu.Name}}</a>
+                                <div class="collapsible-body">
+                                    <ul>
+                                        {{range $submenu := $menu.Items}}
+                                            <li class=" {{if $submenu.Active}}active{{end}}">
+                                                <a href="{{$submenu.HRef}}">{{$submenu.Name}}</a>
+                                            </li>
+                                        {{end}}
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
                     </li>
-                </ul>
-            </li>
+                {{else}}
+                    <li class="bold {{if $menu.Active}}active{{end}}"><a href="/">{{$menu.Name}}</a></li>
+                {{end}}
+            {{end}}
         </ul>
         {{end}}
 
         <ul id="sidebar-mobile" class="sidenav">
-            <li><a href="/">Home</a></li>
+            {{range $menu := .NavMenu}}
+                {{if $menu.Items}}
+                    <li class="no-padding">
+                        <ul class="collapsible collapsible-accordion">
+                            <li class="bold {{if $menu.Active}}active{{end}}">
+                                <a class="collapsible-header waves-effect waves-light">{{$menu.Name}}</a>
+                                <div class="collapsible-body">
+                                    <ul>
+                                        {{range $submenu := $menu.Items}}
+                                            <li class=" {{if $submenu.Active}}active{{end}}">
+                                                <a href="{{$submenu.HRef}}">{{$submenu.Name}}</a>
+                                            </li>
+                                        {{end}}
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                {{else}}
+                    <li class="bold {{if $menu.Active}}active{{end}}"><a href="/">{{$menu.Name}}</a></li>
+                {{end}}
+            {{end}}
         </ul>
 
         <main>

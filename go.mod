@@ -4,9 +4,12 @@ go 1.17
 
 require (
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/sessions v1.2.1
 	github.com/joho/godotenv v1.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
+
+require github.com/gorilla/securecookie v1.1.1 // indirect
 
 require (
 	github.com/go-stack/stack v1.8.0 // indirect
