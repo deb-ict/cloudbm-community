@@ -2,9 +2,12 @@ package contact
 
 import (
 	"context"
+
+	"github.com/deb-ict/cloudbm-community/pkg/hosting"
 )
 
 type Database interface {
+	hosting.Database
 	GetAddressTypeStore() AddressTypeStore
 	GetPhoneTypeStore() PhoneTypeStore
 	GetEmailTypeStore() EmailTypeStore

@@ -28,7 +28,7 @@ func (svc *service) CreateUrlType(ctx context.Context, urlType UrlType) (*UrlTyp
 	}
 
 	if urlType.IsDefault {
-		err = NewService().ResetDefaultUrlType(ctx)
+		err = svc.ResetDefaultUrlType(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func (svc *service) UpdateUrlType(ctx context.Context, id string, urlType UrlTyp
 	}
 
 	if urlType.IsDefault {
-		err = NewService().ResetDefaultUrlType(ctx)
+		err = svc.ResetDefaultUrlType(ctx)
 		if err != nil {
 			return nil, err
 		}

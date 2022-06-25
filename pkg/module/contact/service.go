@@ -40,7 +40,6 @@ var (
 
 type Service interface {
 	GetDatabase() Database
-	SetDatabase(database Database)
 
 	GetAddressTypes(ctx context.Context, pageIndex int, pageSize int) (*AddressTypeList, error)
 	GetAddressTypeById(ctx context.Context, id string) (*AddressType, error)
@@ -132,8 +131,10 @@ type Service interface {
 	ResetPrimaryCompanyUrl(ctx context.Context, companyId string) error
 }
 
-func NewService() Service {
-	return &service{}
+func newService(db Database) Service {
+	return &service{
+		database: db,
+	}
 }
 
 type service struct {
@@ -142,8 +143,4 @@ type service struct {
 
 func (svc *service) GetDatabase() Database {
 	return svc.database
-}
-
-func (svc *service) SetDatabase(database Database) {
-	svc.database = database
 }

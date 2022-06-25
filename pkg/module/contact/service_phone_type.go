@@ -28,7 +28,7 @@ func (svc *service) CreatePhoneType(ctx context.Context, phoneType PhoneType) (*
 	}
 
 	if phoneType.IsDefault {
-		err = NewService().ResetDefaultPhoneType(ctx)
+		err = svc.ResetDefaultPhoneType(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func (svc *service) UpdatePhoneType(ctx context.Context, id string, phoneType Ph
 	}
 
 	if phoneType.IsDefault {
-		err = NewService().ResetDefaultPhoneType(ctx)
+		err = svc.ResetDefaultPhoneType(ctx)
 		if err != nil {
 			return nil, err
 		}

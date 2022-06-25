@@ -18,70 +18,39 @@ var (
 	ErrAlreadyRunning error = errors.New("host already running")
 )
 
+type MiddlewareFunc func(http.Handler) http.Handler
+
 type Host interface {
+	Run() error
 	GetConfig() HostConfig
 	GetConfigPath() string
 	SetConfigPath(configPath string)
-	GetHttpHandler() http.Handler
-	SetHttpHandler(handler http.Handler)
+	GetHttpRouter() *mux.Router
+	SetHttpRouter(router *mux.Router)
 	GetGrpcServer() *grpc.Server
 	SetGrpcServer(server *grpc.Server)
-	Run() error
+	UseMiddleware(middleware MiddlewareFunc)
 	IsRunning() bool
 }
 
 func NewHost() Host {
 	return &host{
-		config: newHostConfig(),
+		config:      newHostConfig(),
+		middlewares: make([]MiddlewareFunc, 0),
+		modules:     make(map[string]Module),
 	}
 }
 
 type host struct {
 	config       HostConfig
 	configPath   string
-	httpHandler  http.Handler
+	httpRouter   *mux.Router
 	httpServer   *http.Server
 	grpcServer   *grpc.Server
 	grpcListener net.Listener
+	middlewares  []MiddlewareFunc
+	modules      map[string]Module
 	isRunning    bool
-}
-
-func (host *host) GetConfig() HostConfig {
-	return host.config
-}
-
-func (host *host) GetConfigPath() string {
-	return host.configPath
-}
-
-func (host *host) SetConfigPath(configPath string) {
-	host.configPath = configPath
-}
-
-func (host *host) GetHttpHandler() http.Handler {
-	if !host.isRunning && host.httpHandler == nil {
-		host.httpHandler = mux.NewRouter().StrictSlash(true)
-	}
-	return host.httpHandler
-}
-
-func (host *host) SetHttpHandler(handler http.Handler) {
-	if !host.isRunning {
-		host.httpHandler = handler
-	}
-}
-
-func (host *host) GetGrpcServer() *grpc.Server {
-	if !host.isRunning && host.grpcServer == nil {
-		host.grpcServer = grpc.NewServer()
-	}
-	return host.grpcServer
-}
-
-func (host *host) SetGrpcServer(server *grpc.Server) {
-	if !host.isRunning {
-		host.grpcServer = server
-	}
 }
 
 func (host *host) Run() error {
@@ -104,8 +73,14 @@ func (host *host) Run() error {
 		return err
 	}
 
+	// Load the module configs
+	err = host.loadModuleConfigs(configPath)
+	if err != nil {
+		return err
+	}
+
 	// Start the http server
-	if host.httpHandler != nil {
+	if host.httpRouter != nil {
 		defer host.stopHttpServer()
 		err = host.startHttpServer()
 		if err != nil {
@@ -136,6 +111,48 @@ func (host *host) Run() error {
 	return nil
 }
 
+func (host *host) GetConfig() HostConfig {
+	return host.config
+}
+
+func (host *host) GetConfigPath() string {
+	return host.configPath
+}
+
+func (host *host) SetConfigPath(configPath string) {
+	host.configPath = configPath
+}
+
+func (host *host) GetHttpRouter() *mux.Router {
+	if !host.isRunning && host.httpRouter == nil {
+		host.httpRouter = mux.NewRouter().StrictSlash(true)
+	}
+	return host.httpRouter
+}
+
+func (host *host) SetHttpRouter(router *mux.Router) {
+	if !host.isRunning {
+		host.httpRouter = router
+	}
+}
+
+func (host *host) GetGrpcServer() *grpc.Server {
+	if !host.isRunning && host.grpcServer == nil {
+		host.grpcServer = grpc.NewServer()
+	}
+	return host.grpcServer
+}
+
+func (host *host) SetGrpcServer(server *grpc.Server) {
+	if !host.isRunning {
+		host.grpcServer = server
+	}
+}
+
+func (host *host) UseMiddleware(middleware MiddlewareFunc) {
+	host.middlewares = append(host.middlewares, middleware)
+}
+
 func (host *host) IsRunning() bool {
 	return host.isRunning
 }
@@ -150,11 +167,25 @@ func (host *host) getConfigPath() string {
 
 func (host *host) startHttpServer() error {
 	httpServerAddress := host.config.GetHttpConfig().GetBindAddress()
-	logrus.Info("Starting http server: %s", httpServerAddress)
+	logrus.Infof("Starting http server: %s", httpServerAddress)
+
+	// Register the api routes
+	httpRouter := host.GetHttpRouter()
+	err := host.registerModuleApiRoutes(httpRouter)
+	if err != nil {
+		return err
+	}
+
+	// Setup the http handler chain
+	var httpHandler http.Handler
+	httpHandler = host.GetHttpRouter()
+	for _, middleware := range host.middlewares {
+		httpHandler = middleware(httpHandler)
+	}
 
 	// Create the http server
 	host.httpServer = &http.Server{
-		Handler:      host.GetHttpHandler(),
+		Handler:      httpHandler,
 		Addr:         httpServerAddress,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
@@ -187,13 +218,21 @@ func (host *host) stopHttpServer() {
 
 func (host *host) startGrpcServer() error {
 	grpcServerAddress := host.config.GetGrpcConfig().GetBindAddress()
-	logrus.Info("Starting grpc server: %s", grpcServerAddress)
+	logrus.Infof("Starting grpc server: %s", grpcServerAddress)
 
+	// Register the module grpc services
+	server := host.GetGrpcServer()
+	err := host.registerModuleGrpcServices(server)
+	if err != nil {
+		return err
+	}
+
+	// Run the grpc server
 	listener, err := net.Listen("tcp", grpcServerAddress)
 	if err != nil {
 		return err
 	}
-	if err := host.GetGrpcServer().Serve(listener); err != nil {
+	if err := server.Serve(listener); err != nil {
 		return err
 	}
 
@@ -206,4 +245,37 @@ func (host *host) stopGrpcServer() {
 	// Stop the GRPC server
 	host.grpcServer.Stop()
 	host.grpcListener.Close()
+}
+
+func (host *host) loadModuleConfigs(configPath string) error {
+	var err error
+	for _, module := range host.modules {
+		err = module.LoadConfig(configPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (host *host) registerModuleApiRoutes(router *mux.Router) error {
+	var err error
+	for _, module := range host.modules {
+		err = module.RegisterApiRoutes(router)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (host *host) registerModuleGrpcServices(server *grpc.Server) error {
+	var err error
+	for _, module := range host.modules {
+		err = module.RegisterGrpcServices(server)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

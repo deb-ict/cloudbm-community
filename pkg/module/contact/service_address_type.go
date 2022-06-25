@@ -28,7 +28,7 @@ func (svc *service) CreateAddressType(ctx context.Context, addressType AddressTy
 	}
 
 	if addressType.IsDefault {
-		err = NewService().ResetDefaultAddressType(ctx)
+		err = svc.ResetDefaultAddressType(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, addressTyp
 	}
 
 	if addressType.IsDefault {
-		err = NewService().ResetDefaultAddressType(ctx)
+		err = svc.ResetDefaultAddressType(ctx)
 		if err != nil {
 			return nil, err
 		}

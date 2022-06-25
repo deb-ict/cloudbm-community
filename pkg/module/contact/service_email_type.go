@@ -28,7 +28,7 @@ func (svc *service) CreateEmailType(ctx context.Context, emailType EmailType) (*
 	}
 
 	if emailType.IsDefault {
-		err = NewService().ResetDefaultEmailType(ctx)
+		err = svc.ResetDefaultEmailType(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, emailType Em
 	}
 
 	if emailType.IsDefault {
-		err = NewService().ResetDefaultEmailType(ctx)
+		err = svc.ResetDefaultEmailType(ctx)
 		if err != nil {
 			return nil, err
 		}

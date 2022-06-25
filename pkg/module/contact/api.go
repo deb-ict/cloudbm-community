@@ -8,7 +8,6 @@ import (
 
 type ApiHandler interface {
 	GetService() Service
-	SetService(service Service)
 	RegisterRoutes(r *mux.Router)
 
 	GetAddressTypes(w http.ResponseWriter, r *http.Request)
@@ -90,9 +89,9 @@ type ApiHandler interface {
 	DeleteCompanyUrl(w http.ResponseWriter, r *http.Request)
 }
 
-func NewApiHandler(service Service) ApiHandler {
+func newApiHandler(svc Service) ApiHandler {
 	api := &apiHandler{
-		service: service,
+		service: svc,
 	}
 	return api
 }
@@ -103,10 +102,6 @@ type apiHandler struct {
 
 func (api *apiHandler) GetService() Service {
 	return api.service
-}
-
-func (api *apiHandler) SetService(service Service) {
-	api.service = service
 }
 
 func (api *apiHandler) RegisterRoutes(r *mux.Router) {
@@ -191,5 +186,4 @@ func (api *apiHandler) registerV1Routes(r *mux.Router) {
 	r.HandleFunc("/v1/company/{companyId}/url", api.CreateCompanyUrl).Methods(http.MethodPost)
 	r.HandleFunc("/v1/company/{companyId}/url/{id}", api.UpdateCompanyUrl).Methods(http.MethodPut)
 	r.HandleFunc("/v1/company/{companyId}/url/{id}", api.DeleteCompanyUrl).Methods(http.MethodDelete)
-
 }

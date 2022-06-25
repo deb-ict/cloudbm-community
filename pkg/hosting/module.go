@@ -5,6 +5,10 @@ import (
 	"google.golang.org/grpc"
 )
 
+type Database interface {
+	LoadConfig(configPath string) error
+}
+
 type Module interface {
 	LoadConfig(configPath string) error
 	RegisterApiRoutes(router *mux.Router) error
