@@ -22,8 +22,8 @@ type Host interface {
 	GetConfig() HostConfig
 	GetConfigPath() string
 	SetConfigPath(configPath string)
-	GetHttpRouter() *mux.Router
-	SetHttpRouter(router *mux.Router)
+	GetHttpHandler() http.Handler
+	SetHttpHandler(handler http.Handler)
 	GetGrpcServer() *grpc.Server
 	SetGrpcServer(server *grpc.Server)
 	Run() error
@@ -39,7 +39,7 @@ func NewHost() Host {
 type host struct {
 	config       HostConfig
 	configPath   string
-	httpRouter   *mux.Router
+	httpHandler  http.Handler
 	httpServer   *http.Server
 	grpcServer   *grpc.Server
 	grpcListener net.Listener
@@ -58,16 +58,16 @@ func (host *host) SetConfigPath(configPath string) {
 	host.configPath = configPath
 }
 
-func (host *host) GetHttpRouter() *mux.Router {
-	if !host.isRunning && host.httpRouter == nil {
-		host.httpRouter = mux.NewRouter().StrictSlash(true)
+func (host *host) GetHttpHandler() http.Handler {
+	if !host.isRunning && host.httpHandler == nil {
+		host.httpHandler = mux.NewRouter().StrictSlash(true)
 	}
-	return host.httpRouter
+	return host.httpHandler
 }
 
-func (host *host) SetHttpRouter(router *mux.Router) {
+func (host *host) SetHttpHandler(handler http.Handler) {
 	if !host.isRunning {
-		host.httpRouter = router
+		host.httpHandler = handler
 	}
 }
 
@@ -105,7 +105,7 @@ func (host *host) Run() error {
 	}
 
 	// Start the http server
-	if host.httpRouter != nil {
+	if host.httpHandler != nil {
 		defer host.stopHttpServer()
 		err = host.startHttpServer()
 		if err != nil {
@@ -154,7 +154,7 @@ func (host *host) startHttpServer() error {
 
 	// Create the http server
 	host.httpServer = &http.Server{
-		Handler:      host.GetHttpRouter(),
+		Handler:      host.GetHttpHandler(),
 		Addr:         httpServerAddress,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
