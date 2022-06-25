@@ -15,7 +15,9 @@ import (
 )
 
 var (
-	ErrAlreadyRunning error = errors.New("host already running")
+	ErrAlreadyRunning  error = errors.New("host already running")
+	ErrModuleDuplicate error = errors.New("module already exists")
+	ErrModuleNotFound  error = errors.New("module not found")
 )
 
 type MiddlewareFunc func(http.Handler) http.Handler
@@ -30,6 +32,8 @@ type Host interface {
 	GetGrpcServer() *grpc.Server
 	SetGrpcServer(server *grpc.Server)
 	UseMiddleware(middleware MiddlewareFunc)
+	AddModule(name string, module Module) error
+	GetModule(name string) (Module, error)
 	IsRunning() bool
 }
 
@@ -151,6 +155,23 @@ func (host *host) SetGrpcServer(server *grpc.Server) {
 
 func (host *host) UseMiddleware(middleware MiddlewareFunc) {
 	host.middlewares = append(host.middlewares, middleware)
+}
+
+func (host *host) AddModule(name string, module Module) error {
+	_, found := host.modules[name]
+	if found {
+		return ErrModuleDuplicate
+	}
+	host.modules[name] = module
+	return nil
+}
+
+func (host *host) GetModule(name string) (Module, error) {
+	module, found := host.modules[name]
+	if !found {
+		return nil, ErrModuleNotFound
+	}
+	return module, nil
 }
 
 func (host *host) IsRunning() bool {
