@@ -7,51 +7,55 @@ import (
 )
 
 type AddressType struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	IsDefault bool   `json:"is_default"`
-	IsSystem  bool   `json:"is_system"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	IsDefault   bool   `json:"is_default"`
+	IsSystem    bool   `json:"is_system"`
 }
 
 type AddressTypeList struct {
 	rest.PaginatedList
-	Items []AddressType `json:"items"`
+	Items []*AddressType `json:"items"`
 }
 
 type PhoneType struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	IsDefault bool   `json:"is_default"`
-	IsSystem  bool   `json:"is_system"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	IsDefault   bool   `json:"is_default"`
+	IsSystem    bool   `json:"is_system"`
 }
 
 type PhoneTypeList struct {
 	rest.PaginatedList
-	Items []PhoneType `json:"items"`
+	Items []*PhoneType `json:"items"`
 }
 
 type EmailType struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	IsDefault bool   `json:"is_default"`
-	IsSystem  bool   `json:"is_system"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	IsDefault   bool   `json:"is_default"`
+	IsSystem    bool   `json:"is_system"`
 }
 
 type EmailTypeList struct {
 	rest.PaginatedList
-	Items []EmailType `json:"items"`
+	Items []*EmailType `json:"items"`
 }
 
 type UrlType struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	IsDefault bool   `json:"is_default"`
-	IsSystem  bool   `json:"is_system"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	IsDefault   bool   `json:"is_default"`
+	IsSystem    bool   `json:"is_system"`
 }
 
 type UrlTypeList struct {
 	rest.PaginatedList
-	Items []UrlType `json:"items"`
+	Items []*UrlType `json:"items"`
 }
 
 type Address struct {
@@ -67,7 +71,7 @@ type Address struct {
 
 type AddressList struct {
 	rest.PaginatedList
-	Items []Address `json:"items"`
+	Items []*Address `json:"items"`
 }
 
 type Phone struct {
@@ -79,7 +83,7 @@ type Phone struct {
 
 type PhoneList struct {
 	rest.PaginatedList
-	Items []Phone `json:"items"`
+	Items []*Phone `json:"items"`
 }
 
 type Email struct {
@@ -91,7 +95,7 @@ type Email struct {
 
 type EmailList struct {
 	rest.PaginatedList
-	Items []Email `json:"items"`
+	Items []*Email `json:"items"`
 }
 
 type Url struct {
@@ -103,7 +107,7 @@ type Url struct {
 
 type UrlList struct {
 	rest.PaginatedList
-	Items []Url `json:"items"`
+	Items []*Url `json:"items"`
 }
 
 type Contact struct {
@@ -119,7 +123,7 @@ type Contact struct {
 
 type ContactList struct {
 	rest.PaginatedList
-	Items []Contact `json:"items"`
+	Items []*Contact `json:"items"`
 }
 
 type Company struct {
@@ -131,5 +135,5 @@ type Company struct {
 
 type CompanyList struct {
 	rest.PaginatedList
-	Items []Company `json:"items"`
+	Items []*Company `json:"items"`
 }

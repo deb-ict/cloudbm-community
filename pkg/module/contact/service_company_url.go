@@ -100,6 +100,9 @@ func (svc *service) UpdateCompanyUrl(ctx context.Context, companyId string, id s
 	if existing == nil {
 		return nil, ErrCompanyUrlNotFound
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	urlType, err := svc.database.GetUrlTypeStore().GetUrlTypeById(ctx, url.TypeId)
 	if urlType == nil && err == nil {
@@ -149,6 +152,9 @@ func (svc *service) DeleteCompanyUrl(ctx context.Context, companyId string, id s
 	existing, err := svc.database.GetCompanyUrlStore().GetCompanyUrlById(ctx, companyId, id)
 	if existing == nil {
 		return ErrCompanyUrlNotFound
+	}
+	if err != nil {
+		return err
 	}
 
 	return svc.database.GetCompanyUrlStore().DeleteCompanyUrl(ctx, companyId, id)

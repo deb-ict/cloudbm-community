@@ -100,6 +100,9 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 	if existing == nil {
 		return nil, ErrCompanyEmailNotFound
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	emailType, err := svc.database.GetEmailTypeStore().GetEmailTypeById(ctx, email.TypeId)
 	if emailType == nil && err == nil {
@@ -149,6 +152,9 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 	existing, err := svc.database.GetCompanyEmailStore().GetCompanyEmailById(ctx, companyId, id)
 	if existing == nil {
 		return ErrCompanyEmailNotFound
+	}
+	if err != nil {
+		return err
 	}
 
 	return svc.database.GetCompanyEmailStore().DeleteCompanyEmail(ctx, companyId, id)

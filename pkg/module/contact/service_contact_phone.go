@@ -100,6 +100,9 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 	if existing == nil {
 		return nil, ErrContactPhoneNotFound
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	phoneType, err := svc.database.GetPhoneTypeStore().GetPhoneTypeById(ctx, phone.TypeId)
 	if phoneType == nil && err == nil {
@@ -149,6 +152,9 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 	existing, err := svc.database.GetContactPhoneStore().GetContactPhoneById(ctx, contactId, id)
 	if existing == nil {
 		return ErrContactPhoneNotFound
+	}
+	if err != nil {
+		return err
 	}
 
 	return svc.database.GetContactPhoneStore().DeleteContactPhone(ctx, contactId, id)

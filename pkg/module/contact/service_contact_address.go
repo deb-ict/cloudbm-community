@@ -100,6 +100,9 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 	if existing == nil {
 		return nil, ErrContactAddressNotFound
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	addressType, err := svc.database.GetAddressTypeStore().GetAddressTypeById(ctx, address.TypeId)
 	if addressType == nil && err == nil {
@@ -149,6 +152,9 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 	existing, err := svc.database.GetContactAddressStore().GetContactAddressById(ctx, contactId, id)
 	if existing == nil {
 		return ErrContactAddressNotFound
+	}
+	if err != nil {
+		return err
 	}
 
 	return svc.database.GetContactAddressStore().DeleteContactAddress(ctx, contactId, id)
