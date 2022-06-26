@@ -42,6 +42,7 @@ func (api *apiHandler) CreateUrlType(w http.ResponseWriter, r *http.Request) {
 		rest.WriteError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	model.IsSystem = false
 
 	result, err := api.service.CreateUrlType(r.Context(), model)
 	if err == ErrUrlTypeDuplicate {

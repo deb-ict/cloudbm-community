@@ -42,6 +42,7 @@ func (api *apiHandler) CreateEmailType(w http.ResponseWriter, r *http.Request) {
 		rest.WriteError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	model.IsSystem = false
 
 	result, err := api.service.CreateEmailType(r.Context(), model)
 	if err == ErrEmailTypeDuplicate {
