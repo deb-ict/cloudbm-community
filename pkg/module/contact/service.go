@@ -46,6 +46,7 @@ type Service interface {
 	CreateAddressType(ctx context.Context, addressType AddressType) (*AddressType, error)
 	UpdateAddressType(ctx context.Context, id string, addressType AddressType) (*AddressType, error)
 	DeleteAddressType(ctx context.Context, id string) error
+	SetDefaultAddressType(ctx context.Context, id string) error
 	ResetDefaultAddressType(ctx context.Context) error
 
 	GetPhoneTypes(ctx context.Context, pageIndex int, pageSize int) (*PhoneTypeList, error)
@@ -53,6 +54,7 @@ type Service interface {
 	CreatePhoneType(ctx context.Context, phoneType PhoneType) (*PhoneType, error)
 	UpdatePhoneType(ctx context.Context, id string, phoneType PhoneType) (*PhoneType, error)
 	DeletePhoneType(ctx context.Context, id string) error
+	SetDefaultPhoneType(ctx context.Context, id string) error
 	ResetDefaultPhoneType(ctx context.Context) error
 
 	GetEmailTypes(ctx context.Context, pageIndex int, pageSize int) (*EmailTypeList, error)
@@ -60,6 +62,7 @@ type Service interface {
 	CreateEmailType(ctx context.Context, emailType EmailType) (*EmailType, error)
 	UpdateEmailType(ctx context.Context, id string, emailType EmailType) (*EmailType, error)
 	DeleteEmailType(ctx context.Context, id string) error
+	SetDefaultEmailType(ctx context.Context, id string) error
 	ResetDefaultEmailType(ctx context.Context) error
 
 	GetUrlTypes(ctx context.Context, pageIndex int, pageSize int) (*UrlTypeList, error)
@@ -67,6 +70,7 @@ type Service interface {
 	CreateUrlType(ctx context.Context, urlType UrlType) (*UrlType, error)
 	UpdateUrlType(ctx context.Context, id string, urlType UrlType) (*UrlType, error)
 	DeleteUrlType(ctx context.Context, id string) error
+	SetDefaultUrlType(ctx context.Context, id string) error
 	ResetDefaultUrlType(ctx context.Context) error
 
 	GetContacts(ctx context.Context, pageIndex int, pageSize int) (*ContactList, error)

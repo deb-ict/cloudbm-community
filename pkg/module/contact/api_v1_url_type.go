@@ -102,3 +102,19 @@ func (api *apiHandler) DeleteUrlType(w http.ResponseWriter, r *http.Request) {
 
 	rest.WriteStatus(w, http.StatusNoContent)
 }
+
+func (api *apiHandler) SetUrlTypeAsDefault(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	err := api.service.SetDefaultUrlType(r.Context(), id)
+	if err == ErrUrlTypeNotFound {
+		rest.WriteError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	if err != nil {
+		rest.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	rest.WriteStatus(w, http.StatusNoContent)
+}

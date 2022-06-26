@@ -114,24 +114,28 @@ func (api *apiHandler) registerV1Routes(r *mux.Router) {
 	r.HandleFunc("/v1/address_type", api.CreateAddressType).Methods(http.MethodPost)
 	r.HandleFunc("/v1/address_type/{id}", api.UpdateAddressType).Methods(http.MethodPut)
 	r.HandleFunc("/v1/address_type/{id}", api.DeleteAddressType).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/address_type/{id}/default", api.SetAddressTypeAsDefault).Methods(http.MethodPut)
 
 	r.HandleFunc("/v1/phone_type", api.GetPhoneTypes).Methods(http.MethodGet)
 	r.HandleFunc("/v1/phone_type/{id}", api.GetPhoneTypeById).Methods(http.MethodGet)
 	r.HandleFunc("/v1/phone_type", api.CreatePhoneType).Methods(http.MethodPost)
 	r.HandleFunc("/v1/phone_type/{id}", api.UpdatePhoneType).Methods(http.MethodPut)
 	r.HandleFunc("/v1/phone_type/{id}", api.DeletePhoneType).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/phone_type/{id}/default", api.SetPhoneTypeAsDefault).Methods(http.MethodPut)
 
 	r.HandleFunc("/v1/email_type", api.GetEmailTypes).Methods(http.MethodGet)
 	r.HandleFunc("/v1/email_type/{id}", api.GetEmailTypeById).Methods(http.MethodGet)
 	r.HandleFunc("/v1/email_type", api.CreateEmailType).Methods(http.MethodPost)
 	r.HandleFunc("/v1/email_type/{id}", api.UpdateEmailType).Methods(http.MethodPut)
 	r.HandleFunc("/v1/email_type/{id}", api.DeleteEmailType).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/email_type/{id}/default", api.SetEmailTypeAsDefault).Methods(http.MethodPut)
 
 	r.HandleFunc("/v1/url_type", api.GetUrlTypes).Methods(http.MethodGet)
 	r.HandleFunc("/v1/url_type/{id}", api.GetUrlTypeById).Methods(http.MethodGet)
 	r.HandleFunc("/v1/url_type", api.CreateUrlType).Methods(http.MethodPost)
 	r.HandleFunc("/v1/url_type/{id}", api.UpdateUrlType).Methods(http.MethodPut)
 	r.HandleFunc("/v1/url_type/{id}", api.DeleteUrlType).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/url_type/{id}/default", api.SetUrlTypeAsDefault).Methods(http.MethodPut)
 
 	r.HandleFunc("/v1/contact", api.GetContacts).Methods(http.MethodGet)
 	r.HandleFunc("/v1/contact/{id}", api.GetContactById).Methods(http.MethodGet)

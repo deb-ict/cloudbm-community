@@ -60,7 +60,7 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, emailType Em
 		return nil, ErrEmailTypeReadOnly
 	}
 
-	if emailType.IsDefault {
+	if emailType.IsDefault && !existing.IsDefault {
 		err = svc.ResetDefaultEmailType(ctx)
 		if err != nil {
 			return nil, err
@@ -93,6 +93,36 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 	}
 
 	return svc.database.GetEmailTypeStore().DeleteEmailType(ctx, id)
+}
+
+func (svc *service) SetDefaultEmailType(ctx context.Context, id string) error {
+	var err error
+
+	//TODO: Validate id
+	//TODO: Validate model
+
+	existing, err := svc.database.GetEmailTypeStore().GetEmailTypeById(ctx, id)
+	if existing == nil && err == nil {
+		return ErrEmailTypeNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	if !existing.IsDefault {
+		err = svc.ResetDefaultEmailType(ctx)
+		if err != nil {
+			return err
+		}
+
+		existing.IsDefault = true
+		err = svc.database.GetEmailTypeStore().UpdateEmailType(ctx, id, *existing)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (svc *service) ResetDefaultEmailType(ctx context.Context) error {

@@ -102,3 +102,19 @@ func (api *apiHandler) DeleteEmailType(w http.ResponseWriter, r *http.Request) {
 
 	rest.WriteStatus(w, http.StatusNoContent)
 }
+
+func (api *apiHandler) SetEmailTypeAsDefault(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+
+	err := api.service.SetDefaultEmailType(r.Context(), id)
+	if err == ErrEmailTypeNotFound {
+		rest.WriteError(w, http.StatusNotFound, err.Error())
+		return
+	}
+	if err != nil {
+		rest.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	rest.WriteStatus(w, http.StatusNoContent)
+}

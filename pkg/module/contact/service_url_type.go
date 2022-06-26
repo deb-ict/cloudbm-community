@@ -60,7 +60,7 @@ func (svc *service) UpdateUrlType(ctx context.Context, id string, urlType UrlTyp
 		return nil, ErrUrlTypeReadOnly
 	}
 
-	if urlType.IsDefault {
+	if urlType.IsDefault && !existing.IsDefault {
 		err = svc.ResetDefaultUrlType(ctx)
 		if err != nil {
 			return nil, err
@@ -93,6 +93,36 @@ func (svc *service) DeleteUrlType(ctx context.Context, id string) error {
 	}
 
 	return svc.database.GetUrlTypeStore().DeleteUrlType(ctx, id)
+}
+
+func (svc *service) SetDefaultUrlType(ctx context.Context, id string) error {
+	var err error
+
+	//TODO: Validate id
+	//TODO: Validate model
+
+	existing, err := svc.database.GetUrlTypeStore().GetUrlTypeById(ctx, id)
+	if existing == nil && err == nil {
+		return ErrUrlTypeNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	if !existing.IsDefault {
+		err = svc.ResetDefaultUrlType(ctx)
+		if err != nil {
+			return err
+		}
+
+		existing.IsDefault = true
+		err = svc.database.GetUrlTypeStore().UpdateUrlType(ctx, id, *existing)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (svc *service) ResetDefaultUrlType(ctx context.Context) error {

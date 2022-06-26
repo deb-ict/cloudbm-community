@@ -60,7 +60,7 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, addressTyp
 		return nil, ErrAddressTypeReadOnly
 	}
 
-	if addressType.IsDefault {
+	if addressType.IsDefault && !existing.IsDefault {
 		err = svc.ResetDefaultAddressType(ctx)
 		if err != nil {
 			return nil, err
@@ -93,6 +93,36 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 	}
 
 	return svc.database.GetAddressTypeStore().DeleteAddressType(ctx, id)
+}
+
+func (svc *service) SetDefaultAddressType(ctx context.Context, id string) error {
+	var err error
+
+	//TODO: Validate id
+	//TODO: Validate model
+
+	existing, err := svc.database.GetAddressTypeStore().GetAddressTypeById(ctx, id)
+	if existing == nil && err == nil {
+		return ErrAddressTypeNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	if !existing.IsDefault {
+		err = svc.ResetDefaultAddressType(ctx)
+		if err != nil {
+			return err
+		}
+
+		existing.IsDefault = true
+		err = svc.database.GetAddressTypeStore().UpdateAddressType(ctx, id, *existing)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (svc *service) ResetDefaultAddressType(ctx context.Context) error {
