@@ -23,7 +23,7 @@ func (svc *service) CreatePhoneType(ctx context.Context, phoneType PhoneType) (*
 	if duplicate != nil {
 		return nil, ErrPhoneTypeDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrPhoneTypeNotFound {
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (svc *service) UpdatePhoneType(ctx context.Context, id string, phoneType Ph
 	//TODO: Validate model
 
 	existing, err := svc.database.GetPhoneTypeStore().GetPhoneTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return nil, ErrPhoneTypeNotFound
 	}
 	if err != nil {
@@ -81,7 +81,7 @@ func (svc *service) DeletePhoneType(ctx context.Context, id string) error {
 	//TODO: Validate id
 
 	existing, err := svc.database.GetPhoneTypeStore().GetPhoneTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return ErrPhoneTypeNotFound
 	}
 	if err != nil {
@@ -99,7 +99,7 @@ func (svc *service) ResetDefaultPhoneType(ctx context.Context) error {
 	var err error
 
 	defaultType, err := svc.database.GetPhoneTypeStore().GetDefaultPhoneType(ctx)
-	if err != nil {
+	if err != nil && err != ErrPhoneTypeNotFound {
 		return err
 	}
 

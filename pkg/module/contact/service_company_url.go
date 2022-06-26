@@ -61,9 +61,9 @@ func (svc *service) CreateCompanyUrl(ctx context.Context, companyId string, url 
 
 	duplicate, err := svc.database.GetCompanyUrlStore().GetCompanyUrlByType(ctx, companyId, url.TypeId)
 	if duplicate != nil {
-		return nil, ErrCompanyeUrlDuplicate
+		return nil, ErrCompanyUrlDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyUrlNotFound {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (svc *service) UpdateCompanyUrl(ctx context.Context, companyId string, id s
 	}
 
 	existing, err := svc.database.GetCompanyUrlStore().GetCompanyUrlById(ctx, companyId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return nil, ErrCompanyUrlNotFound
 	}
 	if err != nil {
@@ -114,9 +114,9 @@ func (svc *service) UpdateCompanyUrl(ctx context.Context, companyId string, id s
 
 	duplicate, err := svc.database.GetCompanyUrlStore().GetCompanyUrlByType(ctx, companyId, url.TypeId)
 	if duplicate != nil {
-		return nil, ErrCompanyeUrlDuplicate
+		return nil, ErrCompanyUrlDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyUrlNotFound {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (svc *service) DeleteCompanyUrl(ctx context.Context, companyId string, id s
 	}
 
 	existing, err := svc.database.GetCompanyUrlStore().GetCompanyUrlById(ctx, companyId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return ErrCompanyUrlNotFound
 	}
 	if err != nil {
@@ -164,7 +164,7 @@ func (svc *service) ResetPrimaryCompanyUrl(ctx context.Context, companyId string
 	var err error
 
 	primary, err := svc.database.GetCompanyUrlStore().GetCompanyPrimaryUrl(ctx, companyId)
-	if err != nil {
+	if err != nil && err != ErrCompanyUrlNotFound {
 		return err
 	}
 

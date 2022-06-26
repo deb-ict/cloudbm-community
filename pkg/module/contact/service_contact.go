@@ -23,7 +23,7 @@ func (svc *service) CreateContact(ctx context.Context, contact Contact) (*Contac
 	if duplicate != nil {
 		return nil, ErrContactDuplicateName
 	}
-	if err != nil {
+	if err != nil && err != ErrContactNotFound {
 		return nil, err
 	}
 
@@ -42,7 +42,7 @@ func (svc *service) UpdateContact(ctx context.Context, id string, contact Contac
 	//TODO: Validate model
 
 	existing, err := svc.database.GetContactStore().GetContactById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return nil, ErrContactNotFound
 	}
 	if err != nil {
@@ -63,7 +63,7 @@ func (svc *service) DeleteContact(ctx context.Context, id string) error {
 	//TODO: Validate id
 
 	existing, err := svc.database.GetContactStore().GetContactById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return ErrContactNotFound
 	}
 	if err != nil {

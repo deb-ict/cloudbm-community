@@ -63,7 +63,7 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 	if duplicate != nil {
 		return nil, ErrContactAddressDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrContactAddressNotFound {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 	}
 
 	existing, err := svc.database.GetContactAddressStore().GetContactAddressById(ctx, contactId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return nil, ErrContactAddressNotFound
 	}
 	if err != nil {
@@ -116,7 +116,7 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 	if duplicate != nil {
 		return nil, ErrContactAddressDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrContactAddressNotFound {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 	}
 
 	existing, err := svc.database.GetContactAddressStore().GetContactAddressById(ctx, contactId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return ErrContactAddressNotFound
 	}
 	if err != nil {
@@ -164,7 +164,7 @@ func (svc *service) ResetPrimaryContactAddress(ctx context.Context, contactId st
 	var err error
 
 	primary, err := svc.database.GetContactAddressStore().GetContactPrimaryAddress(ctx, contactId)
-	if err != nil {
+	if err != nil && err != ErrContactAddressNotFound {
 		return err
 	}
 

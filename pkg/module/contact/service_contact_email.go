@@ -63,7 +63,7 @@ func (svc *service) CreateContactEmail(ctx context.Context, contactId string, em
 	if duplicate != nil {
 		return nil, ErrContactEmailDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrContactEmailNotFound {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id
 	}
 
 	existing, err := svc.database.GetContactEmailStore().GetContactEmailById(ctx, contactId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return nil, ErrContactEmailNotFound
 	}
 	if err != nil {
@@ -116,7 +116,7 @@ func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id
 	if duplicate != nil {
 		return nil, ErrContactEmailDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrContactEmailNotFound {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (svc *service) DeleteContactEmail(ctx context.Context, contactId string, id
 	}
 
 	existing, err := svc.database.GetContactEmailStore().GetContactEmailById(ctx, contactId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return ErrContactEmailNotFound
 	}
 	if err != nil {
@@ -164,7 +164,7 @@ func (svc *service) ResetPrimaryContactEmail(ctx context.Context, contactId stri
 	var err error
 
 	primary, err := svc.database.GetContactEmailStore().GetContactPrimaryEmail(ctx, contactId)
-	if err != nil {
+	if err != nil && err != ErrContactEmailNotFound {
 		return err
 	}
 

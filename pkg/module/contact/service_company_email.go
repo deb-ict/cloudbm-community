@@ -63,7 +63,7 @@ func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, em
 	if duplicate != nil {
 		return nil, ErrCompanyEmailDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyEmailNotFound {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 	}
 
 	existing, err := svc.database.GetCompanyEmailStore().GetCompanyEmailById(ctx, companyId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return nil, ErrCompanyEmailNotFound
 	}
 	if err != nil {
@@ -116,7 +116,7 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 	if duplicate != nil {
 		return nil, ErrCompanyEmailDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyEmailNotFound {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 	}
 
 	existing, err := svc.database.GetCompanyEmailStore().GetCompanyEmailById(ctx, companyId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return ErrCompanyEmailNotFound
 	}
 	if err != nil {
@@ -164,7 +164,7 @@ func (svc *service) ResetPrimaryCompanyEmail(ctx context.Context, companyId stri
 	var err error
 
 	primary, err := svc.database.GetCompanyEmailStore().GetCompanyPrimaryEmail(ctx, companyId)
-	if err != nil {
+	if err != nil && err != ErrCompanyEmailNotFound {
 		return err
 	}
 

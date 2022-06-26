@@ -23,7 +23,7 @@ func (svc *service) CreateCompany(ctx context.Context, company Company) (*Compan
 	if duplicate != nil {
 		return nil, ErrCompanyDuplicateName
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyNotFound {
 		return nil, err
 	}
 
@@ -42,7 +42,7 @@ func (svc *service) UpdateCompany(ctx context.Context, id string, company Compan
 	//TODO: Validate model
 
 	existing, err := svc.database.GetCompanyStore().GetCompanyById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return nil, ErrCompanyNotFound
 	}
 	if err != nil {
@@ -63,7 +63,7 @@ func (svc *service) DeleteCompany(ctx context.Context, id string) error {
 	//TODO: Validate id
 
 	existing, err := svc.database.GetCompanyStore().GetCompanyById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return ErrCompanyNotFound
 	}
 	if err != nil {

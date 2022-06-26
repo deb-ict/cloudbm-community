@@ -35,7 +35,7 @@ var (
 	ErrCompanyEmailNotFound    = errors.New("company email not found")
 	ErrCompanyEmailDuplicate   = errors.New("company email already exists")
 	ErrCompanyUrlNotFound      = errors.New("company url not found")
-	ErrCompanyeUrlDuplicate    = errors.New("company url type already exists")
+	ErrCompanyUrlDuplicate     = errors.New("company url type already exists")
 )
 
 type Service interface {

@@ -23,7 +23,7 @@ func (svc *service) CreateEmailType(ctx context.Context, emailType EmailType) (*
 	if duplicate != nil {
 		return nil, ErrEmailTypeDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrEmailTypeNotFound {
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, emailType Em
 	//TODO: Validate model
 
 	existing, err := svc.database.GetEmailTypeStore().GetEmailTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return nil, ErrEmailTypeNotFound
 	}
 	if err != nil {
@@ -81,7 +81,7 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 	//TODO: Validate id
 
 	existing, err := svc.database.GetEmailTypeStore().GetEmailTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return ErrEmailTypeNotFound
 	}
 	if err != nil {
@@ -99,7 +99,7 @@ func (svc *service) ResetDefaultEmailType(ctx context.Context) error {
 	var err error
 
 	defaultType, err := svc.database.GetEmailTypeStore().GetDefaultEmailType(ctx)
-	if err != nil {
+	if err != nil && err != ErrEmailTypeNotFound {
 		return err
 	}
 

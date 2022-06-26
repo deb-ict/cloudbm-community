@@ -63,7 +63,7 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, ph
 	if duplicate != nil {
 		return nil, ErrContactPhoneDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrContactPhoneNotFound {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 	}
 
 	existing, err := svc.database.GetContactPhoneStore().GetContactPhoneById(ctx, contactId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return nil, ErrContactPhoneNotFound
 	}
 	if err != nil {
@@ -116,7 +116,7 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 	if duplicate != nil {
 		return nil, ErrContactPhoneDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrContactPhoneNotFound {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 	}
 
 	existing, err := svc.database.GetContactPhoneStore().GetContactPhoneById(ctx, contactId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return ErrContactPhoneNotFound
 	}
 	if err != nil {
@@ -164,7 +164,7 @@ func (svc *service) ResetPrimaryContactPhone(ctx context.Context, contactId stri
 	var err error
 
 	primary, err := svc.database.GetContactPhoneStore().GetContactPrimaryPhone(ctx, contactId)
-	if err != nil {
+	if err != nil && err != ErrContactPhoneNotFound {
 		return err
 	}
 

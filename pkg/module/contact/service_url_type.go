@@ -23,7 +23,7 @@ func (svc *service) CreateUrlType(ctx context.Context, urlType UrlType) (*UrlTyp
 	if duplicate != nil {
 		return nil, ErrUrlTypeDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrUrlTypeNotFound {
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (svc *service) UpdateUrlType(ctx context.Context, id string, urlType UrlTyp
 	//TODO: Validate model
 
 	existing, err := svc.database.GetUrlTypeStore().GetUrlTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return nil, ErrUrlTypeNotFound
 	}
 	if err != nil {
@@ -81,7 +81,7 @@ func (svc *service) DeleteUrlType(ctx context.Context, id string) error {
 	//TODO: Validate id
 
 	existing, err := svc.database.GetUrlTypeStore().GetUrlTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return ErrUrlTypeNotFound
 	}
 	if err != nil {
@@ -99,7 +99,7 @@ func (svc *service) ResetDefaultUrlType(ctx context.Context) error {
 	var err error
 
 	defaultType, err := svc.database.GetUrlTypeStore().GetDefaultUrlType(ctx)
-	if err != nil {
+	if err != nil && err != ErrUrlTypeNotFound {
 		return err
 	}
 

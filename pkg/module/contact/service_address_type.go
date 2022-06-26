@@ -23,7 +23,7 @@ func (svc *service) CreateAddressType(ctx context.Context, addressType AddressTy
 	if duplicate != nil {
 		return nil, ErrAddressTypeDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrAddressTypeNotFound {
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, addressTyp
 	//TODO: Validate model
 
 	existing, err := svc.database.GetAddressTypeStore().GetAddressTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return nil, ErrAddressTypeNotFound
 	}
 	if err != nil {
@@ -81,7 +81,7 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 	//TODO: Validate id
 
 	existing, err := svc.database.GetAddressTypeStore().GetAddressTypeById(ctx, id)
-	if existing == nil && err != nil {
+	if existing == nil && err == nil {
 		return ErrAddressTypeNotFound
 	}
 	if err != nil {
@@ -99,7 +99,7 @@ func (svc *service) ResetDefaultAddressType(ctx context.Context) error {
 	var err error
 
 	defaultType, err := svc.database.GetAddressTypeStore().GetDefaultAddressType(ctx)
-	if err != nil {
+	if err != nil && err != ErrAddressTypeNotFound {
 		return err
 	}
 

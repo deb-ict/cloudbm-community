@@ -109,11 +109,11 @@ func (api *apiHandler) RegisterRoutes(r *mux.Router) {
 }
 
 func (api *apiHandler) registerV1Routes(r *mux.Router) {
-	r.HandleFunc("/v1/adress_type", api.GetAddressTypes).Methods(http.MethodGet)
-	r.HandleFunc("/v1/adress_type/{id}", api.GetAddressTypeById).Methods(http.MethodGet)
-	r.HandleFunc("/v1/adress_type", api.CreateAddressType).Methods(http.MethodPost)
-	r.HandleFunc("/v1/adress_type/{id}", api.UpdateAddressType).Methods(http.MethodPut)
-	r.HandleFunc("/v1/adress_type/{id}", api.DeleteAddressType).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/address_type", api.GetAddressTypes).Methods(http.MethodGet)
+	r.HandleFunc("/v1/address_type/{id}", api.GetAddressTypeById).Methods(http.MethodGet)
+	r.HandleFunc("/v1/address_type", api.CreateAddressType).Methods(http.MethodPost)
+	r.HandleFunc("/v1/address_type/{id}", api.UpdateAddressType).Methods(http.MethodPut)
+	r.HandleFunc("/v1/address_type/{id}", api.DeleteAddressType).Methods(http.MethodDelete)
 
 	r.HandleFunc("/v1/phone_type", api.GetPhoneTypes).Methods(http.MethodGet)
 	r.HandleFunc("/v1/phone_type/{id}", api.GetPhoneTypeById).Methods(http.MethodGet)

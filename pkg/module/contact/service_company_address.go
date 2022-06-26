@@ -63,7 +63,7 @@ func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, 
 	if duplicate != nil {
 		return nil, ErrCompanyAddressDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyAddressNotFound {
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 	}
 
 	existing, err := svc.database.GetCompanyAddressStore().GetCompanyAddressById(ctx, companyId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return nil, ErrCompanyAddressNotFound
 	}
 	if err != nil {
@@ -116,7 +116,7 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 	if duplicate != nil {
 		return nil, ErrCompanyAddressDuplicate
 	}
-	if err != nil {
+	if err != nil && err != ErrCompanyAddressNotFound {
 		return nil, err
 	}
 
@@ -150,7 +150,7 @@ func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, 
 	}
 
 	existing, err := svc.database.GetCompanyAddressStore().GetCompanyAddressById(ctx, companyId, id)
-	if existing == nil {
+	if existing == nil && err == nil {
 		return ErrCompanyAddressNotFound
 	}
 	if err != nil {
@@ -164,7 +164,7 @@ func (svc *service) ResetPrimaryCompanyAddress(ctx context.Context, companyId st
 	var err error
 
 	primary, err := svc.database.GetCompanyAddressStore().GetCompanyPrimaryAddress(ctx, companyId)
-	if err != nil {
+	if err != nil && err != ErrCompanyAddressNotFound {
 		return err
 	}
 
