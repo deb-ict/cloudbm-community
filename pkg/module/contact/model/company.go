@@ -10,6 +10,7 @@ type Company struct {
 	Emails    []*Email
 	Phones    []*Phone
 	Uris      []*Uri
+	IsEnabled bool
 	IsSystem  bool
 }
 
