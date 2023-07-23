@@ -8,8 +8,10 @@ type service struct {
 	database product.Database
 }
 
-func NewService(opts ...product.ServiceOption) product.Service {
-	svc := &service{}
+func NewService(database product.Database, opts ...product.ServiceOption) product.Service {
+	svc := &service{
+		database: database,
+	}
 	for _, opt := range opts {
 		opt(svc)
 	}

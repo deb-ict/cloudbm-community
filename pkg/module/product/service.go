@@ -9,8 +9,14 @@ import (
 )
 
 var (
-	ErrProductNotFound  error = errors.New("product not found")
-	ErrCategoryNotFound error = errors.New("category not found")
+	ErrProductNotFound    error = errors.New("product not found")
+	ErrProductNotCreated  error = errors.New("product not created")
+	ErrProductNotUpdated  error = errors.New("product not updated")
+	ErrProductNotDeleted  error = errors.New("product not deleted")
+	ErrCategoryNotFound   error = errors.New("category not found")
+	ErrCategoryNotCreated error = errors.New("category not created")
+	ErrCategoryNotUpdated error = errors.New("category not updated")
+	ErrCategoryNotDeleted error = errors.New("category not deleted")
 )
 
 type ServiceOption func(Service) error

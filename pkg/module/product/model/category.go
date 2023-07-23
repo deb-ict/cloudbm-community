@@ -7,7 +7,7 @@ import (
 type Category struct {
 	Id           string
 	ParentId     string
-	Translations []CategoryTranslation
+	Translations []*CategoryTranslation
 	ThumbnailId  string
 	ThumbnailUri string
 	SortOrder    int64
@@ -26,9 +26,9 @@ type CategoryFilter struct {
 	ParentId string
 }
 
-func (m *Category) GetTranslation(language string) CategoryTranslation {
+func (m *Category) GetTranslation(language string) *CategoryTranslation {
 	if len(m.Translations) == 0 {
-		return CategoryTranslation{}
+		return &CategoryTranslation{}
 	}
 
 	normalizedLanguage := localization.NormalizeLanguage(language)
@@ -43,4 +43,11 @@ func (m *Category) GetTranslation(language string) CategoryTranslation {
 
 func (m *Category) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (f *CategoryFilter) HasFilter() bool {
+	if f.ParentId != "" {
+		return true
+	}
+	return false
 }

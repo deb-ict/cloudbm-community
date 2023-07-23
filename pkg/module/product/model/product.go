@@ -7,7 +7,7 @@ import (
 type Product struct {
 	Id              string
 	CategoryIds     []string
-	Translations    []ProductTranslation
+	Translations    []*ProductTranslation
 	ThumbnailId     string
 	ThumbnailUri    string
 	Price           int64
@@ -27,9 +27,9 @@ type ProductFilter struct {
 	CategoryId string
 }
 
-func (m *Product) GetTranslation(language string) ProductTranslation {
+func (m *Product) GetTranslation(language string) *ProductTranslation {
 	if len(m.Translations) == 0 {
-		return ProductTranslation{}
+		return &ProductTranslation{}
 	}
 
 	normalizedLanguage := localization.NormalizeLanguage(language)
@@ -44,4 +44,11 @@ func (m *Product) GetTranslation(language string) ProductTranslation {
 
 func (m *Product) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (f *ProductFilter) HasFilter() bool {
+	if f.CategoryId != "" {
+		return true
+	}
+	return false
 }
