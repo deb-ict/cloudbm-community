@@ -2,28 +2,15 @@ package product
 
 import (
 	"context"
-	"errors"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
 )
 
-var (
-	ErrProductNotFound    error = errors.New("product not found")
-	ErrProductNotCreated  error = errors.New("product not created")
-	ErrProductNotUpdated  error = errors.New("product not updated")
-	ErrProductNotDeleted  error = errors.New("product not deleted")
-	ErrCategoryNotFound   error = errors.New("category not found")
-	ErrCategoryNotCreated error = errors.New("category not created")
-	ErrCategoryNotUpdated error = errors.New("category not updated")
-	ErrCategoryNotDeleted error = errors.New("category not deleted")
-)
-
-type ServiceOption func(Service) error
-
 type Service interface {
-	GetDatabase() Database
-	SetDatabase(database Database) error
+	GetFeatureProvider() core.FeatureProvider
+	GetLanguageProvider() localization.LanguageProvider
 
 	GetProducts(ctx context.Context, offset int64, limit int64, filter *model.ProductFilter, sort *core.Sort) ([]*model.Product, int64, error)
 	GetProductById(ctx context.Context, id string) (*model.Product, error)

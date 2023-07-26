@@ -1,33 +1,38 @@
 package service
 
 import (
+	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product"
 )
 
 type service struct {
-	database product.Database
+	featureProvider  core.FeatureProvider
+	languageProvider localization.LanguageProvider
+	database         product.Database
 }
 
-func NewService(database product.Database, opts ...product.ServiceOption) product.Service {
+func NewService(database product.Database) product.Service {
 	svc := &service{
 		database: database,
-	}
-	for _, opt := range opts {
-		opt(svc)
 	}
 	svc.ensureDefaults()
 	return svc
 }
 
-func (svc *service) GetDatabase() product.Database {
-	return svc.database
+func (svc *service) GetFeatureProvider() core.FeatureProvider {
+	return svc.featureProvider
 }
 
-func (svc *service) SetDatabase(database product.Database) error {
-	svc.database = database
-	return nil
+func (svc *service) GetLanguageProvider() localization.LanguageProvider {
+	return svc.languageProvider
 }
 
 func (svc *service) ensureDefaults() {
-
+	if svc.featureProvider == nil {
+		svc.featureProvider = core.NewDefaultFeatureProvider()
+	}
+	if svc.languageProvider == nil {
+		svc.languageProvider = localization.NewDefaultLanguageProvider()
+	}
 }

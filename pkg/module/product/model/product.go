@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 )
 
@@ -27,19 +28,31 @@ type ProductFilter struct {
 	CategoryId string
 }
 
-func (m *Product) GetTranslation(language string) *ProductTranslation {
+func (m *Product) GetTranslation(language string, defaultLanguage string) *ProductTranslation {
 	if len(m.Translations) == 0 {
 		return &ProductTranslation{}
 	}
 
+	translation, err := m.TryGetTranslation(language)
+	if err == core.ErrTranslationNotFound && language != defaultLanguage {
+		translation, err = m.TryGetTranslation(defaultLanguage)
+	}
+	if err == core.ErrTranslationNotFound {
+		translation = m.Translations[0]
+	}
+
+	return translation
+}
+
+func (m *Product) TryGetTranslation(language string) (*ProductTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
-			return t
+			return t, nil
 		}
 	}
 
-	return m.Translations[0]
+	return nil, core.ErrTranslationNotFound
 }
 
 func (m *Product) IsTransient() bool {
