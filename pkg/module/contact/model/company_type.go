@@ -1,12 +1,13 @@
 package model
 
 import (
+	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 )
 
 type CompanyType struct {
 	Id           string
-	Translations []CompanyTypeTranslation
+	Translations []*CompanyTypeTranslation
 	IsDefault    bool
 	IsSystem     bool
 }
@@ -21,19 +22,30 @@ type CompanyTypeFilter struct {
 	Name string
 }
 
-func (m *CompanyType) GetTranslation(language string) CompanyTypeTranslation {
+func (m *CompanyType) GetTranslation(language string, defaultLanguage string) *CompanyTypeTranslation {
 	if len(m.Translations) == 0 {
-		return CompanyTypeTranslation{}
+		return &CompanyTypeTranslation{}
 	}
 
+	translation, err := m.TryGetTranslation(language)
+	if err == core.ErrTranslationNotFound && language != defaultLanguage {
+		translation, err = m.TryGetTranslation(defaultLanguage)
+	}
+	if err == core.ErrTranslationNotFound {
+		translation = m.Translations[0]
+	}
+
+	return translation
+}
+
+func (m *CompanyType) TryGetTranslation(language string) (*CompanyTypeTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
-			return t
+			return t, nil
 		}
 	}
-
-	return m.Translations[0]
+	return nil, core.ErrTranslationNotFound
 }
 
 func (m *CompanyType) IsTransient() bool {

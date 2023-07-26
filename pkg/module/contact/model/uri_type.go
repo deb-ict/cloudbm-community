@@ -5,26 +5,26 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 )
 
-type JobTitle struct {
+type UriType struct {
 	Id           string
-	Translations []*JobTitleTranslation
+	Translations []*UriTypeTranslation
 	IsDefault    bool
 	IsSystem     bool
 }
 
-type JobTitleTranslation struct {
+type UriTypeTranslation struct {
 	Language    string
 	Name        string
 	Description string
 }
 
-type JobTitleFilter struct {
+type UriTypeFilter struct {
 	Name string
 }
 
-func (m *JobTitle) GetTranslation(language string, defaultLanguage string) *JobTitleTranslation {
+func (m *UriType) GetTranslation(language string, defaultLanguage string) *UriTypeTranslation {
 	if len(m.Translations) == 0 {
-		return &JobTitleTranslation{}
+		return &UriTypeTranslation{}
 	}
 
 	translation, err := m.TryGetTranslation(language)
@@ -38,7 +38,7 @@ func (m *JobTitle) GetTranslation(language string, defaultLanguage string) *JobT
 	return translation
 }
 
-func (m *JobTitle) TryGetTranslation(language string) (*JobTitleTranslation, error) {
+func (m *UriType) TryGetTranslation(language string) (*UriTypeTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
@@ -48,10 +48,10 @@ func (m *JobTitle) TryGetTranslation(language string) (*JobTitleTranslation, err
 	return nil, core.ErrTranslationNotFound
 }
 
-func (m *JobTitle) IsTransient() bool {
+func (m *UriType) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *JobTitle) CanDelete() bool {
+func (m *UriType) CanDelete() bool {
 	return !m.IsDefault && !m.IsSystem
 }

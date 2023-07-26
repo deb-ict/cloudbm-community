@@ -1,12 +1,13 @@
 package model
 
 import (
+	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 )
 
 type EmailType struct {
 	Id           string
-	Translations []EmailTypeTranslation
+	Translations []*EmailTypeTranslation
 	IsDefault    bool
 	IsSystem     bool
 }
@@ -21,19 +22,30 @@ type EmailTypeFilter struct {
 	Name string
 }
 
-func (m *EmailType) GetTranslation(language string) EmailTypeTranslation {
+func (m *EmailType) GetTranslation(language string, defaultLanguage string) *EmailTypeTranslation {
 	if len(m.Translations) == 0 {
-		return EmailTypeTranslation{}
+		return &EmailTypeTranslation{}
 	}
 
+	translation, err := m.TryGetTranslation(language)
+	if err == core.ErrTranslationNotFound && language != defaultLanguage {
+		translation, err = m.TryGetTranslation(defaultLanguage)
+	}
+	if err == core.ErrTranslationNotFound {
+		translation = m.Translations[0]
+	}
+
+	return translation
+}
+
+func (m *EmailType) TryGetTranslation(language string) (*EmailTypeTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
-			return t
+			return t, nil
 		}
 	}
-
-	return m.Translations[0]
+	return nil, core.ErrTranslationNotFound
 }
 
 func (m *EmailType) IsTransient() bool {
