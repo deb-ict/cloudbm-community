@@ -7,6 +7,7 @@ import (
 
 type PhoneType struct {
 	Id           string
+	Key          string
 	Translations []*PhoneTypeTranslation
 	IsDefault    bool
 	IsSystem     bool

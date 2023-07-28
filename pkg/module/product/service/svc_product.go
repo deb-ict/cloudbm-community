@@ -54,6 +54,8 @@ func (svc *service) GetProductBySlug(ctx context.Context, language string, slug 
 }
 
 func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*model.Product, error) {
+	//TODO: Check for duplicas
+
 	newId, err := svc.database.ProductRepository().CreateProduct(ctx, model)
 	if err != nil {
 		return nil, err
@@ -63,16 +65,14 @@ func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*m
 }
 
 func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.Product) (*model.Product, error) {
-	data, err := svc.database.ProductRepository().GetProductById(ctx, id)
+	data, err := svc.GetProductById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	if data == nil {
-		return nil, product.ErrProductNotFound
-	}
 
-	model.Id = id
-	err = svc.database.ProductRepository().UpdateProduct(ctx, model)
+	//TODO: Set fields
+
+	err = svc.database.ProductRepository().UpdateProduct(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +81,9 @@ func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.P
 }
 
 func (svc *service) DeleteProduct(ctx context.Context, id string) error {
-	data, err := svc.database.ProductRepository().GetProductById(ctx, id)
+	data, err := svc.GetProductById(ctx, id)
 	if err != nil {
 		return err
-	}
-	if data == nil {
-		return product.ErrProductNotFound
 	}
 
 	err = svc.database.ProductRepository().DeleteProduct(ctx, data)

@@ -7,6 +7,7 @@ import (
 
 type EmailType struct {
 	Id           string
+	Key          string
 	Translations []*EmailTypeTranslation
 	IsDefault    bool
 	IsSystem     bool

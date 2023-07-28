@@ -7,6 +7,7 @@ import (
 
 type Industry struct {
 	Id           string
+	Key          string
 	Translations []*IndustryTranslation
 	IsDefault    bool
 	IsSystem     bool

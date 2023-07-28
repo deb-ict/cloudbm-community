@@ -7,6 +7,7 @@ import (
 
 type AddressType struct {
 	Id           string
+	Key          string
 	Translations []*AddressTypeTranslation
 	IsDefault    bool
 	IsSystem     bool

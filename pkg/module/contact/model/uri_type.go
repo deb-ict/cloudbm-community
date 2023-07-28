@@ -7,6 +7,7 @@ import (
 
 type UriType struct {
 	Id           string
+	Key          string
 	Translations []*UriTypeTranslation
 	IsDefault    bool
 	IsSystem     bool

@@ -7,6 +7,7 @@ import (
 
 type JobTitle struct {
 	Id           string
+	Key          string
 	Translations []*JobTitleTranslation
 	IsDefault    bool
 	IsSystem     bool

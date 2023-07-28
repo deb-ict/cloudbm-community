@@ -7,6 +7,7 @@ import (
 
 type ContactTitle struct {
 	Id           string
+	Key          string
 	Translations []*ContactTitleTranslation
 	IsEnabled    bool
 	IsDefault    bool
