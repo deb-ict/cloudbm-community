@@ -40,6 +40,8 @@ func (svc *service) CreateCompanyType(ctx context.Context, model *model.CompanyT
 		return nil, contact.ErrCompanyTypeDuplicateKey
 	}
 
+	//TODO: Check for duplicates on name
+
 	newId, err := svc.database.CompanyTypeRepository().CreateCompanyType(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,8 +56,10 @@ func (svc *service) UpdateCompanyType(ctx context.Context, id string, model *mod
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrCompanyTypeNotFound
 	}
+
+	//TODO: Check for duplicates on name
 
 	//TODO: Set fields
 
@@ -72,17 +76,10 @@ func (svc *service) DeleteCompanyType(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrCompanyTypeNotFound
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrCompanyTypeInUse
-	}
 
 	err = svc.database.CompanyTypeRepository().DeleteCompanyType(ctx, data)
 	if err != nil {

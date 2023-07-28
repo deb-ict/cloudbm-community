@@ -76,13 +76,6 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrAddressTypeInUse
-	}
 
 	err = svc.database.AddressTypeRepository().DeleteAddressType(ctx, data)
 	if err != nil {

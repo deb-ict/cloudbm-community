@@ -44,7 +44,7 @@ func (svc *service) UpdateContact(ctx context.Context, id string, model *model.C
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrContactNotFound
 	}
 
 	//TODO: Set fields
@@ -62,7 +62,7 @@ func (svc *service) DeleteContact(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrContactNotFound
 	}
 
 	err = svc.database.ContactRepository().DeleteContact(ctx, data)

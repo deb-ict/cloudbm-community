@@ -16,6 +16,13 @@ func (svc *service) GetCompanyEmails(ctx context.Context, companyId string, offs
 	if parent == nil {
 		return nil, 0, contact.ErrCompanyNotFound
 	}
+
+	data, count, err := svc.database.CompanyEmailRepository().GetCompanyEmails(ctx, parent, offset, limit, filter, sort)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return data, count, nil
 }
 
 func (svc *service) GetCompanyEmailById(ctx context.Context, companyId string, id string) (*model.Email, error) {
@@ -26,6 +33,16 @@ func (svc *service) GetCompanyEmailById(ctx context.Context, companyId string, i
 	if parent == nil {
 		return nil, contact.ErrCompanyNotFound
 	}
+
+	data, err := svc.database.CompanyEmailRepository().GetCompanyEmailById(ctx, parent, id)
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, contact.ErrCompanyAddressNotFound
+	}
+
+	return data, nil
 }
 
 func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, model *model.Email) (*model.Email, error) {
@@ -36,6 +53,12 @@ func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, mo
 	if parent == nil {
 		return nil, contact.ErrCompanyNotFound
 	}
+
+	newId, err := svc.database.CompanyEmailRepository().CreateCompanyEmail(ctx, parent, model)
+	if err != nil {
+		return nil, err
+	}
+	return svc.GetCompanyEmailById(ctx, companyId, newId)
 }
 
 func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id string, model *model.Email) (*model.Email, error) {
@@ -46,6 +69,20 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 	if parent == nil {
 		return nil, contact.ErrCompanyNotFound
 	}
+
+	data, err := svc.database.CompanyEmailRepository().GetCompanyEmailById(ctx, parent, id)
+	if err != nil {
+		return nil, err
+	}
+	if data == nil {
+		return nil, contact.ErrCompanyEmailNotFound
+	}
+
+	err = svc.database.CompanyEmailRepository().UpdateCompanyEmail(ctx, parent, data)
+	if err != nil {
+		return nil, err
+	}
+	return svc.GetCompanyEmailById(ctx, companyId, id)
 }
 
 func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id string) error {
@@ -62,7 +99,7 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 		return err
 	}
 	if data == nil {
-		return contact.ErrContactXXXNotFound
+		return contact.ErrCompanyEmailNotFound
 	}
 
 	err = svc.database.CompanyEmailRepository().DeleteCompanyEmail(ctx, parent, data)

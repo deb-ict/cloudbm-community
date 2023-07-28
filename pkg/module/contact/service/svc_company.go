@@ -44,7 +44,7 @@ func (svc *service) UpdateCompany(ctx context.Context, id string, model *model.C
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrCompanyNotFound
 	}
 
 	//TODO: Set fields
@@ -62,7 +62,7 @@ func (svc *service) DeleteCompany(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrCompanyNotFound
 	}
 
 	err = svc.database.CompanyRepository().DeleteCompany(ctx, data)

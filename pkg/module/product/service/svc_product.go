@@ -65,9 +65,12 @@ func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*m
 }
 
 func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.Product) (*model.Product, error) {
-	data, err := svc.GetProductById(ctx, id)
+	data, err := svc.database.ProductRepository().GetProductById(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+	if data == nil {
+		return nil, product.ErrProductNotFound
 	}
 
 	//TODO: Set fields
@@ -81,9 +84,12 @@ func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.P
 }
 
 func (svc *service) DeleteProduct(ctx context.Context, id string) error {
-	data, err := svc.GetProductById(ctx, id)
+	data, err := svc.database.ProductRepository().GetProductById(ctx, id)
 	if err != nil {
 		return err
+	}
+	if data == nil {
+		return product.ErrProductNotFound
 	}
 
 	err = svc.database.ProductRepository().DeleteProduct(ctx, data)

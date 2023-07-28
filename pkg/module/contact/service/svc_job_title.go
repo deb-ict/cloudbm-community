@@ -40,6 +40,8 @@ func (svc *service) CreateJobTitle(ctx context.Context, model *model.JobTitle) (
 		return nil, contact.ErrJobTitleDuplicateKey
 	}
 
+	//TODO: Check for duplicates on name
+
 	newId, err := svc.database.JobTitleRepository().CreateJobTitle(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,8 +56,10 @@ func (svc *service) UpdateJobTitle(ctx context.Context, id string, model *model.
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrJobTitleNotFound
 	}
+
+	//TODO: Check for duplicates on name
 
 	//TODO: Set fields
 
@@ -72,17 +76,10 @@ func (svc *service) DeleteJobTitle(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrJobTitleNotFound
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrJobTitleInUse
-	}
 
 	err = svc.database.JobTitleRepository().DeleteJobTitle(ctx, data)
 	if err != nil {

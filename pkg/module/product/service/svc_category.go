@@ -65,9 +65,12 @@ func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (
 }
 
 func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.Category) (*model.Category, error) {
-	data, err := svc.GetCategoryById(ctx, id)
+	data, err := svc.database.CategoryRepository().GetCategoryById(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+	if data == nil {
+		return nil, product.ErrCategoryNotFound
 	}
 
 	//TODO: Set fields
@@ -81,9 +84,12 @@ func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.
 }
 
 func (svc *service) DeleteCategory(ctx context.Context, id string) error {
-	data, err := svc.GetCategoryById(ctx, id)
+	data, err := svc.database.CategoryRepository().GetCategoryById(ctx, id)
 	if err != nil {
 		return err
+	}
+	if data == nil {
+		return product.ErrCategoryNotFound
 	}
 
 	//TODO: Check dependencies

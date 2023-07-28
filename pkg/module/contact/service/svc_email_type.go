@@ -40,6 +40,8 @@ func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType)
 		return nil, contact.ErrEmailTypeDuplicateKey
 	}
 
+	//TODO: Check for duplicates on name
+
 	newId, err := svc.database.EmailTypeRepository().CreateEmailType(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,8 +56,10 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrEmailTypeNotFound
 	}
+
+	//TODO: Check for duplicates on name
 
 	//TODO: Set fields
 
@@ -72,17 +76,10 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrEmailTypeNotFound
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrEmailTypeInUse
-	}
 
 	err = svc.database.EmailTypeRepository().DeleteEmailType(ctx, data)
 	if err != nil {

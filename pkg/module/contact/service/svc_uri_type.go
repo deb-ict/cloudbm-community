@@ -40,6 +40,8 @@ func (svc *service) CreateUriType(ctx context.Context, model *model.UriType) (*m
 		return nil, contact.ErrUriTypeDuplicateKey
 	}
 
+	//TODO: Check for duplicates on name
+
 	newId, err := svc.database.UriTypeRepository().CreateUriType(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,8 +56,10 @@ func (svc *service) UpdateUriType(ctx context.Context, id string, model *model.U
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrUriTypeNotFound
 	}
+
+	//TODO: Check for duplicates on name
 
 	//TODO: Set fields
 
@@ -72,17 +76,10 @@ func (svc *service) DeleteUriType(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrUriTypeNotFound
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrUriTypeInUse
-	}
 
 	err = svc.database.UriTypeRepository().DeleteUriType(ctx, data)
 	if err != nil {

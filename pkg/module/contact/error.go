@@ -4,7 +4,15 @@ import "errors"
 
 var (
 	ErrContactNotFound          error = errors.New("contact not found")
+	ErrContactAddressNotFound   error = errors.New("contact address not found")
+	ErrContactEmailNotFound     error = errors.New("contact email not found")
+	ErrContactPhoneNotFound     error = errors.New("contact phone not found")
+	ErrContactUriNotFound       error = errors.New("contact uri not found")
 	ErrCompanyNotFound          error = errors.New("company not found")
+	ErrCompanyAddressNotFound   error = errors.New("company address not found")
+	ErrCompanyEmailNotFound     error = errors.New("company email not found")
+	ErrCompanyPhoneNotFound     error = errors.New("company phone not found")
+	ErrCompanyUriNotFound       error = errors.New("company uri not found")
 	ErrAddressTypeNotFound      error = errors.New("address type not found")
 	ErrAddressTypeDuplicateKey  error = errors.New("address type with same key already exists")
 	ErrAddressTypeReadOnly      error = errors.New("address type is read-only")

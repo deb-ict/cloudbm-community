@@ -40,6 +40,8 @@ func (svc *service) CreateContactTitle(ctx context.Context, model *model.Contact
 		return nil, contact.ErrContactTitleDuplicateKey
 	}
 
+	//TODO: Check for duplicates on name
+
 	newId, err := svc.database.ContactTitleRepository().CreateContactTitle(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,8 +56,10 @@ func (svc *service) UpdateContactTitle(ctx context.Context, id string, model *mo
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrContactTitleNotFound
 	}
+
+	//TODO: Check for duplicates on name
 
 	//TODO: Set fields
 
@@ -72,17 +76,10 @@ func (svc *service) DeleteContactTitle(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrContactTitleNotFound
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrContactTitleInUse
-	}
 
 	err = svc.database.ContactTitleRepository().DeleteContactTitle(ctx, data)
 	if err != nil {

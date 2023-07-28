@@ -112,6 +112,7 @@ type AddressTypeRepository interface {
 	GetAddressTypes(ctx context.Context, offset int64, limit int64, filter *model.AddressTypeFilter, sort *core.Sort) ([]*model.AddressType, int64, error)
 	GetAddressTypeById(ctx context.Context, id string) (*model.AddressType, error)
 	GetAddressTypeByKey(ctx context.Context, key string) (*model.AddressType, error)
+	GetAddressTypeByName(ctx context.Context, language string, name string) (*model.AddressType, error)
 	CreateAddressType(ctx context.Context, model *model.AddressType) (string, error)
 	UpdateAddressType(ctx context.Context, model *model.AddressType) error
 	DeleteAddressType(ctx context.Context, model *model.AddressType) error
@@ -121,6 +122,7 @@ type EmailTypeRepository interface {
 	GetEmailTypes(ctx context.Context, offset int64, limit int64, filter *model.EmailTypeFilter, sort *core.Sort) ([]*model.EmailType, int64, error)
 	GetEmailTypeById(ctx context.Context, id string) (*model.EmailType, error)
 	GetEmailTypeByKey(ctx context.Context, key string) (*model.EmailType, error)
+	GetEmailTypeByName(ctx context.Context, language string, name string) (*model.EmailType, error)
 	CreateEmailType(ctx context.Context, model *model.EmailType) (string, error)
 	UpdateEmailType(ctx context.Context, model *model.EmailType) error
 	DeleteEmailType(ctx context.Context, model *model.EmailType) error
@@ -130,6 +132,7 @@ type PhoneTypeRepository interface {
 	GetPhoneTypes(ctx context.Context, offset int64, limit int64, filter *model.PhoneTypeFilter, sort *core.Sort) ([]*model.PhoneType, int64, error)
 	GetPhoneTypeById(ctx context.Context, id string) (*model.PhoneType, error)
 	GetPhoneTypeByKey(ctx context.Context, key string) (*model.PhoneType, error)
+	GetPhoneTypeByName(ctx context.Context, language string, name string) (*model.PhoneType, error)
 	CreatePhoneType(ctx context.Context, model *model.PhoneType) (string, error)
 	UpdatePhoneType(ctx context.Context, model *model.PhoneType) error
 	DeletePhoneType(ctx context.Context, model *model.PhoneType) error
@@ -139,6 +142,7 @@ type UriTypeRepository interface {
 	GetUriTypes(ctx context.Context, offset int64, limit int64, filter *model.UriTypeFilter, sort *core.Sort) ([]*model.UriType, int64, error)
 	GetUriTypeById(ctx context.Context, id string) (*model.UriType, error)
 	GetUriTypeByKey(ctx context.Context, key string) (*model.UriType, error)
+	GetUriTypeByName(ctx context.Context, language string, name string) (*model.UriType, error)
 	CreateUriType(ctx context.Context, model *model.UriType) (string, error)
 	UpdateUriType(ctx context.Context, model *model.UriType) error
 	DeleteUriType(ctx context.Context, model *model.UriType) error
@@ -148,6 +152,7 @@ type ContactTitleRepository interface {
 	GetContactTitles(ctx context.Context, offset int64, limit int64, filter *model.ContactTitleFilter, sort *core.Sort) ([]*model.ContactTitle, int64, error)
 	GetContactTitleById(ctx context.Context, id string) (*model.ContactTitle, error)
 	GetContactTitleByKey(ctx context.Context, key string) (*model.ContactTitle, error)
+	GetContactTitleByName(ctx context.Context, language string, name string) (*model.ContactTitle, error)
 	CreateContactTitle(ctx context.Context, model *model.ContactTitle) (string, error)
 	UpdateContactTitle(ctx context.Context, model *model.ContactTitle) error
 	DeleteContactTitle(ctx context.Context, model *model.ContactTitle) error
@@ -157,6 +162,7 @@ type CompanyTypeRepository interface {
 	GetCompanyTypes(ctx context.Context, offset int64, limit int64, filter *model.CompanyTypeFilter, sort *core.Sort) ([]*model.CompanyType, int64, error)
 	GetCompanyTypeById(ctx context.Context, id string) (*model.CompanyType, error)
 	GetCompanyTypeByKey(ctx context.Context, key string) (*model.CompanyType, error)
+	GetCompanyTypeByName(ctx context.Context, language string, name string) (*model.CompanyType, error)
 	CreateCompanyType(ctx context.Context, model *model.CompanyType) (string, error)
 	UpdateCompanyType(ctx context.Context, model *model.CompanyType) error
 	DeleteCompanyType(ctx context.Context, model *model.CompanyType) error
@@ -166,6 +172,7 @@ type IndustryRepository interface {
 	GetIndustries(ctx context.Context, offset int64, limit int64, filter *model.IndustryFilter, sort *core.Sort) ([]*model.Industry, int64, error)
 	GetIndustryById(ctx context.Context, id string) (*model.Industry, error)
 	GetIndustryByKey(ctx context.Context, key string) (*model.Industry, error)
+	GetIndustryByName(ctx context.Context, language string, name string) (*model.Industry, error)
 	CreateIndustry(ctx context.Context, model *model.Industry) (string, error)
 	UpdateIndustry(ctx context.Context, model *model.Industry) error
 	DeleteIndustry(ctx context.Context, model *model.Industry) error
@@ -175,6 +182,7 @@ type JobTitleRepository interface {
 	GetJobTitles(ctx context.Context, offset int64, limit int64, filter *model.JobTitleFilter, sort *core.Sort) ([]*model.JobTitle, int64, error)
 	GetJobTitleById(ctx context.Context, id string) (*model.JobTitle, error)
 	GetJobTitleByKey(ctx context.Context, key string) (*model.JobTitle, error)
+	GetJobTitleByName(ctx context.Context, language string, name string) (*model.JobTitle, error)
 	CreateJobTitle(ctx context.Context, model *model.JobTitle) (string, error)
 	UpdateJobTitle(ctx context.Context, model *model.JobTitle) error
 	DeleteJobTitle(ctx context.Context, model *model.JobTitle) error

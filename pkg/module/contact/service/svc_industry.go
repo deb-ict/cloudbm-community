@@ -40,6 +40,8 @@ func (svc *service) CreateIndustry(ctx context.Context, model *model.Industry) (
 		return nil, contact.ErrIndustryDuplicateKey
 	}
 
+	//TODO: Check for duplicates on name
+
 	newId, err := svc.database.IndustryRepository().CreateIndustry(ctx, model)
 	if err != nil {
 		return nil, err
@@ -54,8 +56,10 @@ func (svc *service) UpdateIndustry(ctx context.Context, id string, model *model.
 		return nil, err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return nil, contact.ErrIndustryNotFound
 	}
+
+	//TODO: Check for duplicates on name
 
 	//TODO: Set fields
 
@@ -72,17 +76,10 @@ func (svc *service) DeleteIndustry(ctx context.Context, id string) error {
 		return err
 	}
 	if data == nil {
-		return contact.ErrXXXNotFound
+		return contact.ErrIndustryNotFound
 	}
 
 	//TODO: Check dependencies
-	count, err := 0, nil
-	if err != nil {
-		return err
-	}
-	if count > 0 {
-		return contact.ErrIndustryInUse
-	}
 
 	err = svc.database.IndustryRepository().DeleteIndustry(ctx, data)
 	if err != nil {
