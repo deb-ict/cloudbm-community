@@ -23,17 +23,17 @@ type UpdateCompanyV1 struct {
 }
 
 func CompanyToViewModel(model *model.Company) *CompanyV1 {
-	return &CompanyV1{}
+
 }
 
 func CompanyToListItemViewModel(model *model.Company, language string, defaultLanguage string) *CompanyListItemV1 {
-	return &CompanyListItemV1{}
+
 }
 
 func CompanyFromCreateViewModel(viewModel *CreateCompanyV1) *model.Company {
-	return &model.Company{}
+
 }
 
 func CompanyFromUpdateViewModel(viewModel *UpdateCompanyV1) *model.Company {
-	return &model.Company{}
+
 }

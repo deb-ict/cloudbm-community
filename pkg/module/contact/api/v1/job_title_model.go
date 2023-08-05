@@ -41,23 +41,56 @@ type UpdateJobTitleV1 struct {
 }
 
 func JobTitleToViewModel(model *model.JobTitle) *JobTitleV1 {
-	return &JobTitleV1{}
+	viewModel := &JobTitleV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*JobTitleTranslationV1, 0),
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, JobTitleTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func JobTitleToListItemViewModel(model *model.JobTitle, language string, defaultLanguage string) *JobTitleListItemV1 {
-	return &JobTitleListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &JobTitleListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func JobTitleFromCreateViewModel(viewModel *CreateJobTitleV1) *model.JobTitle {
-	return &model.JobTitle{}
+	model := &model.JobTitle{
+		Key:          viewModel.Key,
+		Translations: make([]*model.JobTitleTranslation, 0),
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, JobTitleTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func JobTitleFromUpdateViewModel(viewModel *UpdateJobTitleV1) *model.JobTitle {
-	return &model.JobTitle{}
+	model := &model.JobTitle{
+		Translations: make([]*model.JobTitleTranslation, 0),
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, JobTitleTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func JobTitleTranslationToViewModel(model *model.JobTitleTranslation) *JobTitleTranslationV1 {
-	return &JobTitleTranslationV1{}
+	return &JobTitleTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func JobTitleTranslationFromViewModel(viewModel *JobTitleTranslationV1) *model.JobTitleTranslation {

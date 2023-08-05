@@ -41,23 +41,56 @@ type UpdateCompanyTypeV1 struct {
 }
 
 func CompanyTypeToViewModel(model *model.CompanyType) *CompanyTypeV1 {
-	return &CompanyTypeV1{}
+	viewModel := &CompanyTypeV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*CompanyTypeTranslationV1, 0),
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, CompanyTypeTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func CompanyTypeToListItemViewModel(model *model.CompanyType, language string, defaultLanguage string) *CompanyTypeListItemV1 {
-	return &CompanyTypeListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &CompanyTypeListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func CompanyTypeFromCreateViewModel(viewModel *CreateCompanyTypeV1) *model.CompanyType {
-	return &model.CompanyType{}
+	model := &model.CompanyType{
+		Key:          viewModel.Key,
+		Translations: make([]*model.CompanyTypeTranslation, 0),
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, CompanyTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func CompanyTypeFromUpdateViewModel(viewModel *UpdateCompanyTypeV1) *model.CompanyType {
-	return &model.CompanyType{}
+	model := &model.CompanyType{
+		Translations: make([]*model.CompanyTypeTranslation, 0),
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, CompanyTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func CompanyTypeTranslationToViewModel(model *model.CompanyTypeTranslation) *CompanyTypeTranslationV1 {
-	return &CompanyTypeTranslationV1{}
+	return &CompanyTypeTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func CompanyTypeTranslationFromViewModel(viewModel *CompanyTypeTranslationV1) *model.CompanyTypeTranslation {

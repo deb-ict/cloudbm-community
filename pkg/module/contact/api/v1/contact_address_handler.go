@@ -19,7 +19,7 @@ func (api *apiV1) GetContactAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().DefaultLanguage(ctx)
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetContactAddresses(ctx, contactId, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -52,7 +52,12 @@ func (api *apiV1) GetContactAddressByIdHandlerV1(w http.ResponseWriter, r *http.
 		return
 	}
 
-	response := ContactAddressToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := ContactAddressToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -71,7 +76,12 @@ func (api *apiV1) CreateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	response := ContactAddressToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := ContactAddressToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -92,7 +102,12 @@ func (api *apiV1) UpdateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	response := ContactAddressToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := ContactAddressToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 

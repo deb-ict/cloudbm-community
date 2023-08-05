@@ -18,7 +18,7 @@ func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().DefaultLanguage(ctx)
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetAddressTypes(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)

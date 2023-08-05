@@ -41,23 +41,56 @@ type UpdateContactTitleV1 struct {
 }
 
 func ContactTitleToViewModel(model *model.ContactTitle) *ContactTitleV1 {
-	return &ContactTitleV1{}
+	viewModel := &ContactTitleV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*ContactTitleTranslationV1, 0),
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, ContactTitleTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func ContactTitleToListItemViewModel(model *model.ContactTitle, language string, defaultLanguage string) *ContactTitleListItemV1 {
-	return &ContactTitleListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &ContactTitleListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func ContactTitleFromCreateViewModel(viewModel *CreateContactTitleV1) *model.ContactTitle {
-	return &model.ContactTitle{}
+	model := &model.ContactTitle{
+		Key:          viewModel.Key,
+		Translations: make([]*model.ContactTitleTranslation, 0),
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, ContactTitleTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func ContactTitleFromUpdateViewModel(viewModel *UpdateContactTitleV1) *model.ContactTitle {
-	return &model.ContactTitle{}
+	model := &model.ContactTitle{
+		Translations: make([]*model.ContactTitleTranslation, 0),
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, ContactTitleTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func ContactTitleTranslationToViewModel(model *model.ContactTitleTranslation) *ContactTitleTranslationV1 {
-	return &ContactTitleTranslationV1{}
+	return &ContactTitleTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func ContactTitleTranslationFromViewModel(viewModel *ContactTitleTranslationV1) *model.ContactTitleTranslation {

@@ -23,17 +23,17 @@ type UpdateContactV1 struct {
 }
 
 func ContactToViewModel(model *model.Contact) *ContactV1 {
-	return &ContactV1{}
+
 }
 
 func ContactToListItemViewModel(model *model.Contact, language string, defaultLanguage string) *ContactListItemV1 {
-	return &ContactListItemV1{}
+
 }
 
 func ContactFromCreateViewModel(viewModel *CreateContactV1) *model.Contact {
-	return &model.Contact{}
+
 }
 
 func ContactFromUpdateViewModel(viewModel *UpdateContactV1) *model.Contact {
-	return &model.Contact{}
+
 }

@@ -19,7 +19,7 @@ func (api *apiV1) GetCompanyUrisHandlerV1(w http.ResponseWriter, r *http.Request
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().DefaultLanguage(ctx)
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetCompanyUris(ctx, companyId, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -52,7 +52,12 @@ func (api *apiV1) GetCompanyUriByIdHandlerV1(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	response := CompanyUriToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := CompanyUriToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -71,7 +76,12 @@ func (api *apiV1) CreateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response := CompanyUriToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := CompanyUriToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -92,7 +102,12 @@ func (api *apiV1) UpdateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response := CompanyUriToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := CompanyUriToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 

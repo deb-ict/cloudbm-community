@@ -45,23 +45,60 @@ type UpdateAddressTypeV1 struct {
 }
 
 func AddressTypeToViewModel(model *model.AddressType) *AddressTypeV1 {
-	return &AddressTypeV1{}
+	viewModel := &AddressTypeV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*AddressTypeTranslationV1, 0),
+		IsDefault:    model.IsDefault,
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, AddressTypeTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func AddressTypeToListItemViewModel(model *model.AddressType, language string, defaultLanguage string) *AddressTypeListItemV1 {
-	return &AddressTypeListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &AddressTypeListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsDefault:   model.IsDefault,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func AddressTypeFromCreateViewModel(viewModel *CreateAddressTypeV1) *model.AddressType {
-	return &model.AddressType{}
+	model := &model.AddressType{
+		Key:          viewModel.Key,
+		Translations: make([]*model.AddressTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, AddressTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func AddressTypeFromUpdateViewModel(viewModel *UpdateAddressTypeV1) *model.AddressType {
-	return &model.AddressType{}
+	model := &model.AddressType{
+		Translations: make([]*model.AddressTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, AddressTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func AddressTypeTranslationToViewModel(model *model.AddressTypeTranslation) *AddressTypeTranslationV1 {
-	return &AddressTypeTranslationV1{}
+	return &AddressTypeTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func AddressTypeTranslationFromViewModel(viewModel *AddressTypeTranslationV1) *model.AddressTypeTranslation {

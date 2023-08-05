@@ -45,23 +45,60 @@ type UpdatePhoneTypeV1 struct {
 }
 
 func PhoneTypeToViewModel(model *model.PhoneType) *PhoneTypeV1 {
-	return &PhoneTypeV1{}
+	viewModel := &PhoneTypeV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*PhoneTypeTranslationV1, 0),
+		IsDefault:    model.IsDefault,
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, PhoneTypeTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func PhoneTypeToListItemViewModel(model *model.PhoneType, language string, defaultLanguage string) *PhoneTypeListItemV1 {
-	return &PhoneTypeListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &PhoneTypeListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsDefault:   model.IsDefault,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func PhoneTypeFromCreateViewModel(viewModel *CreatePhoneTypeV1) *model.PhoneType {
-	return &model.PhoneType{}
+	model := &model.PhoneType{
+		Key:          viewModel.Key,
+		Translations: make([]*model.PhoneTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func PhoneTypeFromUpdateViewModel(viewModel *UpdatePhoneTypeV1) *model.PhoneType {
-	return &model.PhoneType{}
+	model := &model.PhoneType{
+		Translations: make([]*model.PhoneTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func PhoneTypeTranslationToViewModel(model *model.PhoneTypeTranslation) *PhoneTypeTranslationV1 {
-	return &PhoneTypeTranslationV1{}
+	return &PhoneTypeTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func PhoneTypeTranslationFromViewModel(viewModel *PhoneTypeTranslationV1) *model.PhoneTypeTranslation {

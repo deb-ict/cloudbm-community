@@ -18,7 +18,7 @@ func (api *apiV1) GetIndustriesHandlerV1(w http.ResponseWriter, r *http.Request)
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().DefaultLanguage(ctx)
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetIndustries(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)

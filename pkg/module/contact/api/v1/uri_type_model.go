@@ -45,23 +45,60 @@ type UpdateUriTypeV1 struct {
 }
 
 func UriTypeToViewModel(model *model.UriType) *UriTypeV1 {
-	return &UriTypeV1{}
+	viewModel := &UriTypeV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*UriTypeTranslationV1, 0),
+		IsDefault:    model.IsDefault,
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, UriTypeTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func UriTypeToListItemViewModel(model *model.UriType, language string, defaultLanguage string) *UriTypeListItemV1 {
-	return &UriTypeListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &UriTypeListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsDefault:   model.IsDefault,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func UriTypeFromCreateViewModel(viewModel *CreateUriTypeV1) *model.UriType {
-	return &model.UriType{}
+	model := &model.UriType{
+		Key:          viewModel.Key,
+		Translations: make([]*model.UriTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, UriTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func UriTypeFromUpdateViewModel(viewModel *UpdateUriTypeV1) *model.UriType {
-	return &model.UriType{}
+	model := &model.UriType{
+		Translations: make([]*model.UriTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, UriTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func UriTypeTranslationToViewModel(model *model.UriTypeTranslation) *UriTypeTranslationV1 {
-	return &UriTypeTranslationV1{}
+	return &UriTypeTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func UriTypeTranslationFromViewModel(viewModel *UriTypeTranslationV1) *model.UriTypeTranslation {

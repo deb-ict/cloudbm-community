@@ -69,7 +69,6 @@ func ProductToViewModel(model *model.Product) *ProductV1 {
 	for _, translation := range model.Translations {
 		viewModel.Translations = append(viewModel.Translations, ProductTranslationToViewModel(translation))
 	}
-
 	return viewModel
 }
 

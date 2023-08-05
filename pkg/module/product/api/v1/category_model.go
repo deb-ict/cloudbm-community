@@ -68,7 +68,6 @@ func CategoryToViewModel(model *model.Category) *CategoryV1 {
 	for _, translation := range model.Translations {
 		viewModel.Translations = append(viewModel.Translations, CategoryTranslationToViewModel(translation))
 	}
-
 	return viewModel
 }
 

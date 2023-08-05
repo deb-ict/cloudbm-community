@@ -45,23 +45,60 @@ type UpdateEmailTypeV1 struct {
 }
 
 func EmailTypeToViewModel(model *model.EmailType) *EmailTypeV1 {
-	return &EmailTypeV1{}
+	viewModel := &EmailTypeV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*EmailTypeTranslationV1, 0),
+		IsDefault:    model.IsDefault,
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, EmailTypeTranslationToViewModel(translation))
+	}
+	return viewModel
 }
 
 func EmailTypeToListItemViewModel(model *model.EmailType, language string, defaultLanguage string) *EmailTypeListItemV1 {
-	return &EmailTypeListItemV1{}
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &EmailTypeListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsDefault:   model.IsDefault,
+		IsSystem:    model.IsSystem,
+	}
 }
 
 func EmailTypeFromCreateViewModel(viewModel *CreateEmailTypeV1) *model.EmailType {
-	return &model.EmailType{}
+	model := &model.EmailType{
+		Key:          viewModel.Key,
+		Translations: make([]*model.EmailTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, EmailTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func EmailTypeFromUpdateViewModel(viewModel *UpdateEmailTypeV1) *model.EmailType {
-	return &model.EmailType{}
+	model := &model.EmailType{
+		Translations: make([]*model.EmailTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, EmailTypeTranslationFromViewModel(translation))
+	}
+	return model
 }
 
 func EmailTypeTranslationToViewModel(model *model.EmailTypeTranslation) *EmailTypeTranslationV1 {
-	return &EmailTypeTranslationV1{}
+	return &EmailTypeTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
 }
 
 func EmailTypeTranslationFromViewModel(viewModel *EmailTypeTranslationV1) *model.EmailTypeTranslation {
