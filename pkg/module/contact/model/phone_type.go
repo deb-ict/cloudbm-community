@@ -53,6 +53,6 @@ func (m *PhoneType) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *PhoneType) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *PhoneTypeFilter) HasFilter() bool {
+	return false
 }

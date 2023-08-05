@@ -9,8 +9,6 @@ type ContactTitle struct {
 	Id           string
 	Key          string
 	Translations []*ContactTitleTranslation
-	IsEnabled    bool
-	IsDefault    bool
 	IsSystem     bool
 }
 
@@ -54,6 +52,6 @@ func (m *ContactTitle) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *ContactTitle) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *ContactTitleFilter) HasFilter() bool {
+	return false
 }

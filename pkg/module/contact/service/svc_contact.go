@@ -30,6 +30,11 @@ func (svc *service) GetContactById(ctx context.Context, id string) (*model.Conta
 }
 
 func (svc *service) CreateContact(ctx context.Context, model *model.Contact) (*model.Contact, error) {
+	err := svc.validateContact(ctx, model)
+	if err != nil {
+		return nil, err
+	}
+
 	newId, err := svc.database.ContactRepository().CreateContact(ctx, model)
 	if err != nil {
 		return nil, err
@@ -47,7 +52,17 @@ func (svc *service) UpdateContact(ctx context.Context, id string, model *model.C
 		return nil, contact.ErrContactNotFound
 	}
 
-	//TODO: Set fields
+	data.UserId = model.UserId
+	data.Title = model.Title
+	data.FamilyName = model.FamilyName
+	data.MiddleName = model.MiddleName
+	data.GivenName = model.GivenName
+	data.IsEnabled = model.IsEnabled
+
+	err = svc.validateContact(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.database.ContactRepository().UpdateContact(ctx, data)
 	if err != nil {
@@ -64,10 +79,52 @@ func (svc *service) DeleteContact(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrContactNotFound
 	}
+	if data.IsSystem {
+		return contact.ErrContactReadOnly
+	}
 
 	err = svc.database.ContactRepository().DeleteContact(ctx, data)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (svc *service) validateContact(ctx context.Context, model *model.Contact) error {
+	if model.Title != nil {
+		contactTitle, err := svc.database.ContactTitleRepository().GetContactTitleById(ctx, model.Title.Id)
+		if err != nil {
+			return err
+		}
+		if contactTitle == nil {
+			return contact.ErrContactTitleNotFound
+		}
+	}
+
+	for _, address := range model.Addresses {
+		err := svc.validateContactAddress(ctx, model, address)
+		if err != nil {
+			return err
+		}
+	}
+	for _, email := range model.Emails {
+		err := svc.validateContactEmail(ctx, model, email)
+		if err != nil {
+			return err
+		}
+	}
+	for _, phone := range model.Phones {
+		err := svc.validateContactPhone(ctx, model, phone)
+		if err != nil {
+			return err
+		}
+	}
+	for _, uri := range model.Uris {
+		err := svc.validateContactUri(ctx, model, uri)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

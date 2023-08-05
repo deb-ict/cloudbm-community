@@ -30,6 +30,11 @@ func (svc *service) GetCompanyById(ctx context.Context, id string) (*model.Compa
 }
 
 func (svc *service) CreateCompany(ctx context.Context, model *model.Company) (*model.Company, error) {
+	err := svc.validateCompany(ctx, model)
+	if err != nil {
+		return nil, err
+	}
+
 	newId, err := svc.database.CompanyRepository().CreateCompany(ctx, model)
 	if err != nil {
 		return nil, err
@@ -47,7 +52,16 @@ func (svc *service) UpdateCompany(ctx context.Context, id string, model *model.C
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	//TODO: Set fields
+	data.Name = model.Name
+	data.VatNumber = model.VatNumber
+	data.Type = model.Type
+	data.Industry = model.Industry
+	data.IsEnabled = model.IsEnabled
+
+	err = svc.validateCompany(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.database.CompanyRepository().UpdateCompany(ctx, data)
 	if err != nil {
@@ -64,10 +78,62 @@ func (svc *service) DeleteCompany(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrCompanyNotFound
 	}
+	if data.IsSystem {
+		return contact.ErrCompanyReadOnly
+	}
 
 	err = svc.database.CompanyRepository().DeleteCompany(ctx, data)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (svc *service) validateCompany(ctx context.Context, model *model.Company) error {
+	if model.Type != nil {
+		companyType, err := svc.database.CompanyTypeRepository().GetCompanyTypeById(ctx, model.Type.Id)
+		if err != nil {
+			return err
+		}
+		if companyType == nil {
+			return contact.ErrCompanyTypeNotFound
+		}
+	}
+
+	if model.Industry != nil {
+		industry, err := svc.database.IndustryRepository().GetIndustryById(ctx, model.Industry.Id)
+		if err != nil {
+			return err
+		}
+		if industry == nil {
+			return contact.ErrIndustryNotFound
+		}
+	}
+
+	for _, address := range model.Addresses {
+		err := svc.validateCompanyAddress(ctx, model, address)
+		if err != nil {
+			return err
+		}
+	}
+	for _, email := range model.Emails {
+		err := svc.validateCompanyEmail(ctx, model, email)
+		if err != nil {
+			return err
+		}
+	}
+	for _, phone := range model.Phones {
+		err := svc.validateCompanyPhone(ctx, model, phone)
+		if err != nil {
+			return err
+		}
+	}
+	for _, uri := range model.Uris {
+		err := svc.validateCompanyUri(ctx, model, uri)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }

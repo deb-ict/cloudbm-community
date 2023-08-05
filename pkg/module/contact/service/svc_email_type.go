@@ -32,15 +32,17 @@ func (svc *service) GetEmailTypeById(ctx context.Context, id string) (*model.Ema
 
 func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType) (*model.EmailType, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.EmailTypeRepository().GetEmailTypeByKey(ctx, model.Key)
+	err := svc.validateEmailTypeName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrEmailTypeDuplicateKey
-	}
 
-	//TODO: Check for duplicates on name
+	if model.IsDefault {
+		err = svc.resetDefaultEmailType(ctx, model)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	newId, err := svc.database.EmailTypeRepository().CreateEmailType(ctx, model)
 	if err != nil {
@@ -59,9 +61,20 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model
 		return nil, contact.ErrEmailTypeNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.IsDefault = model.IsDefault
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validateEmailTypeName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultEmailType(ctx, data)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	err = svc.database.EmailTypeRepository().UpdateEmailType(ctx, data)
 	if err != nil {
@@ -78,12 +91,54 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrEmailTypeNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsDefault {
+		return contact.ErrEmailTypeIsDefault
+	}
+	if data.IsSystem {
+		return contact.ErrEmailTypeReadOnly
+	}
 
 	err = svc.database.EmailTypeRepository().DeleteEmailType(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) resetDefaultEmailType(ctx context.Context, model *model.EmailType) error {
+	current, err := svc.database.EmailTypeRepository().GetDefaultEmailType(ctx)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.EmailTypeRepository().UpdateEmailType(ctx, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateEmailTypeName(ctx context.Context, model *model.EmailType) error {
+	if model.IsTransient() {
+		existing, err := svc.database.EmailTypeRepository().GetEmailTypeByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrEmailTypeDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.EmailTypeRepository().GetEmailTypeByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrEmailTypeDuplicateName
+		}
 	}
 	return nil
 }

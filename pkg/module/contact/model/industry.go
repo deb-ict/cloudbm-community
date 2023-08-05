@@ -9,7 +9,6 @@ type Industry struct {
 	Id           string
 	Key          string
 	Translations []*IndustryTranslation
-	IsDefault    bool
 	IsSystem     bool
 }
 
@@ -53,6 +52,6 @@ func (m *Industry) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Industry) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *IndustryFilter) HasFilter() bool {
+	return false
 }

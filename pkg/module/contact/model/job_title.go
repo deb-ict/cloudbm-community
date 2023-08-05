@@ -9,7 +9,6 @@ type JobTitle struct {
 	Id           string
 	Key          string
 	Translations []*JobTitleTranslation
-	IsDefault    bool
 	IsSystem     bool
 }
 
@@ -53,6 +52,6 @@ func (m *JobTitle) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *JobTitle) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *JobTitleFilter) HasFilter() bool {
+	return false
 }

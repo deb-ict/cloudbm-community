@@ -53,6 +53,6 @@ func (m *EmailType) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *EmailType) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *EmailTypeFilter) HasFilter() bool {
+	return false
 }

@@ -54,6 +54,18 @@ func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, mo
 		return nil, contact.ErrCompanyNotFound
 	}
 
+	err = svc.validateCompanyEmail(ctx, parent, model)
+	if err != nil {
+		return nil, err
+	}
+
+	if model.IsDefault {
+		err = svc.resetDefaultCompanyEmail(ctx, parent, model)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	newId, err := svc.database.CompanyEmailRepository().CreateCompanyEmail(ctx, parent, model)
 	if err != nil {
 		return nil, err
@@ -76,6 +88,22 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 	}
 	if data == nil {
 		return nil, contact.ErrCompanyEmailNotFound
+	}
+
+	data.Type = model.Type
+	data.Email = model.Email
+	data.IsDefault = model.IsDefault
+
+	err = svc.validateCompanyEmail(ctx, parent, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultCompanyEmail(ctx, parent, data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = svc.database.CompanyEmailRepository().UpdateCompanyEmail(ctx, parent, data)
@@ -101,10 +129,40 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 	if data == nil {
 		return contact.ErrCompanyEmailNotFound
 	}
+	if data.IsDefault {
+		return contact.ErrCompanyEmailIsDefault
+	}
 
 	err = svc.database.CompanyEmailRepository().DeleteCompanyEmail(ctx, parent, data)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (svc *service) resetDefaultCompanyEmail(ctx context.Context, parent *model.Company, model *model.Email) error {
+	current, err := svc.database.CompanyEmailRepository().GetDefaultCompanyEmail(ctx, parent)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.CompanyEmailRepository().UpdateCompanyEmail(ctx, parent, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateCompanyEmail(ctx context.Context, parent *model.Company, model *model.Email) error {
+	modelType, err := svc.database.EmailTypeRepository().GetEmailTypeById(ctx, model.Type.Id)
+	if err != nil {
+		return err
+	}
+	if modelType == nil {
+		return contact.ErrEmailTypeNotFound
+	}
+
 	return nil
 }

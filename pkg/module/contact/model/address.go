@@ -20,6 +20,6 @@ func (m *Address) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Address) CanDelete() bool {
-	return !m.IsDefault
+func (f *AddressFilter) HasFilter() bool {
+	return false
 }

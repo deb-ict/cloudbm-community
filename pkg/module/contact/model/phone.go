@@ -15,6 +15,6 @@ func (m *Phone) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Phone) CanDelete() bool {
-	return !m.IsDefault
+func (f *PhoneFilter) HasFilter() bool {
+	return false
 }

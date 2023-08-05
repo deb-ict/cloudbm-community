@@ -8,12 +8,13 @@ type Uri struct {
 }
 
 type UriFilter struct {
+	TypeId string
 }
 
 func (m *Uri) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Uri) CanDelete() bool {
-	return !m.IsDefault
+func (f *UriFilter) HasFilter() bool {
+	return false
 }

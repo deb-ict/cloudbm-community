@@ -54,6 +54,18 @@ func (svc *service) CreateCompanyUri(ctx context.Context, companyId string, mode
 		return nil, contact.ErrCompanyNotFound
 	}
 
+	err = svc.validateCompanyUri(ctx, parent, model)
+	if err != nil {
+		return nil, err
+	}
+
+	if model.IsDefault {
+		err = svc.resetDefaultCompanyUri(ctx, parent, model)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	newId, err := svc.database.CompanyUriRepository().CreateCompanyUri(ctx, parent, model)
 	if err != nil {
 		return nil, err
@@ -76,6 +88,22 @@ func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id s
 	}
 	if data == nil {
 		return nil, contact.ErrCompanyUriNotFound
+	}
+
+	data.Type = model.Type
+	data.Uri = model.Uri
+	data.IsDefault = model.IsDefault
+
+	err = svc.validateCompanyUri(ctx, parent, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultCompanyUri(ctx, parent, data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = svc.database.CompanyUriRepository().UpdateCompanyUri(ctx, parent, data)
@@ -101,10 +129,40 @@ func (svc *service) DeleteCompanyUri(ctx context.Context, companyId string, id s
 	if data == nil {
 		return contact.ErrCompanyUriNotFound
 	}
+	if data.IsDefault {
+		return contact.ErrCompanyUriIsDefault
+	}
 
 	err = svc.database.CompanyUriRepository().DeleteCompanyUri(ctx, parent, data)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (svc *service) resetDefaultCompanyUri(ctx context.Context, parent *model.Company, model *model.Uri) error {
+	current, err := svc.database.CompanyUriRepository().GetDefaultCompanyUri(ctx, parent)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.CompanyUriRepository().UpdateCompanyUri(ctx, parent, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateCompanyUri(ctx context.Context, parent *model.Company, model *model.Uri) error {
+	modelType, err := svc.database.UriTypeRepository().GetUriTypeById(ctx, model.Type.Id)
+	if err != nil {
+		return err
+	}
+	if modelType == nil {
+		return contact.ErrUriTypeNotFound
+	}
+
 	return nil
 }

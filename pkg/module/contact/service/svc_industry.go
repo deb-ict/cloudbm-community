@@ -32,15 +32,10 @@ func (svc *service) GetIndustryById(ctx context.Context, id string) (*model.Indu
 
 func (svc *service) CreateIndustry(ctx context.Context, model *model.Industry) (*model.Industry, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.IndustryRepository().GetIndustryByKey(ctx, model.Key)
+	err := svc.validateIndustryName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrIndustryDuplicateKey
-	}
-
-	//TODO: Check for duplicates on name
 
 	newId, err := svc.database.IndustryRepository().CreateIndustry(ctx, model)
 	if err != nil {
@@ -59,9 +54,12 @@ func (svc *service) UpdateIndustry(ctx context.Context, id string, model *model.
 		return nil, contact.ErrIndustryNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validateIndustryName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.database.IndustryRepository().UpdateIndustry(ctx, data)
 	if err != nil {
@@ -78,12 +76,36 @@ func (svc *service) DeleteIndustry(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrIndustryNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsSystem {
+		return contact.ErrIndustryReadOnly
+	}
 
 	err = svc.database.IndustryRepository().DeleteIndustry(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) validateIndustryName(ctx context.Context, model *model.Industry) error {
+	if model.IsTransient() {
+		existing, err := svc.database.IndustryRepository().GetIndustryByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrIndustryDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.IndustryRepository().GetIndustryByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrIndustryDuplicateName
+		}
 	}
 	return nil
 }

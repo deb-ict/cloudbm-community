@@ -54,6 +54,18 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 		return nil, contact.ErrContactNotFound
 	}
 
+	err = svc.validateContactAddress(ctx, parent, model)
+	if err != nil {
+		return nil, err
+	}
+
+	if model.IsDefault {
+		err = svc.resetDefaultContactAddress(ctx, parent, model)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	newId, err := svc.database.ContactAddressRepository().CreateContactAddress(ctx, parent, model)
 	if err != nil {
 		return nil, err
@@ -76,6 +88,28 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 	}
 	if data == nil {
 		return nil, contact.ErrContactAddressNotFound
+	}
+
+	data.Type = model.Type
+	data.Street = model.Street
+	data.StreetNr = model.StreetNr
+	data.Unit = model.Unit
+	data.PostalCode = model.PostalCode
+	data.City = model.City
+	data.State = model.State
+	data.Country = model.Country
+	data.IsDefault = model.IsDefault
+
+	err = svc.validateContactAddress(ctx, parent, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultContactAddress(ctx, parent, data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = svc.database.ContactAddressRepository().UpdateContactAddress(ctx, parent, data)
@@ -101,10 +135,40 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 	if data == nil {
 		return contact.ErrContactAddressNotFound
 	}
+	if data.IsDefault {
+		return contact.ErrContactAddressIsDefault
+	}
 
 	err = svc.database.ContactAddressRepository().DeleteContactAddress(ctx, parent, data)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (svc *service) resetDefaultContactAddress(ctx context.Context, parent *model.Contact, model *model.Address) error {
+	current, err := svc.database.ContactAddressRepository().GetDefaultContactAddress(ctx, parent)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.ContactAddressRepository().UpdateContactAddress(ctx, parent, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateContactAddress(ctx context.Context, parent *model.Contact, model *model.Address) error {
+	modelType, err := svc.database.AddressTypeRepository().GetAddressTypeById(ctx, model.Type.Id)
+	if err != nil {
+		return err
+	}
+	if modelType == nil {
+		return contact.ErrAddressTypeNotFound
+	}
+
 	return nil
 }

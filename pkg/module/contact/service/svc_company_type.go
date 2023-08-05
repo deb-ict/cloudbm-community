@@ -32,15 +32,10 @@ func (svc *service) GetCompanyTypeById(ctx context.Context, id string) (*model.C
 
 func (svc *service) CreateCompanyType(ctx context.Context, model *model.CompanyType) (*model.CompanyType, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.CompanyTypeRepository().GetCompanyTypeByKey(ctx, model.Key)
+	err := svc.validateCompanyTypeName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrCompanyTypeDuplicateKey
-	}
-
-	//TODO: Check for duplicates on name
 
 	newId, err := svc.database.CompanyTypeRepository().CreateCompanyType(ctx, model)
 	if err != nil {
@@ -59,9 +54,12 @@ func (svc *service) UpdateCompanyType(ctx context.Context, id string, model *mod
 		return nil, contact.ErrCompanyTypeNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validateCompanyTypeName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.database.CompanyTypeRepository().UpdateCompanyType(ctx, data)
 	if err != nil {
@@ -78,12 +76,36 @@ func (svc *service) DeleteCompanyType(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrCompanyTypeNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsSystem {
+		return contact.ErrCompanyTypeReadOnly
+	}
 
 	err = svc.database.CompanyTypeRepository().DeleteCompanyType(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) validateCompanyTypeName(ctx context.Context, model *model.CompanyType) error {
+	if model.IsTransient() {
+		existing, err := svc.database.CompanyTypeRepository().GetCompanyTypeByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrCompanyTypeDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.CompanyTypeRepository().GetCompanyTypeByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrCompanyTypeDuplicateName
+		}
 	}
 	return nil
 }

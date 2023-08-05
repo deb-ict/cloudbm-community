@@ -23,6 +23,6 @@ func (m *Contact) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Contact) CanDelete() bool {
-	return !m.IsSystem
+func (f *ContactFilter) HasFilter() bool {
+	return false
 }

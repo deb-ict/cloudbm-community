@@ -54,6 +54,18 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, mo
 		return nil, contact.ErrContactNotFound
 	}
 
+	err = svc.validateContactPhone(ctx, parent, model)
+	if err != nil {
+		return nil, err
+	}
+
+	if model.IsDefault {
+		err = svc.resetDefaultContactPhone(ctx, parent, model)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	newId, err := svc.database.ContactPhoneRepository().CreateContactPhone(ctx, parent, model)
 	if err != nil {
 		return nil, err
@@ -76,6 +88,23 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 	}
 	if data == nil {
 		return nil, contact.ErrContactPhoneNotFound
+	}
+
+	data.Type = model.Type
+	data.PhoneNumber = model.PhoneNumber
+	data.Extension = model.Extension
+	data.IsDefault = model.IsDefault
+
+	err = svc.validateContactPhone(ctx, parent, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultContactPhone(ctx, parent, data)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	err = svc.database.ContactPhoneRepository().UpdateContactPhone(ctx, parent, data)
@@ -101,10 +130,40 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 	if data == nil {
 		return contact.ErrContactPhoneNotFound
 	}
+	if data.IsDefault {
+		return contact.ErrContactPhoneIsDefault
+	}
 
 	err = svc.database.ContactPhoneRepository().DeleteContactPhone(ctx, parent, data)
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (svc *service) resetDefaultContactPhone(ctx context.Context, parent *model.Contact, model *model.Phone) error {
+	current, err := svc.database.ContactPhoneRepository().GetDefaultContactPhone(ctx, parent)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.ContactPhoneRepository().UpdateContactPhone(ctx, parent, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateContactPhone(ctx context.Context, parent *model.Contact, model *model.Phone) error {
+	modelType, err := svc.database.PhoneTypeRepository().GetPhoneTypeById(ctx, model.Type.Id)
+	if err != nil {
+		return err
+	}
+	if modelType == nil {
+		return contact.ErrPhoneTypeNotFound
+	}
+
 	return nil
 }

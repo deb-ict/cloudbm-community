@@ -32,15 +32,17 @@ func (svc *service) GetUriTypeById(ctx context.Context, id string) (*model.UriTy
 
 func (svc *service) CreateUriType(ctx context.Context, model *model.UriType) (*model.UriType, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.UriTypeRepository().GetUriTypeByKey(ctx, model.Key)
+	err := svc.validateUriTypeName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrUriTypeDuplicateKey
-	}
 
-	//TODO: Check for duplicates on name
+	if model.IsDefault {
+		err = svc.resetDefaultUriType(ctx, model)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	newId, err := svc.database.UriTypeRepository().CreateUriType(ctx, model)
 	if err != nil {
@@ -59,9 +61,20 @@ func (svc *service) UpdateUriType(ctx context.Context, id string, model *model.U
 		return nil, contact.ErrUriTypeNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.IsDefault = model.IsDefault
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validateUriTypeName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultUriType(ctx, data)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	err = svc.database.UriTypeRepository().UpdateUriType(ctx, data)
 	if err != nil {
@@ -78,12 +91,54 @@ func (svc *service) DeleteUriType(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrUriTypeNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsDefault {
+		return contact.ErrUriTypeIsDefault
+	}
+	if data.IsSystem {
+		return contact.ErrUriTypeReadOnly
+	}
 
 	err = svc.database.UriTypeRepository().DeleteUriType(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) resetDefaultUriType(ctx context.Context, model *model.UriType) error {
+	current, err := svc.database.UriTypeRepository().GetDefaultUriType(ctx)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.UriTypeRepository().UpdateUriType(ctx, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateUriTypeName(ctx context.Context, model *model.UriType) error {
+	if model.IsTransient() {
+		existing, err := svc.database.UriTypeRepository().GetUriTypeByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrUriTypeDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.UriTypeRepository().GetUriTypeByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrUriTypeDuplicateName
+		}
 	}
 	return nil
 }

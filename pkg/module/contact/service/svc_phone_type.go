@@ -32,15 +32,17 @@ func (svc *service) GetPhoneTypeById(ctx context.Context, id string) (*model.Pho
 
 func (svc *service) CreatePhoneType(ctx context.Context, model *model.PhoneType) (*model.PhoneType, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.PhoneTypeRepository().GetPhoneTypeByKey(ctx, model.Key)
+	err := svc.validatePhoneTypeName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrPhoneTypeDuplicateKey
-	}
 
-	//TODO: Check for duplicates on name
+	if model.IsDefault {
+		err = svc.resetDefaultPhoneType(ctx, model)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	newId, err := svc.database.PhoneTypeRepository().CreatePhoneType(ctx, model)
 	if err != nil {
@@ -59,9 +61,20 @@ func (svc *service) UpdatePhoneType(ctx context.Context, id string, model *model
 		return nil, contact.ErrPhoneTypeNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.IsDefault = model.IsDefault
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validatePhoneTypeName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultPhoneType(ctx, data)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	err = svc.database.PhoneTypeRepository().UpdatePhoneType(ctx, data)
 	if err != nil {
@@ -78,12 +91,54 @@ func (svc *service) DeletePhoneType(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrPhoneTypeNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsDefault {
+		return contact.ErrPhoneTypeIsDefault
+	}
+	if data.IsSystem {
+		return contact.ErrPhoneTypeReadOnly
+	}
 
 	err = svc.database.PhoneTypeRepository().DeletePhoneType(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) resetDefaultPhoneType(ctx context.Context, model *model.PhoneType) error {
+	current, err := svc.database.PhoneTypeRepository().GetDefaultPhoneType(ctx)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.PhoneTypeRepository().UpdatePhoneType(ctx, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validatePhoneTypeName(ctx context.Context, model *model.PhoneType) error {
+	if model.IsTransient() {
+		existing, err := svc.database.PhoneTypeRepository().GetPhoneTypeByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrPhoneTypeDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.PhoneTypeRepository().GetPhoneTypeByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrPhoneTypeDuplicateName
+		}
 	}
 	return nil
 }

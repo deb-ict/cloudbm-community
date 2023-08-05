@@ -32,12 +32,16 @@ func (svc *service) GetAddressTypeById(ctx context.Context, id string) (*model.A
 
 func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressType) (*model.AddressType, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.AddressTypeRepository().GetAddressTypeByKey(ctx, model.Key)
+	err := svc.validateAddressTypeName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrAddressTypeDuplicateKey
+
+	if model.IsDefault {
+		err = svc.resetDefaultAddressType(ctx, model)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	newId, err := svc.database.AddressTypeRepository().CreateAddressType(ctx, model)
@@ -57,7 +61,20 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 		return nil, contact.ErrAddressTypeNotFound
 	}
 
-	//TODO: Set fields
+	data.IsDefault = model.IsDefault
+	data.Translations = model.Translations
+
+	err = svc.validateAddressTypeName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.IsDefault {
+		err = svc.resetDefaultAddressType(ctx, data)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	err = svc.database.AddressTypeRepository().UpdateAddressType(ctx, data)
 	if err != nil {
@@ -74,12 +91,54 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrAddressTypeNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsDefault {
+		return contact.ErrAddressTypeIsDefault
+	}
+	if data.IsSystem {
+		return contact.ErrAddressTypeReadOnly
+	}
 
 	err = svc.database.AddressTypeRepository().DeleteAddressType(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) resetDefaultAddressType(ctx context.Context, model *model.AddressType) error {
+	current, err := svc.database.AddressTypeRepository().GetDefaultAddressType(ctx)
+	if err != nil {
+		return err
+	}
+	if current != nil && current.Id != model.Id {
+		current.IsDefault = false
+		err = svc.database.AddressTypeRepository().UpdateAddressType(ctx, current)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) validateAddressTypeName(ctx context.Context, model *model.AddressType) error {
+	if model.IsTransient() {
+		existing, err := svc.database.AddressTypeRepository().GetAddressTypeByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrAddressTypeDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.AddressTypeRepository().GetAddressTypeByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrAddressTypeDuplicateName
+		}
 	}
 	return nil
 }

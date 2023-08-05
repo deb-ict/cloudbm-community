@@ -14,6 +14,6 @@ func (m *Email) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Email) CanDelete() bool {
-	return !m.IsDefault
+func (f *EmailFilter) HasFilter() bool {
+	return false
 }

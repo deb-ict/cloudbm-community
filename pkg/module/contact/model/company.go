@@ -22,6 +22,6 @@ func (m *Company) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Company) CanDelete() bool {
-	return !m.IsSystem
+func (f *CompanyFilter) HasFilter() bool {
+	return false
 }

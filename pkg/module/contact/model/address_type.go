@@ -53,6 +53,6 @@ func (m *AddressType) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *AddressType) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *AddressTypeFilter) HasFilter() bool {
+	return false
 }

@@ -32,15 +32,10 @@ func (svc *service) GetJobTitleById(ctx context.Context, id string) (*model.JobT
 
 func (svc *service) CreateJobTitle(ctx context.Context, model *model.JobTitle) (*model.JobTitle, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.JobTitleRepository().GetJobTitleByKey(ctx, model.Key)
+	err := svc.validateJobTitleName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrJobTitleDuplicateKey
-	}
-
-	//TODO: Check for duplicates on name
 
 	newId, err := svc.database.JobTitleRepository().CreateJobTitle(ctx, model)
 	if err != nil {
@@ -59,9 +54,12 @@ func (svc *service) UpdateJobTitle(ctx context.Context, id string, model *model.
 		return nil, contact.ErrJobTitleNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validateJobTitleName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.database.JobTitleRepository().UpdateJobTitle(ctx, data)
 	if err != nil {
@@ -78,12 +76,36 @@ func (svc *service) DeleteJobTitle(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrJobTitleNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsSystem {
+		return contact.ErrJobTitleReadOnly
+	}
 
 	err = svc.database.JobTitleRepository().DeleteJobTitle(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) validateJobTitleName(ctx context.Context, model *model.JobTitle) error {
+	if model.IsTransient() {
+		existing, err := svc.database.JobTitleRepository().GetJobTitleByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrJobTitleDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.JobTitleRepository().GetJobTitleByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrJobTitleDuplicateName
+		}
 	}
 	return nil
 }

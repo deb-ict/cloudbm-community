@@ -32,15 +32,10 @@ func (svc *service) GetContactTitleById(ctx context.Context, id string) (*model.
 
 func (svc *service) CreateContactTitle(ctx context.Context, model *model.ContactTitle) (*model.ContactTitle, error) {
 	model.Key = strings.ToLower(model.Key)
-	existing, err := svc.database.ContactTitleRepository().GetContactTitleByKey(ctx, model.Key)
+	err := svc.validateContactTitleName(ctx, model)
 	if err != nil {
 		return nil, err
 	}
-	if existing != nil {
-		return nil, contact.ErrContactTitleDuplicateKey
-	}
-
-	//TODO: Check for duplicates on name
 
 	newId, err := svc.database.ContactTitleRepository().CreateContactTitle(ctx, model)
 	if err != nil {
@@ -59,9 +54,12 @@ func (svc *service) UpdateContactTitle(ctx context.Context, id string, model *mo
 		return nil, contact.ErrContactTitleNotFound
 	}
 
-	//TODO: Check for duplicates on name
+	data.Translations = model.Translations
 
-	//TODO: Set fields
+	err = svc.validateContactTitleName(ctx, data)
+	if err != nil {
+		return nil, err
+	}
 
 	err = svc.database.ContactTitleRepository().UpdateContactTitle(ctx, data)
 	if err != nil {
@@ -78,12 +76,36 @@ func (svc *service) DeleteContactTitle(ctx context.Context, id string) error {
 	if data == nil {
 		return contact.ErrContactTitleNotFound
 	}
-
-	//TODO: Check dependencies
+	if data.IsSystem {
+		return contact.ErrContactTitleReadOnly
+	}
 
 	err = svc.database.ContactTitleRepository().DeleteContactTitle(ctx, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (svc *service) validateContactTitleName(ctx context.Context, model *model.ContactTitle) error {
+	if model.IsTransient() {
+		existing, err := svc.database.ContactTitleRepository().GetContactTitleByKey(ctx, model.Key)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrContactTitleDuplicateKey
+		}
+	}
+
+	for _, translation := range model.Translations {
+		existing, err := svc.database.ContactTitleRepository().GetContactTitleByName(ctx, translation.Language, translation.Name)
+		if err != nil {
+			return err
+		}
+		if existing != nil {
+			return contact.ErrContactTitleDuplicateName
+		}
 	}
 	return nil
 }

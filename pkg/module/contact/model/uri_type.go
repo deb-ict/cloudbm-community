@@ -53,6 +53,6 @@ func (m *UriType) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *UriType) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *UriTypeFilter) HasFilter() bool {
+	return false
 }

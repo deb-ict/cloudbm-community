@@ -9,7 +9,6 @@ type CompanyType struct {
 	Id           string
 	Key          string
 	Translations []*CompanyTypeTranslation
-	IsDefault    bool
 	IsSystem     bool
 }
 
@@ -53,6 +52,6 @@ func (m *CompanyType) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *CompanyType) CanDelete() bool {
-	return !m.IsDefault && !m.IsSystem
+func (f *CompanyTypeFilter) HasFilter() bool {
+	return false
 }
