@@ -9,4 +9,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require golang.org/x/sys v0.10.0 // indirect
+require (
+	github.com/shopspring/decimal v1.3.1 // indirect
+	golang.org/x/sys v0.10.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
+)

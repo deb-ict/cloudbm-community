@@ -55,7 +55,12 @@ func (api *apiV1) GetProductByIdHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	response := ProductToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := ProductToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -73,7 +78,12 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response := ProductToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := ProductToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -93,7 +103,12 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	response := ProductToViewModel(result)
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+	}
+
+	response := ProductToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
