@@ -16,11 +16,6 @@ func (api *apiV1) GetContactsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	filter := &model.ContactFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
-	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
-	}
-
 	result, count, err := api.service.GetContacts(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
@@ -35,7 +30,7 @@ func (api *apiV1) GetContactsHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*ContactListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ContactToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ContactToListItemViewModel(item))
 	}
 
 	rest.WriteResult(w, response)

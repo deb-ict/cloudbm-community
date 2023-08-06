@@ -16,11 +16,6 @@ func (api *apiV1) GetCompaniesHandlerV1(w http.ResponseWriter, r *http.Request) 
 	filter := &model.CompanyFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
-	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
-	}
-
 	result, count, err := api.service.GetCompanies(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
@@ -35,7 +30,7 @@ func (api *apiV1) GetCompaniesHandlerV1(w http.ResponseWriter, r *http.Request) 
 		Items: make([]*CompanyListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyToListItemViewModel(item))
 	}
 
 	rest.WriteResult(w, response)
