@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
-	"github.com/deb-ict/cloudbm-community/pkg/module"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
 )
 
 type Service interface {
-	module.Service
+	StringNormalizer() core.StringNormalizer
+	FeatureProvider() core.FeatureProvider
+	LanguageProvider() localization.LanguageProvider
 
 	GetProducts(ctx context.Context, offset int64, limit int64, filter *model.ProductFilter, sort *core.Sort) ([]*model.Product, int64, error)
 	GetProductById(ctx context.Context, id string) (*model.Product, error)

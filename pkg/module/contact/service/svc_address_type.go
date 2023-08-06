@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strings"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
@@ -31,7 +30,7 @@ func (svc *service) GetAddressTypeById(ctx context.Context, id string) (*model.A
 }
 
 func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressType) (*model.AddressType, error) {
-	model.Key = strings.ToLower(model.Key)
+	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
 	err := svc.validateAddressTypeName(ctx, model)
 	if err != nil {
 		return nil, err

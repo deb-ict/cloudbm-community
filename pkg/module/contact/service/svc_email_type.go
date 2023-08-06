@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strings"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
@@ -31,7 +30,7 @@ func (svc *service) GetEmailTypeById(ctx context.Context, id string) (*model.Ema
 }
 
 func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType) (*model.EmailType, error) {
-	model.Key = strings.ToLower(model.Key)
+	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
 	err := svc.validateEmailTypeName(ctx, model)
 	if err != nil {
 		return nil, err

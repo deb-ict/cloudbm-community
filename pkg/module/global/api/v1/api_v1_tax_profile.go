@@ -65,7 +65,7 @@ func (api *apiV1) GetTaxProfilesHandlerV1(w http.ResponseWriter, r *http.Request
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetTaxProfiles(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -82,7 +82,7 @@ func (api *apiV1) GetTaxProfilesHandlerV1(w http.ResponseWriter, r *http.Request
 		Items: make([]*TaxProfileListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, TaxProfileToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, TaxProfileToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -102,7 +102,7 @@ func (api *apiV1) GetTaxProfileByIdHandlerV1(w http.ResponseWriter, r *http.Requ
 		response := TaxProfileToViewModel(result)
 		rest.WriteResult(w, response)
 	} else {
-		response := TaxProfileToLocalizedViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+		response := TaxProfileToLocalizedViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 		rest.WriteResult(w, response)
 	}
 }

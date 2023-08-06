@@ -18,7 +18,7 @@ func (api *apiV1) GetUriTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetUriTypes(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -35,7 +35,7 @@ func (api *apiV1) GetUriTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*UriTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, UriTypeToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, UriTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)

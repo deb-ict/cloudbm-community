@@ -3,12 +3,13 @@ package service
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
-	"github.com/deb-ict/cloudbm-community/pkg/module"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product"
 )
 
 type ServiceOptions struct {
-	module.ServiceOptions
+	StringNormalizer core.StringNormalizer
+	FeatureProvider  core.FeatureProvider
+	LanguageProvider localization.LanguageProvider
 }
 
 type service struct {
@@ -34,14 +35,26 @@ func NewService(database product.Database, opts *ServiceOptions) product.Service
 	return svc
 }
 
-func (svc *service) GetStringNormalizer() core.StringNormalizer {
+func (svc *service) StringNormalizer() core.StringNormalizer {
 	return svc.stringNormalizer
 }
 
-func (svc *service) GetFeatureProvider() core.FeatureProvider {
+func (svc *service) FeatureProvider() core.FeatureProvider {
 	return svc.featureProvider
 }
 
-func (svc *service) GetLanguageProvider() localization.LanguageProvider {
+func (svc *service) LanguageProvider() localization.LanguageProvider {
 	return svc.languageProvider
+}
+
+func (opt *ServiceOptions) EnsureDefaults() {
+	if opt.StringNormalizer == nil {
+		opt.StringNormalizer = core.NewDefaultStringNormalizer()
+	}
+	if opt.FeatureProvider == nil {
+		opt.FeatureProvider = core.NewDefaultFeatureProvider()
+	}
+	if opt.LanguageProvider == nil {
+		opt.LanguageProvider = localization.NewDefaultLanguageProvider()
+	}
 }

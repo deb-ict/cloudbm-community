@@ -18,7 +18,7 @@ func (api *apiV1) GetEmailTypesHandlerV1(w http.ResponseWriter, r *http.Request)
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetEmailTypes(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -35,7 +35,7 @@ func (api *apiV1) GetEmailTypesHandlerV1(w http.ResponseWriter, r *http.Request)
 		Items: make([]*EmailTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, EmailTypeToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, EmailTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)

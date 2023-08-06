@@ -28,7 +28,7 @@ func (svc *service) GetTaxProfileById(ctx context.Context, id string) (*model.Ta
 }
 
 func (svc *service) CreateTaxProfile(ctx context.Context, model *model.TaxProfile) (*model.TaxProfile, error) {
-	model.Key = svc.GetStringNormalizer().NormalizeString(model.Key)
+	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
 	err := svc.validateTaxProfile(ctx, model)
 	if err != nil {
 		return nil, err

@@ -82,7 +82,7 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetProducts(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -99,7 +99,7 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*ProductListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ProductToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ProductToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -116,10 +116,10 @@ func (api *apiV1) GetProductByIdHandlerV1(w http.ResponseWriter, r *http.Request
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ProductToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := ProductToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -139,10 +139,10 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ProductToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := ProductToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -164,10 +164,10 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ProductToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := ProductToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 

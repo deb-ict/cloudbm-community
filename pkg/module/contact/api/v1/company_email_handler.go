@@ -19,7 +19,7 @@ func (api *apiV1) GetCompanyEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetCompanyEmails(ctx, companyId, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -36,7 +36,7 @@ func (api *apiV1) GetCompanyEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 		Items: make([]*CompanyEmailListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyEmailToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyEmailToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -54,10 +54,10 @@ func (api *apiV1) GetCompanyEmailByIdHandlerV1(w http.ResponseWriter, r *http.Re
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyEmailToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := CompanyEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -78,10 +78,10 @@ func (api *apiV1) CreateCompanyEmailHandlerV1(w http.ResponseWriter, r *http.Req
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyEmailToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := CompanyEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -104,10 +104,10 @@ func (api *apiV1) UpdateCompanyEmailHandlerV1(w http.ResponseWriter, r *http.Req
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyEmailToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := CompanyEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 

@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
-	"github.com/deb-ict/cloudbm-community/pkg/module"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
 
 type Service interface {
-	module.Service
+	StringNormalizer() core.StringNormalizer
+	FeatureProvider() core.FeatureProvider
+	LanguageProvider() localization.LanguageProvider
 
 	GetContacts(ctx context.Context, offset int64, limit int64, filter *model.ContactFilter, sort *core.Sort) ([]*model.Contact, int64, error)
 	GetContactById(ctx context.Context, id string) (*model.Contact, error)

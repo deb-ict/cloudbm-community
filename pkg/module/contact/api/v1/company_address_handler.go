@@ -19,7 +19,7 @@ func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetCompanyAddresses(ctx, companyId, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -36,7 +36,7 @@ func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 		Items: make([]*CompanyAddressListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyAddressToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyAddressToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -54,10 +54,10 @@ func (api *apiV1) GetCompanyAddressByIdHandlerV1(w http.ResponseWriter, r *http.
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyAddressToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := CompanyAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -78,10 +78,10 @@ func (api *apiV1) CreateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyAddressToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := CompanyAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -104,10 +104,10 @@ func (api *apiV1) UpdateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyAddressToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := CompanyAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 

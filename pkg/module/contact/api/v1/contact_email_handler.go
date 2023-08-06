@@ -19,7 +19,7 @@ func (api *apiV1) GetContactEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetContactEmails(ctx, contactId, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -36,7 +36,7 @@ func (api *apiV1) GetContactEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 		Items: make([]*ContactEmailListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ContactEmailToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ContactEmailToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -54,10 +54,10 @@ func (api *apiV1) GetContactEmailByIdHandlerV1(w http.ResponseWriter, r *http.Re
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactEmailToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := ContactEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -78,10 +78,10 @@ func (api *apiV1) CreateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactEmailToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := ContactEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -104,10 +104,10 @@ func (api *apiV1) UpdateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactEmailToViewModel(result, language, api.service.GetLanguageProvider().DefaultLanguage(ctx))
+	response := ContactEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 

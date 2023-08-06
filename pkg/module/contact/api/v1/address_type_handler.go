@@ -18,7 +18,7 @@ func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 
 	language := router.QueryValue(r, "language")
 	if language == "" {
-		language = api.service.GetLanguageProvider().UserLanguage(ctx)
+		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
 	result, count, err := api.service.GetAddressTypes(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
@@ -35,7 +35,7 @@ func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 		Items: make([]*AddressTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, AddressTypeToListItemViewModel(item, language, api.service.GetLanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, AddressTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)

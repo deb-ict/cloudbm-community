@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strings"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
@@ -31,7 +30,7 @@ func (svc *service) GetPhoneTypeById(ctx context.Context, id string) (*model.Pho
 }
 
 func (svc *service) CreatePhoneType(ctx context.Context, model *model.PhoneType) (*model.PhoneType, error) {
-	model.Key = strings.ToLower(model.Key)
+	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
 	err := svc.validatePhoneTypeName(ctx, model)
 	if err != nil {
 		return nil, err

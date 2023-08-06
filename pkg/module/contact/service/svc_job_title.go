@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"strings"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
@@ -31,7 +30,7 @@ func (svc *service) GetJobTitleById(ctx context.Context, id string) (*model.JobT
 }
 
 func (svc *service) CreateJobTitle(ctx context.Context, model *model.JobTitle) (*model.JobTitle, error) {
-	model.Key = strings.ToLower(model.Key)
+	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
 	err := svc.validateJobTitleName(ctx, model)
 	if err != nil {
 		return nil, err
