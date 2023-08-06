@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetContacts(ctx context.Context, offset int64, limit int64, filter *model.ContactFilter, sort *core.Sort) ([]*model.Contact, int64, error) {
-	data, count, err := svc.database.ContactRepository().GetContacts(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.Contacts().GetContacts(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetContacts(ctx context.Context, offset int64, limit int64, 
 }
 
 func (svc *service) GetContactById(ctx context.Context, id string) (*model.Contact, error) {
-	data, err := svc.database.ContactRepository().GetContactById(ctx, id)
+	data, err := svc.database.Contacts().GetContactById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (svc *service) CreateContact(ctx context.Context, model *model.Contact) (*m
 		return nil, err
 	}
 
-	newId, err := svc.database.ContactRepository().CreateContact(ctx, model)
+	newId, err := svc.database.Contacts().CreateContact(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (svc *service) UpdateContact(ctx context.Context, id string, model *model.C
 		return nil, err
 	}
 
-	err = svc.database.ContactRepository().UpdateContact(ctx, data)
+	err = svc.database.Contacts().UpdateContact(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (svc *service) DeleteContact(ctx context.Context, id string) error {
 		return contact.ErrContactReadOnly
 	}
 
-	err = svc.database.ContactRepository().DeleteContact(ctx, data)
+	err = svc.database.Contacts().DeleteContact(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (svc *service) DeleteContact(ctx context.Context, id string) error {
 
 func (svc *service) validateContact(ctx context.Context, model *model.Contact) error {
 	if model.Title != nil {
-		contactTitle, err := svc.database.ContactTitleRepository().GetContactTitleById(ctx, model.Title.Id)
+		contactTitle, err := svc.database.ContactTitles().GetContactTitleById(ctx, model.Title.Id)
 		if err != nil {
 			return err
 		}

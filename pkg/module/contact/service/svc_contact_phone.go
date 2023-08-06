@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetContactPhones(ctx context.Context, contactId string, offset int64, limit int64, filter *model.PhoneFilter, sort *core.Sort) ([]*model.Phone, int64, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetContactPhones(ctx context.Context, contactId string, offs
 		return nil, 0, contact.ErrContactNotFound
 	}
 
-	data, count, err := svc.database.ContactPhoneRepository().GetContactPhones(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.ContactPhones().GetContactPhones(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetContactPhones(ctx context.Context, contactId string, offs
 }
 
 func (svc *service) GetContactPhoneById(ctx context.Context, contactId string, id string) (*model.Phone, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetContactPhoneById(ctx context.Context, contactId string, i
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactPhoneRepository().GetContactPhoneById(ctx, parent, id)
+	data, err := svc.database.ContactPhones().GetContactPhoneById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetContactPhoneById(ctx context.Context, contactId string, i
 }
 
 func (svc *service) CreateContactPhone(ctx context.Context, contactId string, model *model.Phone) (*model.Phone, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, mo
 		}
 	}
 
-	newId, err := svc.database.ContactPhoneRepository().CreateContactPhone(ctx, parent, model)
+	newId, err := svc.database.ContactPhones().CreateContactPhone(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, mo
 }
 
 func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id string, model *model.Phone) (*model.Phone, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactPhoneRepository().GetContactPhoneById(ctx, parent, id)
+	data, err := svc.database.ContactPhones().GetContactPhoneById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 		}
 	}
 
-	err = svc.database.ContactPhoneRepository().UpdateContactPhone(ctx, parent, data)
+	err = svc.database.ContactPhones().UpdateContactPhone(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 }
 
 func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id string) error {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 		return contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactPhoneRepository().GetContactPhoneById(ctx, parent, id)
+	data, err := svc.database.ContactPhones().GetContactPhoneById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 		return contact.ErrContactPhoneIsDefault
 	}
 
-	err = svc.database.ContactPhoneRepository().DeleteContactPhone(ctx, parent, data)
+	err = svc.database.ContactPhones().DeleteContactPhone(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -142,13 +142,13 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 }
 
 func (svc *service) resetDefaultContactPhone(ctx context.Context, parent *model.Contact, model *model.Phone) error {
-	current, err := svc.database.ContactPhoneRepository().GetDefaultContactPhone(ctx, parent)
+	current, err := svc.database.ContactPhones().GetDefaultContactPhone(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.ContactPhoneRepository().UpdateContactPhone(ctx, parent, current)
+		err = svc.database.ContactPhones().UpdateContactPhone(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -157,7 +157,7 @@ func (svc *service) resetDefaultContactPhone(ctx context.Context, parent *model.
 }
 
 func (svc *service) validateContactPhone(ctx context.Context, parent *model.Contact, model *model.Phone) error {
-	modelType, err := svc.database.PhoneTypeRepository().GetPhoneTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.PhoneTypes().GetPhoneTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}

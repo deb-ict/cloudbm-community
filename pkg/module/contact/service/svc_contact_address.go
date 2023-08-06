@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetContactAddresses(ctx context.Context, contactId string, offset int64, limit int64, filter *model.AddressFilter, sort *core.Sort) ([]*model.Address, int64, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetContactAddresses(ctx context.Context, contactId string, o
 		return nil, 0, contact.ErrContactNotFound
 	}
 
-	data, count, err := svc.database.ContactAddressRepository().GetContactAddresses(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.ContactAddresses().GetContactAddresses(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetContactAddresses(ctx context.Context, contactId string, o
 }
 
 func (svc *service) GetContactAddressById(ctx context.Context, contactId string, id string) (*model.Address, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetContactAddressById(ctx context.Context, contactId string,
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactAddressRepository().GetContactAddressById(ctx, parent, id)
+	data, err := svc.database.ContactAddresses().GetContactAddressById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetContactAddressById(ctx context.Context, contactId string,
 }
 
 func (svc *service) CreateContactAddress(ctx context.Context, contactId string, model *model.Address) (*model.Address, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 		}
 	}
 
-	newId, err := svc.database.ContactAddressRepository().CreateContactAddress(ctx, parent, model)
+	newId, err := svc.database.ContactAddresses().CreateContactAddress(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 }
 
 func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, id string, model *model.Address) (*model.Address, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactAddressRepository().GetContactAddressById(ctx, parent, id)
+	data, err := svc.database.ContactAddresses().GetContactAddressById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 		}
 	}
 
-	err = svc.database.ContactAddressRepository().UpdateContactAddress(ctx, parent, data)
+	err = svc.database.ContactAddresses().UpdateContactAddress(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 }
 
 func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, id string) error {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 		return contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactAddressRepository().GetContactAddressById(ctx, parent, id)
+	data, err := svc.database.ContactAddresses().GetContactAddressById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 		return contact.ErrContactAddressIsDefault
 	}
 
-	err = svc.database.ContactAddressRepository().DeleteContactAddress(ctx, parent, data)
+	err = svc.database.ContactAddresses().DeleteContactAddress(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -147,13 +147,13 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 }
 
 func (svc *service) resetDefaultContactAddress(ctx context.Context, parent *model.Contact, model *model.Address) error {
-	current, err := svc.database.ContactAddressRepository().GetDefaultContactAddress(ctx, parent)
+	current, err := svc.database.ContactAddresses().GetDefaultContactAddress(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.ContactAddressRepository().UpdateContactAddress(ctx, parent, current)
+		err = svc.database.ContactAddresses().UpdateContactAddress(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -162,7 +162,7 @@ func (svc *service) resetDefaultContactAddress(ctx context.Context, parent *mode
 }
 
 func (svc *service) validateContactAddress(ctx context.Context, parent *model.Contact, model *model.Address) error {
-	modelType, err := svc.database.AddressTypeRepository().GetAddressTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.AddressTypes().GetAddressTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}

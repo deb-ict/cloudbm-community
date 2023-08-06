@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetAddressTypes(ctx context.Context, offset int64, limit int64, filter *model.AddressTypeFilter, sort *core.Sort) ([]*model.AddressType, int64, error) {
-	data, count, err := svc.database.AddressTypeRepository().GetAddressTypes(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.AddressTypes().GetAddressTypes(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetAddressTypes(ctx context.Context, offset int64, limit int
 }
 
 func (svc *service) GetAddressTypeById(ctx context.Context, id string) (*model.AddressType, error) {
-	data, err := svc.database.AddressTypeRepository().GetAddressTypeById(ctx, id)
+	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressT
 		}
 	}
 
-	newId, err := svc.database.AddressTypeRepository().CreateAddressType(ctx, model)
+	newId, err := svc.database.AddressTypes().CreateAddressType(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressT
 }
 
 func (svc *service) UpdateAddressType(ctx context.Context, id string, model *model.AddressType) (*model.AddressType, error) {
-	data, err := svc.database.AddressTypeRepository().GetAddressTypeById(ctx, id)
+	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 		}
 	}
 
-	err = svc.database.AddressTypeRepository().UpdateAddressType(ctx, data)
+	err = svc.database.AddressTypes().UpdateAddressType(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 }
 
 func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
-	data, err := svc.database.AddressTypeRepository().GetAddressTypeById(ctx, id)
+	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 		return contact.ErrAddressTypeReadOnly
 	}
 
-	err = svc.database.AddressTypeRepository().DeleteAddressType(ctx, data)
+	err = svc.database.AddressTypes().DeleteAddressType(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -105,13 +105,13 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 }
 
 func (svc *service) resetDefaultAddressType(ctx context.Context, model *model.AddressType) error {
-	current, err := svc.database.AddressTypeRepository().GetDefaultAddressType(ctx)
+	current, err := svc.database.AddressTypes().GetDefaultAddressType(ctx)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.AddressTypeRepository().UpdateAddressType(ctx, current)
+		err = svc.database.AddressTypes().UpdateAddressType(ctx, current)
 		if err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ func (svc *service) resetDefaultAddressType(ctx context.Context, model *model.Ad
 
 func (svc *service) validateAddressTypeName(ctx context.Context, model *model.AddressType) error {
 	if model.IsTransient() {
-		existing, err := svc.database.AddressTypeRepository().GetAddressTypeByKey(ctx, model.Key)
+		existing, err := svc.database.AddressTypes().GetAddressTypeByKey(ctx, model.Key)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (svc *service) validateAddressTypeName(ctx context.Context, model *model.Ad
 	}
 
 	for _, translation := range model.Translations {
-		existing, err := svc.database.AddressTypeRepository().GetAddressTypeByName(ctx, translation.Language, translation.Name)
+		existing, err := svc.database.AddressTypes().GetAddressTypeByName(ctx, translation.Language, translation.Name)
 		if err != nil {
 			return err
 		}

@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetContactUris(ctx context.Context, contactId string, offset int64, limit int64, filter *model.UriFilter, sort *core.Sort) ([]*model.Uri, int64, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetContactUris(ctx context.Context, contactId string, offset
 		return nil, 0, contact.ErrContactNotFound
 	}
 
-	data, count, err := svc.database.ContactUriRepository().GetContactUris(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.ContactUris().GetContactUris(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetContactUris(ctx context.Context, contactId string, offset
 }
 
 func (svc *service) GetContactUriById(ctx context.Context, contactId string, id string) (*model.Uri, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetContactUriById(ctx context.Context, contactId string, id 
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactUriRepository().GetContactUriById(ctx, parent, id)
+	data, err := svc.database.ContactUris().GetContactUriById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetContactUriById(ctx context.Context, contactId string, id 
 }
 
 func (svc *service) CreateContactUri(ctx context.Context, contactId string, model *model.Uri) (*model.Uri, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateContactUri(ctx context.Context, contactId string, mode
 		}
 	}
 
-	newId, err := svc.database.ContactUriRepository().CreateContactUri(ctx, parent, model)
+	newId, err := svc.database.ContactUris().CreateContactUri(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateContactUri(ctx context.Context, contactId string, mode
 }
 
 func (svc *service) UpdateContactUri(ctx context.Context, contactId string, id string, model *model.Uri) (*model.Uri, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateContactUri(ctx context.Context, contactId string, id s
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactUriRepository().GetContactUriById(ctx, parent, id)
+	data, err := svc.database.ContactUris().GetContactUriById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (svc *service) UpdateContactUri(ctx context.Context, contactId string, id s
 		}
 	}
 
-	err = svc.database.ContactUriRepository().UpdateContactUri(ctx, parent, data)
+	err = svc.database.ContactUris().UpdateContactUri(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (svc *service) UpdateContactUri(ctx context.Context, contactId string, id s
 }
 
 func (svc *service) DeleteContactUri(ctx context.Context, contactId string, id string) error {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (svc *service) DeleteContactUri(ctx context.Context, contactId string, id s
 		return contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactUriRepository().GetContactUriById(ctx, parent, id)
+	data, err := svc.database.ContactUris().GetContactUriById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (svc *service) DeleteContactUri(ctx context.Context, contactId string, id s
 		return contact.ErrContactUriIsDefault
 	}
 
-	err = svc.database.ContactUriRepository().DeleteContactUri(ctx, parent, data)
+	err = svc.database.ContactUris().DeleteContactUri(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -141,13 +141,13 @@ func (svc *service) DeleteContactUri(ctx context.Context, contactId string, id s
 }
 
 func (svc *service) resetDefaultContactUri(ctx context.Context, parent *model.Contact, model *model.Uri) error {
-	current, err := svc.database.ContactUriRepository().GetDefaultContactUri(ctx, parent)
+	current, err := svc.database.ContactUris().GetDefaultContactUri(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.ContactUriRepository().UpdateContactUri(ctx, parent, current)
+		err = svc.database.ContactUris().UpdateContactUri(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func (svc *service) resetDefaultContactUri(ctx context.Context, parent *model.Co
 }
 
 func (svc *service) validateContactUri(ctx context.Context, parent *model.Contact, model *model.Uri) error {
-	modelType, err := svc.database.UriTypeRepository().GetUriTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.UriTypes().GetUriTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}

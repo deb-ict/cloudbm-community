@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetCompanies(ctx context.Context, offset int64, limit int64, filter *model.CompanyFilter, sort *core.Sort) ([]*model.Company, int64, error) {
-	data, count, err := svc.database.CompanyRepository().GetCompanies(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.Companies().GetCompanies(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetCompanies(ctx context.Context, offset int64, limit int64,
 }
 
 func (svc *service) GetCompanyById(ctx context.Context, id string) (*model.Company, error) {
-	data, err := svc.database.CompanyRepository().GetCompanyById(ctx, id)
+	data, err := svc.database.Companies().GetCompanyById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (svc *service) CreateCompany(ctx context.Context, model *model.Company) (*m
 		return nil, err
 	}
 
-	newId, err := svc.database.CompanyRepository().CreateCompany(ctx, model)
+	newId, err := svc.database.Companies().CreateCompany(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (svc *service) UpdateCompany(ctx context.Context, id string, model *model.C
 		return nil, err
 	}
 
-	err = svc.database.CompanyRepository().UpdateCompany(ctx, data)
+	err = svc.database.Companies().UpdateCompany(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) DeleteCompany(ctx context.Context, id string) error {
 		return contact.ErrCompanyReadOnly
 	}
 
-	err = svc.database.CompanyRepository().DeleteCompany(ctx, data)
+	err = svc.database.Companies().DeleteCompany(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func (svc *service) DeleteCompany(ctx context.Context, id string) error {
 
 func (svc *service) validateCompany(ctx context.Context, model *model.Company) error {
 	if model.Type != nil {
-		companyType, err := svc.database.CompanyTypeRepository().GetCompanyTypeById(ctx, model.Type.Id)
+		companyType, err := svc.database.CompanyTypes().GetCompanyTypeById(ctx, model.Type.Id)
 		if err != nil {
 			return err
 		}
@@ -101,7 +101,7 @@ func (svc *service) validateCompany(ctx context.Context, model *model.Company) e
 	}
 
 	if model.Industry != nil {
-		industry, err := svc.database.IndustryRepository().GetIndustryById(ctx, model.Industry.Id)
+		industry, err := svc.database.Industries().GetIndustryById(ctx, model.Industry.Id)
 		if err != nil {
 			return err
 		}

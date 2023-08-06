@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetCategories(ctx context.Context, offset int64, limit int64, filter *model.CategoryFilter, sort *core.Sort) ([]*model.Category, int64, error) {
-	data, count, err := svc.database.CategoryRepository().GetCategories(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.Categories().GetCategories(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetCategories(ctx context.Context, offset int64, limit int64
 }
 
 func (svc *service) GetCategoryById(ctx context.Context, id string) (*model.Category, error) {
-	data, err := svc.database.CategoryRepository().GetCategoryById(ctx, id)
+	data, err := svc.database.Categories().GetCategoryById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (svc *service) GetCategoryById(ctx context.Context, id string) (*model.Cate
 }
 
 func (svc *service) GetCategoryByName(ctx context.Context, language string, name string) (*model.Category, error) {
-	data, err := svc.database.CategoryRepository().GetCategoryByName(ctx, language, name)
+	data, err := svc.database.Categories().GetCategoryByName(ctx, language, name)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (svc *service) GetCategoryByName(ctx context.Context, language string, name
 }
 
 func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug string) (*model.Category, error) {
-	data, err := svc.database.CategoryRepository().GetCategoryBySlug(ctx, language, slug)
+	data, err := svc.database.Categories().GetCategoryBySlug(ctx, language, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug
 func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (*model.Category, error) {
 	//TODO: Check for duplicas
 
-	newId, err := svc.database.CategoryRepository().CreateCategory(ctx, model)
+	newId, err := svc.database.Categories().CreateCategory(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (
 }
 
 func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.Category) (*model.Category, error) {
-	data, err := svc.database.CategoryRepository().GetCategoryById(ctx, id)
+	data, err := svc.database.Categories().GetCategoryById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.
 
 	//TODO: Set fields
 
-	err = svc.database.CategoryRepository().UpdateCategory(ctx, data)
+	err = svc.database.Categories().UpdateCategory(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.
 }
 
 func (svc *service) DeleteCategory(ctx context.Context, id string) error {
-	data, err := svc.database.CategoryRepository().GetCategoryById(ctx, id)
+	data, err := svc.database.Categories().GetCategoryById(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (svc *service) DeleteCategory(ctx context.Context, id string) error {
 
 	//TODO: Check dependencies
 
-	err = svc.database.CategoryRepository().DeleteCategory(ctx, data)
+	err = svc.database.Categories().DeleteCategory(ctx, data)
 	if err != nil {
 		return err
 	}

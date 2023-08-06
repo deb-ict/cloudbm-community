@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetCompanyUris(ctx context.Context, companyId string, offset int64, limit int64, filter *model.UriFilter, sort *core.Sort) ([]*model.Uri, int64, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetCompanyUris(ctx context.Context, companyId string, offset
 		return nil, 0, contact.ErrCompanyNotFound
 	}
 
-	data, count, err := svc.database.CompanyUriRepository().GetCompanyUris(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.CompanyUris().GetCompanyUris(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetCompanyUris(ctx context.Context, companyId string, offset
 }
 
 func (svc *service) GetCompanyUriById(ctx context.Context, companyId string, id string) (*model.Uri, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetCompanyUriById(ctx context.Context, companyId string, id 
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyUriRepository().GetCompanyUriById(ctx, parent, id)
+	data, err := svc.database.CompanyUris().GetCompanyUriById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetCompanyUriById(ctx context.Context, companyId string, id 
 }
 
 func (svc *service) CreateCompanyUri(ctx context.Context, companyId string, model *model.Uri) (*model.Uri, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateCompanyUri(ctx context.Context, companyId string, mode
 		}
 	}
 
-	newId, err := svc.database.CompanyUriRepository().CreateCompanyUri(ctx, parent, model)
+	newId, err := svc.database.CompanyUris().CreateCompanyUri(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateCompanyUri(ctx context.Context, companyId string, mode
 }
 
 func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id string, model *model.Uri) (*model.Uri, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id s
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyUriRepository().GetCompanyUriById(ctx, parent, id)
+	data, err := svc.database.CompanyUris().GetCompanyUriById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id s
 		}
 	}
 
-	err = svc.database.CompanyUriRepository().UpdateCompanyUri(ctx, parent, data)
+	err = svc.database.CompanyUris().UpdateCompanyUri(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id s
 }
 
 func (svc *service) DeleteCompanyUri(ctx context.Context, companyId string, id string) error {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (svc *service) DeleteCompanyUri(ctx context.Context, companyId string, id s
 		return contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyUriRepository().GetCompanyUriById(ctx, parent, id)
+	data, err := svc.database.CompanyUris().GetCompanyUriById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (svc *service) DeleteCompanyUri(ctx context.Context, companyId string, id s
 		return contact.ErrCompanyUriIsDefault
 	}
 
-	err = svc.database.CompanyUriRepository().DeleteCompanyUri(ctx, parent, data)
+	err = svc.database.CompanyUris().DeleteCompanyUri(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -141,13 +141,13 @@ func (svc *service) DeleteCompanyUri(ctx context.Context, companyId string, id s
 }
 
 func (svc *service) resetDefaultCompanyUri(ctx context.Context, parent *model.Company, model *model.Uri) error {
-	current, err := svc.database.CompanyUriRepository().GetDefaultCompanyUri(ctx, parent)
+	current, err := svc.database.CompanyUris().GetDefaultCompanyUri(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.CompanyUriRepository().UpdateCompanyUri(ctx, parent, current)
+		err = svc.database.CompanyUris().UpdateCompanyUri(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func (svc *service) resetDefaultCompanyUri(ctx context.Context, parent *model.Co
 }
 
 func (svc *service) validateCompanyUri(ctx context.Context, parent *model.Company, model *model.Uri) error {
-	modelType, err := svc.database.UriTypeRepository().GetUriTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.UriTypes().GetUriTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetEmailTypes(ctx context.Context, offset int64, limit int64, filter *model.EmailTypeFilter, sort *core.Sort) ([]*model.EmailType, int64, error) {
-	data, count, err := svc.database.EmailTypeRepository().GetEmailTypes(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.EmailTypes().GetEmailTypes(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetEmailTypes(ctx context.Context, offset int64, limit int64
 }
 
 func (svc *service) GetEmailTypeById(ctx context.Context, id string) (*model.EmailType, error) {
-	data, err := svc.database.EmailTypeRepository().GetEmailTypeById(ctx, id)
+	data, err := svc.database.EmailTypes().GetEmailTypeById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType)
 		}
 	}
 
-	newId, err := svc.database.EmailTypeRepository().CreateEmailType(ctx, model)
+	newId, err := svc.database.EmailTypes().CreateEmailType(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model
 		}
 	}
 
-	err = svc.database.EmailTypeRepository().UpdateEmailType(ctx, data)
+	err = svc.database.EmailTypes().UpdateEmailType(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 		return contact.ErrEmailTypeReadOnly
 	}
 
-	err = svc.database.EmailTypeRepository().DeleteEmailType(ctx, data)
+	err = svc.database.EmailTypes().DeleteEmailType(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -105,13 +105,13 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 }
 
 func (svc *service) resetDefaultEmailType(ctx context.Context, model *model.EmailType) error {
-	current, err := svc.database.EmailTypeRepository().GetDefaultEmailType(ctx)
+	current, err := svc.database.EmailTypes().GetDefaultEmailType(ctx)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.EmailTypeRepository().UpdateEmailType(ctx, current)
+		err = svc.database.EmailTypes().UpdateEmailType(ctx, current)
 		if err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ func (svc *service) resetDefaultEmailType(ctx context.Context, model *model.Emai
 
 func (svc *service) validateEmailTypeName(ctx context.Context, model *model.EmailType) error {
 	if model.IsTransient() {
-		existing, err := svc.database.EmailTypeRepository().GetEmailTypeByKey(ctx, model.Key)
+		existing, err := svc.database.EmailTypes().GetEmailTypeByKey(ctx, model.Key)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (svc *service) validateEmailTypeName(ctx context.Context, model *model.Emai
 	}
 
 	for _, translation := range model.Translations {
-		existing, err := svc.database.EmailTypeRepository().GetEmailTypeByName(ctx, translation.Language, translation.Name)
+		existing, err := svc.database.EmailTypes().GetEmailTypeByName(ctx, translation.Language, translation.Name)
 		if err != nil {
 			return err
 		}

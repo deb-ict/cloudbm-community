@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetContactEmails(ctx context.Context, contactId string, offset int64, limit int64, filter *model.EmailFilter, sort *core.Sort) ([]*model.Email, int64, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetContactEmails(ctx context.Context, contactId string, offs
 		return nil, 0, contact.ErrContactNotFound
 	}
 
-	data, count, err := svc.database.ContactEmailRepository().GetContactEmails(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.ContactEmails().GetContactEmails(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetContactEmails(ctx context.Context, contactId string, offs
 }
 
 func (svc *service) GetContactEmailById(ctx context.Context, contactId string, id string) (*model.Email, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetContactEmailById(ctx context.Context, contactId string, i
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactEmailRepository().GetContactEmailById(ctx, parent, id)
+	data, err := svc.database.ContactEmails().GetContactEmailById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetContactEmailById(ctx context.Context, contactId string, i
 }
 
 func (svc *service) CreateContactEmail(ctx context.Context, contactId string, model *model.Email) (*model.Email, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateContactEmail(ctx context.Context, contactId string, mo
 		}
 	}
 
-	newId, err := svc.database.ContactEmailRepository().CreateContactEmail(ctx, parent, model)
+	newId, err := svc.database.ContactEmails().CreateContactEmail(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateContactEmail(ctx context.Context, contactId string, mo
 }
 
 func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id string, model *model.Email) (*model.Email, error) {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id
 		return nil, contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactEmailRepository().GetContactEmailById(ctx, parent, id)
+	data, err := svc.database.ContactEmails().GetContactEmailById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id
 		}
 	}
 
-	err = svc.database.ContactEmailRepository().UpdateContactEmail(ctx, parent, data)
+	err = svc.database.ContactEmails().UpdateContactEmail(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id
 }
 
 func (svc *service) DeleteContactEmail(ctx context.Context, contactId string, id string) error {
-	parent, err := svc.database.ContactRepository().GetContactById(ctx, contactId)
+	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (svc *service) DeleteContactEmail(ctx context.Context, contactId string, id
 		return contact.ErrContactNotFound
 	}
 
-	data, err := svc.database.ContactEmailRepository().GetContactEmailById(ctx, parent, id)
+	data, err := svc.database.ContactEmails().GetContactEmailById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (svc *service) DeleteContactEmail(ctx context.Context, contactId string, id
 		return contact.ErrContactEmailIsDefault
 	}
 
-	err = svc.database.ContactEmailRepository().DeleteContactEmail(ctx, parent, data)
+	err = svc.database.ContactEmails().DeleteContactEmail(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -141,13 +141,13 @@ func (svc *service) DeleteContactEmail(ctx context.Context, contactId string, id
 }
 
 func (svc *service) resetDefaultContactEmail(ctx context.Context, parent *model.Contact, model *model.Email) error {
-	current, err := svc.database.ContactEmailRepository().GetDefaultContactEmail(ctx, parent)
+	current, err := svc.database.ContactEmails().GetDefaultContactEmail(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.ContactEmailRepository().UpdateContactEmail(ctx, parent, current)
+		err = svc.database.ContactEmails().UpdateContactEmail(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func (svc *service) resetDefaultContactEmail(ctx context.Context, parent *model.
 }
 
 func (svc *service) validateContactEmail(ctx context.Context, parent *model.Contact, model *model.Email) error {
-	modelType, err := svc.database.EmailTypeRepository().GetEmailTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.EmailTypes().GetEmailTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}

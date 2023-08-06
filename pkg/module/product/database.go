@@ -8,11 +8,11 @@ import (
 )
 
 type Database interface {
-	ProductRepository() ProductRepository
-	CategoryRepository() CategoryRepository
+	Products() Products
+	Categories() Categories
 }
 
-type ProductRepository interface {
+type Products interface {
 	GetProducts(ctx context.Context, offset int64, limit int64, filter *model.ProductFilter, sort *core.Sort) ([]*model.Product, int64, error)
 	GetProductById(ctx context.Context, id string) (*model.Product, error)
 	GetProductByName(ctx context.Context, language string, name string) (*model.Product, error)
@@ -22,7 +22,7 @@ type ProductRepository interface {
 	DeleteProduct(ctx context.Context, model *model.Product) error
 }
 
-type CategoryRepository interface {
+type Categories interface {
 	GetCategories(ctx context.Context, offset int64, limit int64, filter *model.CategoryFilter, sort *core.Sort) ([]*model.Category, int64, error)
 	GetCategoryById(ctx context.Context, id string) (*model.Category, error)
 	GetCategoryByName(ctx context.Context, language string, name string) (*model.Category, error)

@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetJobTitles(ctx context.Context, offset int64, limit int64, filter *model.JobTitleFilter, sort *core.Sort) ([]*model.JobTitle, int64, error) {
-	data, count, err := svc.database.JobTitleRepository().GetJobTitles(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.JobTitles().GetJobTitles(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetJobTitles(ctx context.Context, offset int64, limit int64,
 }
 
 func (svc *service) GetJobTitleById(ctx context.Context, id string) (*model.JobTitle, error) {
-	data, err := svc.database.JobTitleRepository().GetJobTitleById(ctx, id)
+	data, err := svc.database.JobTitles().GetJobTitleById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (svc *service) CreateJobTitle(ctx context.Context, model *model.JobTitle) (
 		return nil, err
 	}
 
-	newId, err := svc.database.JobTitleRepository().CreateJobTitle(ctx, model)
+	newId, err := svc.database.JobTitles().CreateJobTitle(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (svc *service) UpdateJobTitle(ctx context.Context, id string, model *model.
 		return nil, err
 	}
 
-	err = svc.database.JobTitleRepository().UpdateJobTitle(ctx, data)
+	err = svc.database.JobTitles().UpdateJobTitle(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (svc *service) DeleteJobTitle(ctx context.Context, id string) error {
 		return contact.ErrJobTitleReadOnly
 	}
 
-	err = svc.database.JobTitleRepository().DeleteJobTitle(ctx, data)
+	err = svc.database.JobTitles().DeleteJobTitle(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (svc *service) DeleteJobTitle(ctx context.Context, id string) error {
 
 func (svc *service) validateJobTitleName(ctx context.Context, model *model.JobTitle) error {
 	if model.IsTransient() {
-		existing, err := svc.database.JobTitleRepository().GetJobTitleByKey(ctx, model.Key)
+		existing, err := svc.database.JobTitles().GetJobTitleByKey(ctx, model.Key)
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (svc *service) validateJobTitleName(ctx context.Context, model *model.JobTi
 	}
 
 	for _, translation := range model.Translations {
-		existing, err := svc.database.JobTitleRepository().GetJobTitleByName(ctx, translation.Language, translation.Name)
+		existing, err := svc.database.JobTitles().GetJobTitleByName(ctx, translation.Language, translation.Name)
 		if err != nil {
 			return err
 		}

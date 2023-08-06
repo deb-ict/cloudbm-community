@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetIndustries(ctx context.Context, offset int64, limit int64, filter *model.IndustryFilter, sort *core.Sort) ([]*model.Industry, int64, error) {
-	data, count, err := svc.database.IndustryRepository().GetIndustries(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.Industries().GetIndustries(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetIndustries(ctx context.Context, offset int64, limit int64
 }
 
 func (svc *service) GetIndustryById(ctx context.Context, id string) (*model.Industry, error) {
-	data, err := svc.database.IndustryRepository().GetIndustryById(ctx, id)
+	data, err := svc.database.Industries().GetIndustryById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (svc *service) CreateIndustry(ctx context.Context, model *model.Industry) (
 		return nil, err
 	}
 
-	newId, err := svc.database.IndustryRepository().CreateIndustry(ctx, model)
+	newId, err := svc.database.Industries().CreateIndustry(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (svc *service) UpdateIndustry(ctx context.Context, id string, model *model.
 		return nil, err
 	}
 
-	err = svc.database.IndustryRepository().UpdateIndustry(ctx, data)
+	err = svc.database.Industries().UpdateIndustry(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (svc *service) DeleteIndustry(ctx context.Context, id string) error {
 		return contact.ErrIndustryReadOnly
 	}
 
-	err = svc.database.IndustryRepository().DeleteIndustry(ctx, data)
+	err = svc.database.Industries().DeleteIndustry(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (svc *service) DeleteIndustry(ctx context.Context, id string) error {
 
 func (svc *service) validateIndustryName(ctx context.Context, model *model.Industry) error {
 	if model.IsTransient() {
-		existing, err := svc.database.IndustryRepository().GetIndustryByKey(ctx, model.Key)
+		existing, err := svc.database.Industries().GetIndustryByKey(ctx, model.Key)
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (svc *service) validateIndustryName(ctx context.Context, model *model.Indus
 	}
 
 	for _, translation := range model.Translations {
-		existing, err := svc.database.IndustryRepository().GetIndustryByName(ctx, translation.Language, translation.Name)
+		existing, err := svc.database.Industries().GetIndustryByName(ctx, translation.Language, translation.Name)
 		if err != nil {
 			return err
 		}

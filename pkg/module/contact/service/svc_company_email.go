@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetCompanyEmails(ctx context.Context, companyId string, offset int64, limit int64, filter *model.EmailFilter, sort *core.Sort) ([]*model.Email, int64, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetCompanyEmails(ctx context.Context, companyId string, offs
 		return nil, 0, contact.ErrCompanyNotFound
 	}
 
-	data, count, err := svc.database.CompanyEmailRepository().GetCompanyEmails(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.CompanyEmails().GetCompanyEmails(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetCompanyEmails(ctx context.Context, companyId string, offs
 }
 
 func (svc *service) GetCompanyEmailById(ctx context.Context, companyId string, id string) (*model.Email, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetCompanyEmailById(ctx context.Context, companyId string, i
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyEmailRepository().GetCompanyEmailById(ctx, parent, id)
+	data, err := svc.database.CompanyEmails().GetCompanyEmailById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetCompanyEmailById(ctx context.Context, companyId string, i
 }
 
 func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, model *model.Email) (*model.Email, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, mo
 		}
 	}
 
-	newId, err := svc.database.CompanyEmailRepository().CreateCompanyEmail(ctx, parent, model)
+	newId, err := svc.database.CompanyEmails().CreateCompanyEmail(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, mo
 }
 
 func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id string, model *model.Email) (*model.Email, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyEmailRepository().GetCompanyEmailById(ctx, parent, id)
+	data, err := svc.database.CompanyEmails().GetCompanyEmailById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +106,7 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 		}
 	}
 
-	err = svc.database.CompanyEmailRepository().UpdateCompanyEmail(ctx, parent, data)
+	err = svc.database.CompanyEmails().UpdateCompanyEmail(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 }
 
 func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id string) error {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 		return contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyEmailRepository().GetCompanyEmailById(ctx, parent, id)
+	data, err := svc.database.CompanyEmails().GetCompanyEmailById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 		return contact.ErrCompanyEmailIsDefault
 	}
 
-	err = svc.database.CompanyEmailRepository().DeleteCompanyEmail(ctx, parent, data)
+	err = svc.database.CompanyEmails().DeleteCompanyEmail(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -141,13 +141,13 @@ func (svc *service) DeleteCompanyEmail(ctx context.Context, companyId string, id
 }
 
 func (svc *service) resetDefaultCompanyEmail(ctx context.Context, parent *model.Company, model *model.Email) error {
-	current, err := svc.database.CompanyEmailRepository().GetDefaultCompanyEmail(ctx, parent)
+	current, err := svc.database.CompanyEmails().GetDefaultCompanyEmail(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.CompanyEmailRepository().UpdateCompanyEmail(ctx, parent, current)
+		err = svc.database.CompanyEmails().UpdateCompanyEmail(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func (svc *service) resetDefaultCompanyEmail(ctx context.Context, parent *model.
 }
 
 func (svc *service) validateCompanyEmail(ctx context.Context, parent *model.Company, model *model.Email) error {
-	modelType, err := svc.database.EmailTypeRepository().GetEmailTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.EmailTypes().GetEmailTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}

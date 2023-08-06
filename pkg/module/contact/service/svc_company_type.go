@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetCompanyTypes(ctx context.Context, offset int64, limit int64, filter *model.CompanyTypeFilter, sort *core.Sort) ([]*model.CompanyType, int64, error) {
-	data, count, err := svc.database.CompanyTypeRepository().GetCompanyTypes(ctx, offset, limit, filter, sort)
+	data, count, err := svc.database.CompanyTypes().GetCompanyTypes(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -18,7 +18,7 @@ func (svc *service) GetCompanyTypes(ctx context.Context, offset int64, limit int
 }
 
 func (svc *service) GetCompanyTypeById(ctx context.Context, id string) (*model.CompanyType, error) {
-	data, err := svc.database.CompanyTypeRepository().GetCompanyTypeById(ctx, id)
+	data, err := svc.database.CompanyTypes().GetCompanyTypeById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (svc *service) CreateCompanyType(ctx context.Context, model *model.CompanyT
 		return nil, err
 	}
 
-	newId, err := svc.database.CompanyTypeRepository().CreateCompanyType(ctx, model)
+	newId, err := svc.database.CompanyTypes().CreateCompanyType(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (svc *service) UpdateCompanyType(ctx context.Context, id string, model *mod
 		return nil, err
 	}
 
-	err = svc.database.CompanyTypeRepository().UpdateCompanyType(ctx, data)
+	err = svc.database.CompanyTypes().UpdateCompanyType(ctx, data)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (svc *service) DeleteCompanyType(ctx context.Context, id string) error {
 		return contact.ErrCompanyTypeReadOnly
 	}
 
-	err = svc.database.CompanyTypeRepository().DeleteCompanyType(ctx, data)
+	err = svc.database.CompanyTypes().DeleteCompanyType(ctx, data)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (svc *service) DeleteCompanyType(ctx context.Context, id string) error {
 
 func (svc *service) validateCompanyTypeName(ctx context.Context, model *model.CompanyType) error {
 	if model.IsTransient() {
-		existing, err := svc.database.CompanyTypeRepository().GetCompanyTypeByKey(ctx, model.Key)
+		existing, err := svc.database.CompanyTypes().GetCompanyTypeByKey(ctx, model.Key)
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (svc *service) validateCompanyTypeName(ctx context.Context, model *model.Co
 	}
 
 	for _, translation := range model.Translations {
-		existing, err := svc.database.CompanyTypeRepository().GetCompanyTypeByName(ctx, translation.Language, translation.Name)
+		existing, err := svc.database.CompanyTypes().GetCompanyTypeByName(ctx, translation.Language, translation.Name)
 		if err != nil {
 			return err
 		}

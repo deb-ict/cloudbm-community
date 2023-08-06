@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *service) GetCompanyAddresses(ctx context.Context, companyId string, offset int64, limit int64, filter *model.AddressFilter, sort *core.Sort) ([]*model.Address, int64, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -17,7 +17,7 @@ func (svc *service) GetCompanyAddresses(ctx context.Context, companyId string, o
 		return nil, 0, contact.ErrCompanyNotFound
 	}
 
-	data, count, err := svc.database.CompanyAddressRepository().GetCompanyAddresses(ctx, parent, offset, limit, filter, sort)
+	data, count, err := svc.database.CompanyAddresses().GetCompanyAddresses(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -26,7 +26,7 @@ func (svc *service) GetCompanyAddresses(ctx context.Context, companyId string, o
 }
 
 func (svc *service) GetCompanyAddressById(ctx context.Context, companyId string, id string) (*model.Address, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (svc *service) GetCompanyAddressById(ctx context.Context, companyId string,
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyAddressRepository().GetCompanyAddressById(ctx, parent, id)
+	data, err := svc.database.CompanyAddresses().GetCompanyAddressById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (svc *service) GetCompanyAddressById(ctx context.Context, companyId string,
 }
 
 func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, model *model.Address) (*model.Address, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, 
 		}
 	}
 
-	newId, err := svc.database.CompanyAddressRepository().CreateCompanyAddress(ctx, parent, model)
+	newId, err := svc.database.CompanyAddresses().CreateCompanyAddress(ctx, parent, model)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, 
 }
 
 func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, id string, model *model.Address) (*model.Address, error) {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 		return nil, contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyAddressRepository().GetCompanyAddressById(ctx, parent, id)
+	data, err := svc.database.CompanyAddresses().GetCompanyAddressById(ctx, parent, id)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 		}
 	}
 
-	err = svc.database.CompanyAddressRepository().UpdateCompanyAddress(ctx, parent, data)
+	err = svc.database.CompanyAddresses().UpdateCompanyAddress(ctx, parent, data)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 }
 
 func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, id string) error {
-	parent, err := svc.database.CompanyRepository().GetCompanyById(ctx, companyId)
+	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return err
 	}
@@ -128,7 +128,7 @@ func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, 
 		return contact.ErrCompanyNotFound
 	}
 
-	data, err := svc.database.CompanyAddressRepository().GetCompanyAddressById(ctx, parent, id)
+	data, err := svc.database.CompanyAddresses().GetCompanyAddressById(ctx, parent, id)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, 
 		return contact.ErrCompanyAddressIsDefault
 	}
 
-	err = svc.database.CompanyAddressRepository().DeleteCompanyAddress(ctx, parent, data)
+	err = svc.database.CompanyAddresses().DeleteCompanyAddress(ctx, parent, data)
 	if err != nil {
 		return err
 	}
@@ -147,13 +147,13 @@ func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, 
 }
 
 func (svc *service) resetDefaultCompanyAddress(ctx context.Context, parent *model.Company, model *model.Address) error {
-	current, err := svc.database.CompanyAddressRepository().GetDefaultCompanyAddress(ctx, parent)
+	current, err := svc.database.CompanyAddresses().GetDefaultCompanyAddress(ctx, parent)
 	if err != nil {
 		return err
 	}
 	if current != nil && current.Id != model.Id {
 		current.IsDefault = false
-		err = svc.database.CompanyAddressRepository().UpdateCompanyAddress(ctx, parent, current)
+		err = svc.database.CompanyAddresses().UpdateCompanyAddress(ctx, parent, current)
 		if err != nil {
 			return err
 		}
@@ -162,7 +162,7 @@ func (svc *service) resetDefaultCompanyAddress(ctx context.Context, parent *mode
 }
 
 func (svc *service) validateCompanyAddress(ctx context.Context, parent *model.Company, model *model.Address) error {
-	modelType, err := svc.database.AddressTypeRepository().GetAddressTypeById(ctx, model.Type.Id)
+	modelType, err := svc.database.AddressTypes().GetAddressTypeById(ctx, model.Type.Id)
 	if err != nil {
 		return err
 	}
