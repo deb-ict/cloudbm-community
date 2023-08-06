@@ -1,0 +1,210 @@
+package v1
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
+	"github.com/deb-ict/go-router"
+)
+
+type PhoneTypeV1 struct {
+	Id           string                    `json:"id"`
+	Key          string                    `json:"key"`
+	Translations []*PhoneTypeTranslationV1 `json:"translations"`
+	IsDefault    bool                      `json:"is_default"`
+	IsSystem     bool                      `json:"is_system"`
+}
+
+type PhoneTypeTranslationV1 struct {
+	Language    string `json:"language"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type PhoneTypeListV1 struct {
+	rest.PaginatedList
+	Items []*PhoneTypeListItemV1 `json:"items"`
+}
+
+type PhoneTypeListItemV1 struct {
+	Id          string `json:"id"`
+	Key         string `json:"key"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	IsDefault   bool   `json:"is_default"`
+	IsSystem    bool   `json:"is_system"`
+}
+
+type CreatePhoneTypeV1 struct {
+	Key          string                    `json:"key"`
+	Translations []*PhoneTypeTranslationV1 `json:"translations"`
+	IsDefault    bool                      `json:"is_default"`
+}
+
+type UpdatePhoneTypeV1 struct {
+	Translations []*PhoneTypeTranslationV1 `json:"translations"`
+	IsDefault    bool                      `json:"is_default"`
+}
+
+func (api *apiV1) GetPhoneTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	paging := rest.GetPaging(r)
+	filter := &model.PhoneTypeFilter{}
+	sort := rest.GetSorting(r)
+
+	language := router.QueryValue(r, "language")
+	if language == "" {
+		language = api.service.LanguageProvider().UserLanguage(ctx)
+	}
+
+	result, count, err := api.service.GetPhoneTypes(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
+	if api.handleError(w, err) {
+		return
+	}
+
+	response := PhoneTypeListV1{
+		PaginatedList: rest.PaginatedList{
+			PageIndex: paging.PageIndex,
+			PageSize:  paging.PageSize,
+			ItemCount: count,
+		},
+		Items: make([]*PhoneTypeListItemV1, 0),
+	}
+	for _, item := range result {
+		response.Items = append(response.Items, PhoneTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+	}
+
+	rest.WriteResult(w, response)
+}
+
+func (api *apiV1) GetPhoneTypeByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := router.Param(r, "id")
+	result, err := api.service.GetPhoneTypeById(ctx, id)
+	if api.handleError(w, err) {
+		return
+	}
+
+	response := PhoneTypeToViewModel(result)
+	rest.WriteResult(w, response)
+}
+
+func (api *apiV1) CreatePhoneTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var model *CreatePhoneTypeV1
+	err := json.NewDecoder(r.Body).Decode(&model)
+	if api.handleError(w, err) {
+		return
+	}
+
+	result, err := api.service.CreatePhoneType(ctx, PhoneTypeFromCreateViewModel(model))
+	if api.handleError(w, err) {
+		return
+	}
+
+	response := PhoneTypeToViewModel(result)
+	rest.WriteResult(w, response)
+}
+
+func (api *apiV1) UpdatePhoneTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := router.Param(r, "id")
+
+	var model *UpdatePhoneTypeV1
+	err := json.NewDecoder(r.Body).Decode(&model)
+	if api.handleError(w, err) {
+		return
+	}
+
+	result, err := api.service.UpdatePhoneType(ctx, id, PhoneTypeFromUpdateViewModel(model))
+	if api.handleError(w, err) {
+		return
+	}
+
+	response := PhoneTypeToViewModel(result)
+	rest.WriteResult(w, response)
+}
+
+func (api *apiV1) DeletePhoneTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id := router.Param(r, "id")
+
+	err := api.service.DeletePhoneType(ctx, id)
+	if api.handleError(w, err) {
+		return
+	}
+
+	rest.WriteStatus(w, http.StatusNoContent)
+}
+
+func PhoneTypeToViewModel(model *model.PhoneType) *PhoneTypeV1 {
+	viewModel := &PhoneTypeV1{
+		Id:           model.Id,
+		Key:          model.Key,
+		Translations: make([]*PhoneTypeTranslationV1, 0),
+		IsDefault:    model.IsDefault,
+		IsSystem:     model.IsSystem,
+	}
+	for _, translation := range model.Translations {
+		viewModel.Translations = append(viewModel.Translations, PhoneTypeTranslationToViewModel(translation))
+	}
+	return viewModel
+}
+
+func PhoneTypeToListItemViewModel(model *model.PhoneType, language string, defaultLanguage string) *PhoneTypeListItemV1 {
+	translation := model.GetTranslation(language, defaultLanguage)
+	return &PhoneTypeListItemV1{
+		Id:          model.Id,
+		Key:         model.Key,
+		Name:        translation.Name,
+		Description: translation.Description,
+		IsDefault:   model.IsDefault,
+		IsSystem:    model.IsSystem,
+	}
+}
+
+func PhoneTypeFromCreateViewModel(viewModel *CreatePhoneTypeV1) *model.PhoneType {
+	model := &model.PhoneType{
+		Key:          viewModel.Key,
+		Translations: make([]*model.PhoneTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModel(translation))
+	}
+	return model
+}
+
+func PhoneTypeFromUpdateViewModel(viewModel *UpdatePhoneTypeV1) *model.PhoneType {
+	model := &model.PhoneType{
+		Translations: make([]*model.PhoneTypeTranslation, 0),
+		IsDefault:    viewModel.IsDefault,
+	}
+	for _, translation := range viewModel.Translations {
+		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModel(translation))
+	}
+	return model
+}
+
+func PhoneTypeTranslationToViewModel(model *model.PhoneTypeTranslation) *PhoneTypeTranslationV1 {
+	return &PhoneTypeTranslationV1{
+		Language:    model.Language,
+		Name:        model.Name,
+		Description: model.Description,
+	}
+}
+
+func PhoneTypeTranslationFromViewModel(viewModel *PhoneTypeTranslationV1) *model.PhoneTypeTranslation {
+	return &model.PhoneTypeTranslation{
+		Language:    viewModel.Language,
+		Name:        viewModel.Name,
+		Description: viewModel.Description,
+	}
+}

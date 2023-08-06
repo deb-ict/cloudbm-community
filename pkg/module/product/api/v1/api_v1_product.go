@@ -5,22 +5,22 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
-	globalV1 "github.com/deb-ict/cloudbm-community/pkg/module/global/api/v1"
-	globalModel "github.com/deb-ict/cloudbm-community/pkg/module/global/model"
+	metadataV1 "github.com/deb-ict/cloudbm-community/pkg/module/metadata/api/v1"
+	metadataModel "github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
 	"github.com/deb-ict/go-router"
 	"github.com/shopspring/decimal"
 )
 
 type ProductV1 struct {
-	Id           string                          `json:"id"`
-	CategoryIds  []string                        `json:"category_ids"`
-	Translations []*ProductTranslationV1         `json:"translations"`
-	ThumbnailId  string                          `json:"thumbnail_id"`
-	ThumbnailUri string                          `json:"thumbnail_uri"`
-	Price        decimal.Decimal                 `json:"price"`
-	TaxProfile   *globalV1.LocalizedTaxProfileV1 `json:"tax_profile"`
-	IsEnabled    bool                            `json:"is_enabled"`
+	Id           string                            `json:"id"`
+	CategoryIds  []string                          `json:"category_ids"`
+	Translations []*ProductTranslationV1           `json:"translations"`
+	ThumbnailId  string                            `json:"thumbnail_id"`
+	ThumbnailUri string                            `json:"thumbnail_uri"`
+	Price        decimal.Decimal                   `json:"price"`
+	TaxProfile   *metadataV1.LocalizedTaxProfileV1 `json:"tax_profile"`
+	IsEnabled    bool                              `json:"is_enabled"`
 }
 
 type ProductTranslationV1 struct {
@@ -37,15 +37,15 @@ type ProductListV1 struct {
 }
 
 type ProductListItemV1 struct {
-	Id           string                          `json:"id"`
-	Name         string                          `json:"name"`
-	Slug         string                          `json:"slug"`
-	Summary      string                          `json:"summary"`
-	ThumbnailId  string                          `json:"thumbnail_id"`
-	ThumbnailUri string                          `json:"thumbnail_uri"`
-	Price        decimal.Decimal                 `json:"price"`
-	TaxProfile   *globalV1.LocalizedTaxProfileV1 `json:"tax_profile"`
-	IsEnabled    bool                            `json:"is_enabled"`
+	Id           string                            `json:"id"`
+	Name         string                            `json:"name"`
+	Slug         string                            `json:"slug"`
+	Summary      string                            `json:"summary"`
+	ThumbnailId  string                            `json:"thumbnail_id"`
+	ThumbnailUri string                            `json:"thumbnail_uri"`
+	Price        decimal.Decimal                   `json:"price"`
+	TaxProfile   *metadataV1.LocalizedTaxProfileV1 `json:"tax_profile"`
+	IsEnabled    bool                              `json:"is_enabled"`
 }
 
 type CreateProductV1 struct {
@@ -192,7 +192,7 @@ func ProductToViewModel(model *model.Product, language string, defaultLanguage s
 		ThumbnailId:  model.ThumbnailId,
 		ThumbnailUri: model.ThumbnailUri,
 		Price:        model.Price,
-		TaxProfile:   globalV1.TaxProfileToLocalizedViewModel(model.TaxProfile, language, defaultLanguage),
+		TaxProfile:   metadataV1.TaxProfileToLocalizedViewModel(model.TaxProfile, language, defaultLanguage),
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
@@ -211,7 +211,7 @@ func ProductToListItemViewModel(model *model.Product, language string, defaultLa
 		ThumbnailId:  model.ThumbnailId,
 		ThumbnailUri: model.ThumbnailUri,
 		Price:        model.Price,
-		TaxProfile:   globalV1.TaxProfileToLocalizedViewModel(model.TaxProfile, language, defaultLanguage),
+		TaxProfile:   metadataV1.TaxProfileToLocalizedViewModel(model.TaxProfile, language, defaultLanguage),
 		IsEnabled:    model.IsEnabled,
 	}
 }
@@ -223,7 +223,7 @@ func ProductFromCreateViewModel(viewModel *CreateProductV1) *model.Product {
 		ThumbnailId:  viewModel.ThumbnailId,
 		ThumbnailUri: viewModel.ThumbnailUri,
 		Price:        viewModel.Price,
-		TaxProfile: &globalModel.TaxProfile{
+		TaxProfile: &metadataModel.TaxProfile{
 			Id: viewModel.TaxProfileId,
 		},
 		IsEnabled: viewModel.IsEnabled,
@@ -241,7 +241,7 @@ func ProductFromUpdateViewModel(viewModel *UpdateProductV1) *model.Product {
 		ThumbnailId:  viewModel.ThumbnailId,
 		ThumbnailUri: viewModel.ThumbnailUri,
 		Price:        viewModel.Price,
-		TaxProfile: &globalModel.TaxProfile{
+		TaxProfile: &metadataModel.TaxProfile{
 			Id: viewModel.TaxProfileId,
 		},
 		IsEnabled: viewModel.IsEnabled,

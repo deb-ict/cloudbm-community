@@ -3,7 +3,7 @@ package model
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
-	global "github.com/deb-ict/cloudbm-community/pkg/module/global/model"
+	metadata "github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
 	"github.com/shopspring/decimal"
 )
 
@@ -14,7 +14,7 @@ type Product struct {
 	ThumbnailId  string
 	ThumbnailUri string
 	Price        decimal.Decimal
-	TaxProfile   *global.TaxProfile
+	TaxProfile   *metadata.TaxProfile
 	IsEnabled    bool
 }
 

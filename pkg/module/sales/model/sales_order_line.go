@@ -1,7 +1,7 @@
 package model
 
 import (
-	global "github.com/deb-ict/cloudbm-community/pkg/module/global/model"
+	metadata "github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
 	"github.com/shopspring/decimal"
 )
 
@@ -14,5 +14,5 @@ type SalesOrderLine struct {
 	Description  string
 	Quanity      decimal.Decimal
 	UnitPrice    decimal.Decimal
-	TaxProfile   *global.TaxProfile
+	TaxProfile   *metadata.TaxProfile
 }
