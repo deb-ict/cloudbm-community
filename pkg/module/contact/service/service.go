@@ -3,21 +3,39 @@ package service
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
+	"github.com/deb-ict/cloudbm-community/pkg/module"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 )
 
+type ServiceOptions struct {
+	module.ServiceOptions
+}
+
 type service struct {
+	stringNormalizer core.StringNormalizer
 	featureProvider  core.FeatureProvider
 	languageProvider localization.LanguageProvider
 	database         contact.Database
 }
 
-func NewService(database contact.Database) contact.Service {
-	svc := &service{
-		database: database,
+func NewService(database contact.Database, opts *ServiceOptions) contact.Service {
+	if opts == nil {
+		opts = &ServiceOptions{}
 	}
-	svc.ensureDefaults()
+	opts.EnsureDefaults()
+
+	svc := &service{
+		stringNormalizer: opts.StringNormalizer,
+		featureProvider:  opts.FeatureProvider,
+		languageProvider: opts.LanguageProvider,
+		database:         database,
+	}
+
 	return svc
+}
+
+func (svc *service) GetStringNormalizer() core.StringNormalizer {
+	return svc.stringNormalizer
 }
 
 func (svc *service) GetFeatureProvider() core.FeatureProvider {
@@ -26,13 +44,4 @@ func (svc *service) GetFeatureProvider() core.FeatureProvider {
 
 func (svc *service) GetLanguageProvider() localization.LanguageProvider {
 	return svc.languageProvider
-}
-
-func (svc *service) ensureDefaults() {
-	if svc.featureProvider == nil {
-		svc.featureProvider = core.NewDefaultFeatureProvider()
-	}
-	if svc.languageProvider == nil {
-		svc.languageProvider = localization.NewDefaultLanguageProvider()
-	}
 }
