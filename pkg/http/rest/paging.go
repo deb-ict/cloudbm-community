@@ -3,8 +3,6 @@ package rest
 import (
 	"net/http"
 	"strconv"
-
-	"github.com/deb-ict/go-router"
 )
 
 const (
@@ -29,12 +27,12 @@ type PaginatedList struct {
 func GetPaging(r *http.Request) PageRequest {
 	var err error
 
-	pageIndex, err := strconv.ParseInt(router.QueryValue(r, "pageIndex"), 10, 64)
+	pageIndex, err := strconv.ParseInt(r.URL.Query().Get("pageIndex"), 10, 64)
 	if err != nil || pageIndex < MinPageIndex {
 		pageIndex = DefaultPageIndex
 	}
 
-	pageSize, err := strconv.ParseInt(router.QueryValue(r, "pageSize"), 10, 64)
+	pageSize, err := strconv.ParseInt(r.URL.Query().Get("pageSize"), 10, 64)
 	if err != nil || pageSize < MinPageSize {
 		pageSize = DefaultPageSize
 	}

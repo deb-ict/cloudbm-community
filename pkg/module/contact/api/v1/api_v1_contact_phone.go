@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type ContactPhoneV1 struct {
@@ -53,13 +53,13 @@ type UpdateContactPhoneV1 struct {
 
 func (api *apiV1) GetContactPhonesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := router.Param(r, "contactId")
+	contactId := mux.Vars(r)["contactId"]
 
 	paging := rest.GetPaging(r)
 	filter := &model.PhoneFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -86,15 +86,15 @@ func (api *apiV1) GetContactPhonesHandlerV1(w http.ResponseWriter, r *http.Reque
 
 func (api *apiV1) GetContactPhoneByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := router.Param(r, "contactId")
+	contactId := mux.Vars(r)["contactId"]
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetContactPhoneById(ctx, contactId, id)
 	if api.handleError(w, err) {
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -105,7 +105,7 @@ func (api *apiV1) GetContactPhoneByIdHandlerV1(w http.ResponseWriter, r *http.Re
 
 func (api *apiV1) CreateContactPhoneHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := router.Param(r, "contactId")
+	contactId := mux.Vars(r)["contactId"]
 
 	var model *CreateContactPhoneV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -118,7 +118,7 @@ func (api *apiV1) CreateContactPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -129,9 +129,9 @@ func (api *apiV1) CreateContactPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 
 func (api *apiV1) UpdateContactPhoneHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := router.Param(r, "contactId")
+	contactId := mux.Vars(r)["contactId"]
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateContactPhoneV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -144,7 +144,7 @@ func (api *apiV1) UpdateContactPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -155,9 +155,9 @@ func (api *apiV1) UpdateContactPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 
 func (api *apiV1) DeleteContactPhoneHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := router.Param(r, "contactId")
+	contactId := mux.Vars(r)["contactId"]
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteContactPhone(ctx, contactId, id)
 	if api.handleError(w, err) {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type CategoryV1 struct {
@@ -66,12 +66,12 @@ func (api *apiV1) GetCateogiesHandlerV1(w http.ResponseWriter, r *http.Request) 
 	filter := &model.CategoryFilter{}
 	sort := rest.GetSorting(r)
 
-	parentId := router.QueryValue(r, "parentId")
+	parentId := r.URL.Query().Get("parentId")
 	if parentId != "" {
 		filter.ParentId = parentId
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -99,7 +99,7 @@ func (api *apiV1) GetCateogiesHandlerV1(w http.ResponseWriter, r *http.Request) 
 func (api *apiV1) GetCategoryByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetCategoryById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -130,7 +130,7 @@ func (api *apiV1) CreateCategoryHandlerV1(w http.ResponseWriter, r *http.Request
 func (api *apiV1) UpdateCategoryHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateCategoryV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -150,7 +150,7 @@ func (api *apiV1) UpdateCategoryHandlerV1(w http.ResponseWriter, r *http.Request
 func (api *apiV1) DeleteCategoryHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteCategory(ctx, id)
 	if api.handleError(w, err) {

@@ -5,11 +5,11 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/metadata"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type ApiV1 interface {
-	RegisterRoutes(r *router.Router)
+	RegisterRoutes(r *mux.Router)
 }
 
 type apiV1 struct {
@@ -22,38 +22,13 @@ func NewApi(service metadata.Service) ApiV1 {
 	}
 }
 
-func (api *apiV1) RegisterRoutes(r *router.Router) {
+func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Tax profiles
-	r.HandleFunc(
-		"/v1/taxProfile",
-		api.GetTaxProfilesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("taxProfile.read"),
-	)
-	r.HandleFunc(
-		"/v1/taxProfile/{id}",
-		api.GetTaxProfileByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("taxProfile.read"),
-	)
-	r.HandleFunc(
-		"/v1/taxProfile",
-		api.CreateTaxProfileHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("taxProfile.create"),
-	)
-	r.HandleFunc(
-		"/v1/taxProfile/{id}",
-		api.UpdateTaxProfileHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("taxProfile.update"),
-	)
-	r.HandleFunc(
-		"/v1/taxProfile/{id}",
-		api.DeleteTaxProfileHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("taxProfile.delete"),
-	)
+	r.HandleFunc("/v1/taxProfile", api.GetTaxProfilesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/taxProfile/{id}", api.GetTaxProfileByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/taxProfile", api.CreateTaxProfileHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/taxProfile/{id}", api.UpdateTaxProfileHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/taxProfile/{id}", api.DeleteTaxProfileHandlerV1).Methods(http.MethodDelete)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

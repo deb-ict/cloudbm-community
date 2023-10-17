@@ -8,7 +8,7 @@ import (
 	metadataV1 "github.com/deb-ict/cloudbm-community/pkg/module/metadata/api/v1"
 	metadataModel "github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 	"github.com/shopspring/decimal"
 )
 
@@ -75,12 +75,12 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	filter := &model.ProductFilter{}
 	sort := rest.GetSorting(r)
 
-	categoryId := router.QueryValue(r, "categoryId")
+	categoryId := r.URL.Query().Get("categoryId")
 	if categoryId != "" {
 		filter.CategoryId = categoryId
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -108,13 +108,13 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetProductByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetProductById(ctx, id)
 	if api.handleError(w, err) {
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -137,7 +137,7 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -149,7 +149,7 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateProductV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -162,7 +162,7 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -174,7 +174,7 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) DeleteProductHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteProduct(ctx, id)
 	if api.handleError(w, err) {

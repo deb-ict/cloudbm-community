@@ -5,11 +5,11 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type ApiV1 interface {
-	RegisterRoutes(r *router.Router)
+	RegisterRoutes(r *mux.Router)
 }
 
 type apiV1 struct {
@@ -22,582 +22,132 @@ func NewApi(service contact.Service) ApiV1 {
 	}
 }
 
-func (api *apiV1) RegisterRoutes(r *router.Router) {
+func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Contacts
-	r.HandleFunc(
-		"/v1/contact",
-		api.GetContactsHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{id}",
-		api.GetContactByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact",
-		api.CreateContactHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("contact.create"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{id}",
-		api.UpdateContactHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("contact.update"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{id}",
-		api.DeleteContactHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("contact.delete"),
-	)
+	r.HandleFunc("/v1/contact", api.GetContactsHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{id}", api.GetContactByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact", api.CreateContactHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/contact/{id}", api.UpdateContactHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/contact/{id}", api.DeleteContactHandlerV1).Methods(http.MethodDelete)
 
 	// Contact addresses
-	r.HandleFunc(
-		"/v1/contact/{contactId}/address",
-		api.GetContactAddressesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/address/{id}",
-		api.GetContactAddressByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/address",
-		api.CreateContactAddressHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("contact.create"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/address/{id}",
-		api.UpdateContactAddressHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("contact.update"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/address/{id}",
-		api.DeleteContactAddressHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("contact.delete"),
-	)
+	r.HandleFunc("/v1/contact/{contactId}/address", api.GetContactAddressesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/address/{id}", api.GetContactAddressByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/address", api.CreateContactAddressHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/contact/{contactId}/address/{id}", api.UpdateContactAddressHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/contact/{contactId}/address/{id}", api.DeleteContactAddressHandlerV1).Methods(http.MethodDelete)
 
 	// Contact emails
-	r.HandleFunc(
-		"/v1/contact/{contactId}/email",
-		api.GetContactEmailsHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/email/{id}",
-		api.GetContactEmailByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/email",
-		api.CreateContactEmailHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("contact.create"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/email/{id}",
-		api.UpdateContactEmailHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("contact.update"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/email/{id}",
-		api.DeleteContactEmailHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("contact.delete"),
-	)
+	r.HandleFunc("/v1/contact/{contactId}/email", api.GetContactEmailsHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/email/{id}", api.GetContactEmailByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/email", api.CreateContactEmailHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/contact/{contactId}/email/{id}", api.UpdateContactEmailHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/contact/{contactId}/email/{id}", api.DeleteContactEmailHandlerV1).Methods(http.MethodDelete)
 
 	// Contact phones
-	r.HandleFunc(
-		"/v1/contact/{contactId}/phone",
-		api.GetContactPhonesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/phone/{id}",
-		api.GetContactPhoneByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/phone",
-		api.CreateContactPhoneHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("contact.create"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/phone/{id}",
-		api.UpdateContactPhoneHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("contact.update"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/phone/{id}",
-		api.DeleteContactPhoneHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("contact.delete"),
-	)
+	r.HandleFunc("/v1/contact/{contactId}/phone", api.GetContactPhonesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/phone/{id}", api.GetContactPhoneByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/phone", api.CreateContactPhoneHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/contact/{contactId}/phone/{id}", api.UpdateContactPhoneHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/contact/{contactId}/phone/{id}", api.DeleteContactPhoneHandlerV1).Methods(http.MethodDelete)
 
 	// Contact uris
-	r.HandleFunc(
-		"/v1/contact/{contactId}/uri",
-		api.GetContactUrisHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/uri/{id}",
-		api.GetContactUriByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("contact.read"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/uri",
-		api.CreateContactUriHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("contact.create"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/uri/{id}",
-		api.UpdateContactUriHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("contact.update"),
-	)
-	r.HandleFunc(
-		"/v1/contact/{contactId}/uri/{id}",
-		api.DeleteContactUriHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("contact.delete"),
-	)
+	r.HandleFunc("/v1/contact/{contactId}/uri", api.GetContactUrisHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/uri/{id}", api.GetContactUriByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contact/{contactId}/uri", api.CreateContactUriHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/contact/{contactId}/uri/{id}", api.UpdateContactUriHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/contact/{contactId}/uri/{id}", api.DeleteContactUriHandlerV1).Methods(http.MethodDelete)
 
 	// Companies
-	r.HandleFunc(
-		"/v1/company",
-		api.GetCompaniesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{id}",
-		api.GetCompanyByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company",
-		api.CreateCompanyHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("company.create"),
-	)
-	r.HandleFunc(
-		"/v1/company/{id}",
-		api.UpdateCompanyHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("company.update"),
-	)
-	r.HandleFunc(
-		"/v1/company/{id}",
-		api.DeleteCompanyHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("company.delete"),
-	)
+	r.HandleFunc("/v1/company", api.GetCompaniesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{id}", api.GetCompanyByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company", api.CreateCompanyHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/company/{id}", api.UpdateCompanyHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/company/{id}", api.DeleteCompanyHandlerV1).Methods(http.MethodDelete)
 
 	// Company addresses
-	r.HandleFunc(
-		"/v1/company/{companyId}/address",
-		api.GetCompanyAddressesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/address/{id}",
-		api.GetCompanyAddressByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/address",
-		api.CreateCompanyAddressHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("company.create"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/address/{id}",
-		api.UpdateCompanyAddressHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("company.update"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/address/{id}",
-		api.DeleteCompanyAddressHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("company.delete"),
-	)
+	r.HandleFunc("/v1/company/{companyId}/address", api.GetCompanyAddressesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/address/{id}", api.GetCompanyAddressByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/address", api.CreateCompanyAddressHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/company/{companyId}/address/{id}", api.UpdateCompanyAddressHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/company/{companyId}/address/{id}", api.DeleteCompanyAddressHandlerV1).Methods(http.MethodDelete)
 
 	// Company emails
-	r.HandleFunc(
-		"/v1/company/{companyId}/email",
-		api.GetCompanyEmailsHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/email/{id}",
-		api.GetCompanyEmailByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/email",
-		api.CreateCompanyEmailHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("company.create"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/email/{id}",
-		api.UpdateCompanyEmailHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("company.update"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/email/{id}",
-		api.DeleteCompanyEmailHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("company.delete"),
-	)
+	r.HandleFunc("/v1/company/{companyId}/email", api.GetCompanyEmailsHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/email/{id}", api.GetCompanyEmailByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/email", api.CreateCompanyEmailHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/company/{companyId}/email/{id}", api.UpdateCompanyEmailHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/company/{companyId}/email/{id}", api.DeleteCompanyEmailHandlerV1).Methods(http.MethodDelete)
 
 	// Company phones
-	r.HandleFunc(
-		"/v1/company/{companyId}/phone",
-		api.GetCompanyPhonesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/phone/{id}",
-		api.GetCompanyByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/phone",
-		api.CreateCompanyPhoneHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("company.create"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/phone/{id}",
-		api.UpdateCompanyPhoneHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("company.update"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/phone/{id}",
-		api.DeleteCompanyPhoneHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("company.delete"),
-	)
+	r.HandleFunc("/v1/company/{companyId}/phone", api.GetCompanyPhonesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/phone/{id}", api.GetCompanyByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/phone", api.CreateCompanyPhoneHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/company/{companyId}/phone/{id}", api.UpdateCompanyPhoneHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/company/{companyId}/phone/{id}", api.DeleteCompanyPhoneHandlerV1).Methods(http.MethodDelete)
 
 	// Company uris
-	r.HandleFunc(
-		"/v1/company/{companyId}/uri",
-		api.GetCompanyUrisHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/uri/{id}",
-		api.GetCompanyUriByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("company.read"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/uri",
-		api.CreateCompanyUriHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("company.create"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/uri/{id}",
-		api.UpdateCompanyUriHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("company.update"),
-	)
-	r.HandleFunc(
-		"/v1/company/{companyId}/uri/{id}",
-		api.DeleteCompanyUriHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("company.delete"),
-	)
+	r.HandleFunc("/v1/company/{companyId}/uri", api.GetCompanyUrisHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/uri/{id}", api.GetCompanyUriByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/company/{companyId}/uri", api.CreateCompanyUriHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/company/{companyId}/uri/{id}", api.UpdateCompanyUriHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/company/{companyId}/uri/{id}", api.DeleteCompanyUriHandlerV1).Methods(http.MethodDelete)
 
 	// Address types
-	r.HandleFunc(
-		"/v1/addressType",
-		api.GetAddressTypesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/addressType/{id}",
-		api.GetAddressTypeByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/addressType",
-		api.CreateAddressTypeHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/addressType/{id}",
-		api.UpdateAddressTypeHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/addressType/{id}",
-		api.DeleteAddressTypeHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/addressType", api.GetAddressTypesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/addressType/{id}", api.GetAddressTypeByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/addressType", api.CreateAddressTypeHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/addressType/{id}", api.UpdateAddressTypeHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/addressType/{id}", api.DeleteAddressTypeHandlerV1).Methods(http.MethodDelete)
 
 	// Email types
-	r.HandleFunc(
-		"/v1/emailType",
-		api.GetEmailTypesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/emailType/{id}",
-		api.GetEmailTypeByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/emailType",
-		api.CreateEmailTypeHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/emailType/{id}",
-		api.UpdateEmailTypeHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/emailType/{id}",
-		api.DeleteEmailTypeHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/emailType", api.GetEmailTypesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/emailType/{id}", api.GetEmailTypeByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/emailType", api.CreateEmailTypeHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/emailType/{id}", api.UpdateEmailTypeHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/emailType/{id}", api.DeleteEmailTypeHandlerV1).Methods(http.MethodDelete)
 
 	// Phone types
-	r.HandleFunc(
-		"/v1/phoneType",
-		api.GetPhoneTypesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/phoneType/{id}",
-		api.GetPhoneTypeByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/phoneType",
-		api.CreatePhoneTypeHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/phoneType/{id}",
-		api.UpdatePhoneTypeHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/phoneType/{id}",
-		api.DeletePhoneTypeHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/phoneType", api.GetPhoneTypesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/phoneType/{id}", api.GetPhoneTypeByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/phoneType", api.CreatePhoneTypeHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/phoneType/{id}", api.UpdatePhoneTypeHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/phoneType/{id}", api.DeletePhoneTypeHandlerV1).Methods(http.MethodDelete)
 
 	// Uri types
-	r.HandleFunc(
-		"/v1/uriType",
-		api.GetUriTypesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/uriType/{id}",
-		api.GetUriTypeByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/uriType",
-		api.CreateUriTypeHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/uriType/{id}",
-		api.UpdateUriTypeHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/uriType/{id}",
-		api.DeleteUriTypeHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/uriType", api.GetUriTypesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/uriType/{id}", api.GetUriTypeByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/uriType", api.CreateUriTypeHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/uriType/{id}", api.UpdateUriTypeHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/uriType/{id}", api.DeleteUriTypeHandlerV1).Methods(http.MethodDelete)
 
 	// Contact titles
-	r.HandleFunc(
-		"/v1/contactTitle",
-		api.GetContactTitlesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/contactTitle/{id}",
-		api.GetContactTitleByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/contactTitle",
-		api.CreateContactTitleHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/contactTitle/{id}",
-		api.UpdateContactTitleHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/contactTitle/{id}",
-		api.DeleteContactTitleHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/contactTitle", api.GetContactTitlesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contactTitle/{id}", api.GetContactTitleByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/contactTitle", api.CreateContactTitleHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/contactTitle/{id}", api.UpdateContactTitleHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/contactTitle/{id}", api.DeleteContactTitleHandlerV1).Methods(http.MethodDelete)
 
 	// Company types
-	r.HandleFunc(
-		"/v1/companyType",
-		api.GetCompanyTypesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/companyType/{id}",
-		api.GetCompanyTypeByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/companyType",
-		api.CreateCompanyTypeHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/companyType/{id}",
-		api.UpdateCompanyTypeHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/companyType/{id}",
-		api.DeleteCompanyTypeHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/companyType", api.GetCompanyTypesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/companyType/{id}", api.GetCompanyTypeByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/companyType", api.CreateCompanyTypeHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/companyType/{id}", api.UpdateCompanyTypeHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/companyType/{id}", api.DeleteCompanyTypeHandlerV1).Methods(http.MethodDelete)
 
 	// Industries
-	r.HandleFunc(
-		"/v1/industry",
-		api.GetIndustriesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/industry/{id}",
-		api.GetIndustryByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/industry",
-		api.CreateIndustryHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/industry/{id}",
-		api.UpdateIndustryHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/industry/{id}",
-		api.DeleteIndustryHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/industry", api.GetIndustriesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/industry/{id}", api.GetIndustryByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/industry", api.CreateIndustryHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/industry/{id}", api.UpdateIndustryHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/industry/{id}", api.DeleteIndustryHandlerV1).Methods(http.MethodDelete)
 
 	// Job titles
-	r.HandleFunc(
-		"/v1/jobTitle",
-		api.GetJobTitlesHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/jobTitle/{id}",
-		api.GetJobTitleByIdHandlerV1,
-		router.AllowedMethod(http.MethodGet),
-		router.Authorized("metadata.read"),
-	)
-	r.HandleFunc(
-		"/v1/jobTitle",
-		api.CreateJobTitleHandlerV1,
-		router.AllowedMethod(http.MethodPost),
-		router.Authorized("metadata.create"),
-	)
-	r.HandleFunc(
-		"/v1/jobTitle/{id}",
-		api.UpdateJobTitleHandlerV1,
-		router.AllowedMethod(http.MethodPut),
-		router.Authorized("metadata.update"),
-	)
-	r.HandleFunc(
-		"/v1/jobTitle/{id}",
-		api.DeleteJobTitleHandlerV1,
-		router.AllowedMethod(http.MethodDelete),
-		router.Authorized("metadata.delete"),
-	)
+	r.HandleFunc("/v1/jobTitle", api.GetJobTitlesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/jobTitle/{id}", api.GetJobTitleByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/jobTitle", api.CreateJobTitleHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/jobTitle/{id}", api.UpdateJobTitleHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/jobTitle/{id}", api.DeleteJobTitleHandlerV1).Methods(http.MethodDelete)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

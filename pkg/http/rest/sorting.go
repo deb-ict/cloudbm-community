@@ -5,13 +5,12 @@ import (
 	"strings"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
-	"github.com/deb-ict/go-router"
 )
 
 func GetSorting(r *http.Request) *core.Sort {
 	result := &core.Sort{}
-	sortBy := router.QueryValue(r, "sortBy")
-	sortOrder := router.QueryValue(r, "sortOrder")
+	sortBy := r.URL.Query().Get("sortBy")
+	sortOrder := r.URL.Query().Get("sortOrder")
 	if sortBy != "" {
 		sortField := core.SortField{Name: sortBy}
 		if strings.ToLower(sortOrder) != "desc" {

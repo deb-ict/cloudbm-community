@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type CompanyTypeV1 struct {
@@ -51,7 +51,7 @@ func (api *apiV1) GetCompanyTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 	filter := &model.CompanyTypeFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -79,7 +79,7 @@ func (api *apiV1) GetCompanyTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 func (api *apiV1) GetCompanyTypeByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetCompanyTypeById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -110,7 +110,7 @@ func (api *apiV1) CreateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 func (api *apiV1) UpdateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateCompanyTypeV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -130,7 +130,7 @@ func (api *apiV1) UpdateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 func (api *apiV1) DeleteCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteCompanyType(ctx, id)
 	if api.handleError(w, err) {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type AddressTypeV1 struct {
@@ -55,7 +55,7 @@ func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 	filter := &model.AddressTypeFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -83,7 +83,7 @@ func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 func (api *apiV1) GetAddressTypeByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetAddressTypeById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -114,7 +114,7 @@ func (api *apiV1) CreateAddressTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 func (api *apiV1) UpdateAddressTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateAddressTypeV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -134,7 +134,7 @@ func (api *apiV1) UpdateAddressTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 func (api *apiV1) DeleteAddressTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteAddressType(ctx, id)
 	if api.handleError(w, err) {

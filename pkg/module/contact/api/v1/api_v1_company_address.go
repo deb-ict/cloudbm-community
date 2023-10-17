@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type CompanyAddressV1 struct {
@@ -73,13 +73,13 @@ type UpdateCompanyAddressV1 struct {
 
 func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := router.Param(r, "companyId")
+	companyId := mux.Vars(r)["companyId"]
 
 	paging := rest.GetPaging(r)
 	filter := &model.AddressFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -106,15 +106,15 @@ func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 
 func (api *apiV1) GetCompanyAddressByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := router.Param(r, "companyId")
+	companyId := mux.Vars(r)["companyId"]
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetCompanyAddressById(ctx, companyId, id)
 	if api.handleError(w, err) {
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -125,7 +125,7 @@ func (api *apiV1) GetCompanyAddressByIdHandlerV1(w http.ResponseWriter, r *http.
 
 func (api *apiV1) CreateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := router.Param(r, "companyId")
+	companyId := mux.Vars(r)["companyId"]
 
 	var model *CreateCompanyAddressV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -138,7 +138,7 @@ func (api *apiV1) CreateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -149,9 +149,9 @@ func (api *apiV1) CreateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 
 func (api *apiV1) UpdateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := router.Param(r, "companyId")
+	companyId := mux.Vars(r)["companyId"]
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateCompanyAddressV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -164,7 +164,7 @@ func (api *apiV1) UpdateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -175,9 +175,9 @@ func (api *apiV1) UpdateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 
 func (api *apiV1) DeleteCompanyAddressHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := router.Param(r, "companyId")
+	companyId := mux.Vars(r)["companyId"]
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteCompanyAddress(ctx, companyId, id)
 	if api.handleError(w, err) {

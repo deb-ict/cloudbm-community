@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/deb-ict/go-router"
+	"github.com/gorilla/mux"
 )
 
 type UriTypeV1 struct {
@@ -55,7 +55,7 @@ func (api *apiV1) GetUriTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	filter := &model.UriTypeFilter{}
 	sort := rest.GetSorting(r)
 
-	language := router.QueryValue(r, "language")
+	language := r.URL.Query().Get("language")
 	if language == "" {
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
@@ -83,7 +83,7 @@ func (api *apiV1) GetUriTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetUriTypeByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 	result, err := api.service.GetUriTypeById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -114,7 +114,7 @@ func (api *apiV1) CreateUriTypeHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) UpdateUriTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	var model *UpdateUriTypeV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -134,7 +134,7 @@ func (api *apiV1) UpdateUriTypeHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) DeleteUriTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := router.Param(r, "id")
+	id := mux.Vars(r)["id"]
 
 	err := api.service.DeleteUriType(ctx, id)
 	if api.handleError(w, err) {
