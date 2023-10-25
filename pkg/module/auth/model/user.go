@@ -5,7 +5,7 @@ type User struct {
 	Username           string
 	PasswordHash       string
 	Email              string
-	EmailVerified      string
+	EmailVerified      bool
 	Phone              string
 	PhoneVerified      bool
 	NormalizedUsername string
