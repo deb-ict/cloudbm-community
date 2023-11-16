@@ -3,28 +3,28 @@ package model
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
-	"github.com/shopspring/decimal"
 )
 
-type TaxProfile struct {
+type Unit struct {
 	Id           string
 	Key          string
-	Translations []*TaxProfileTranslation
-	Rate         decimal.Decimal
+	Translations []*UnitTranslation
+	IsSystem     bool
+	IsEnabled    bool
 }
 
-type TaxProfileTranslation struct {
+type UnitTranslation struct {
 	Language    string
 	Name        string
 	Description string
 }
 
-type TaxProfileFilter struct {
+type UnitFilter struct {
 }
 
-func (m *TaxProfile) GetTranslation(language string, defaultLanguage string) *TaxProfileTranslation {
+func (m *Unit) GetTranslation(language string, defaultLanguage string) *UnitTranslation {
 	if len(m.Translations) == 0 {
-		return &TaxProfileTranslation{}
+		return &UnitTranslation{}
 	}
 
 	translation, err := m.TryGetTranslation(language)
@@ -38,7 +38,7 @@ func (m *TaxProfile) GetTranslation(language string, defaultLanguage string) *Ta
 	return translation
 }
 
-func (m *TaxProfile) TryGetTranslation(language string) (*TaxProfileTranslation, error) {
+func (m *Unit) TryGetTranslation(language string) (*UnitTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
@@ -48,10 +48,10 @@ func (m *TaxProfile) TryGetTranslation(language string) (*TaxProfileTranslation,
 	return nil, core.ErrTranslationNotFound
 }
 
-func (m *TaxProfile) IsTransient() bool {
+func (m *Unit) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (f *TaxProfileFilter) HasFilter() bool {
+func (f *UnitFilter) HasFilter() bool {
 	return false
 }

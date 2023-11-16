@@ -24,11 +24,11 @@ func NewApi(service metadata.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Tax profiles
-	r.HandleFunc("/v1/taxProfile", api.GetTaxProfilesHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/taxProfile/{id}", api.GetTaxProfileByIdHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/taxProfile", api.CreateTaxProfileHandlerV1).Methods(http.MethodPost)
-	r.HandleFunc("/v1/taxProfile/{id}", api.UpdateTaxProfileHandlerV1).Methods(http.MethodPut)
-	r.HandleFunc("/v1/taxProfile/{id}", api.DeleteTaxProfileHandlerV1).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/taxRate", api.GetTaxRatesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/taxRate/{id}", api.GetTaxRateByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/taxRate", api.CreateTaxRateHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/taxRate/{id}", api.UpdateTaxRateHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/taxRate/{id}", api.DeleteTaxRateHandlerV1).Methods(http.MethodDelete)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
@@ -37,11 +37,11 @@ func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
 	}
 
 	switch err {
-	case metadata.ErrTaxProfileNotFound:
+	case metadata.ErrTaxRateNotFound:
 		rest.WriteError(w, http.StatusNotFound, err.Error())
-	case metadata.ErrTaxProfileDuplicateKey:
+	case metadata.ErrTaxRateDuplicateKey:
 		rest.WriteError(w, http.StatusBadRequest, err.Error())
-	case metadata.ErrTaxProfileDuplicateName:
+	case metadata.ErrTaxRateDuplicateName:
 		rest.WriteError(w, http.StatusBadRequest, err.Error())
 	default:
 		rest.WriteError(w, http.StatusInternalServerError, err.Error())
