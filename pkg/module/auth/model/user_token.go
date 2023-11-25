@@ -19,6 +19,14 @@ type UserToken struct {
 	Expiration time.Time
 }
 
+func (m *UserToken) SetExpiration(duration time.Duration) {
+	m.Expiration = time.Now().UTC().Add(duration)
+}
+
+func (m *UserToken) HasExpired() bool {
+	return time.Now().UTC().After(m.Expiration)
+}
+
 func (t UserTokenType) String() string {
 	switch t {
 	case ActivationToken:
@@ -28,8 +36,4 @@ func (t UserTokenType) String() string {
 	default:
 		return "Undefined"
 	}
-}
-
-func (t *UserToken) HasExpired() bool {
-	return time.Now().UTC().After(t.Expiration)
 }

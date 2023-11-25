@@ -9,7 +9,7 @@ type StringNormalizer interface {
 type defaultStringNormalizer struct {
 }
 
-func NewDefaultStringNormalizer() StringNormalizer {
+func DefaultStringNormalizer() StringNormalizer {
 	return &defaultStringNormalizer{}
 }
 

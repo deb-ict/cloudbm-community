@@ -17,9 +17,9 @@ func DefaultUserNormalizer() UserNormalizer {
 }
 
 func (n *defaultUserNormalizer) NormalizeUsername(username string) string {
-	return strings.ToLower(username)
+	return strings.ToUpper(username)
 }
 
 func (n *defaultUserNormalizer) NormalizeEmail(email string) string {
-	return strings.ToLower(email)
+	return strings.ToUpper(email)
 }

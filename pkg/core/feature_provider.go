@@ -11,7 +11,7 @@ type FeatureProvider interface {
 type defaultFeatureProvider struct {
 }
 
-func NewDefaultFeatureProvider() FeatureProvider {
+func DefaultFeatureProvider() FeatureProvider {
 	return &defaultFeatureProvider{}
 }
 

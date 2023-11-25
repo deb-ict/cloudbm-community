@@ -49,10 +49,10 @@ func (svc *service) LanguageProvider() localization.LanguageProvider {
 
 func (opt *ServiceOptions) EnsureDefaults() {
 	if opt.StringNormalizer == nil {
-		opt.StringNormalizer = core.NewDefaultStringNormalizer()
+		opt.StringNormalizer = core.DefaultStringNormalizer()
 	}
 	if opt.FeatureProvider == nil {
-		opt.FeatureProvider = core.NewDefaultFeatureProvider()
+		opt.FeatureProvider = core.DefaultFeatureProvider()
 	}
 	if opt.LanguageProvider == nil {
 		opt.LanguageProvider = localization.NewDefaultLanguageProvider()

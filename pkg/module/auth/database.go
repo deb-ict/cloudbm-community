@@ -17,13 +17,12 @@ type UserRepository interface {
 	GetUserById(ctx context.Context, id string) (*model.User, error)
 	GetUserByUsername(ctx context.Context, username string) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
-	UpdateUser(ctx context.Context, user *model.User) (*model.User, error)
+	CreateUser(ctx context.Context, user *model.User) (string, error)
+	UpdateUser(ctx context.Context, user *model.User) error
 	DeleteUser(ctx context.Context, user *model.User) error
 }
 
 type UserTokenRepository interface {
-	GetUserTokenByToken(ctx context.Context, tokenType model.UserTokenType, token string) (*model.UserToken, error)
-	CreateUserToken(ctx context.Context, userToken *model.UserToken) (*model.UserToken, error)
-	DeleteUserToken(ctx context.Context, userToken *model.UserToken) error
+	CreateUserToken(ctx context.Context, user *model.User, userToken *model.UserToken) (string, error)
+	DeleteUserToken(ctx context.Context, user *model.User, userToken *model.UserToken) error
 }
