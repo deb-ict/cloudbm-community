@@ -56,10 +56,3 @@ func (m *Category) TryGetTranslation(language string) (*CategoryTranslation, err
 func (m *Category) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *CategoryFilter) HasFilter() bool {
-	if f.ParentId != "" {
-		return true
-	}
-	return false
-}
