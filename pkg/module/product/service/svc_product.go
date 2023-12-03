@@ -30,7 +30,9 @@ func (svc *service) GetProductById(ctx context.Context, id string) (*model.Produ
 }
 
 func (svc *service) GetProductByName(ctx context.Context, language string, name string) (*model.Product, error) {
-	data, err := svc.database.Products().GetProductByName(ctx, language, name)
+	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+
+	data, err := svc.database.Products().GetProductByName(ctx, normalizedLanguage, name)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,10 @@ func (svc *service) GetProductByName(ctx context.Context, language string, name 
 }
 
 func (svc *service) GetProductBySlug(ctx context.Context, language string, slug string) (*model.Product, error) {
-	data, err := svc.database.Products().GetProductBySlug(ctx, language, slug)
+	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+	normalizedSlug := svc.stringNormalizer.NormalizeString(slug)
+
+	data, err := svc.database.Products().GetProductBySlug(ctx, normalizedLanguage, normalizedSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -55,6 +60,12 @@ func (svc *service) GetProductBySlug(ctx context.Context, language string, slug 
 
 func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*model.Product, error) {
 	//TODO: Check for duplicas
+
+	// Normalize translations
+	for _, translation := range model.Translations {
+		translation.Language = svc.stringNormalizer.NormalizeString(translation.Language)
+		translation.Slug = svc.stringNormalizer.NormalizeString(translation.Slug)
+	}
 
 	newId, err := svc.database.Products().CreateProduct(ctx, model)
 	if err != nil {

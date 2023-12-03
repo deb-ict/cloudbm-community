@@ -30,7 +30,9 @@ func (svc *service) GetCategoryById(ctx context.Context, id string) (*model.Cate
 }
 
 func (svc *service) GetCategoryByName(ctx context.Context, language string, name string) (*model.Category, error) {
-	data, err := svc.database.Categories().GetCategoryByName(ctx, language, name)
+	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+
+	data, err := svc.database.Categories().GetCategoryByName(ctx, normalizedLanguage, name)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,10 @@ func (svc *service) GetCategoryByName(ctx context.Context, language string, name
 }
 
 func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug string) (*model.Category, error) {
-	data, err := svc.database.Categories().GetCategoryBySlug(ctx, language, slug)
+	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+	normalizedSlug := svc.stringNormalizer.NormalizeString(slug)
+
+	data, err := svc.database.Categories().GetCategoryBySlug(ctx, normalizedLanguage, normalizedSlug)
 	if err != nil {
 		return nil, err
 	}
@@ -55,6 +60,12 @@ func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug
 
 func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (*model.Category, error) {
 	//TODO: Check for duplicas
+
+	// Normalize translations
+	for _, translation := range model.Translations {
+		translation.Language = svc.stringNormalizer.NormalizeString(translation.Language)
+		translation.Slug = svc.stringNormalizer.NormalizeString(translation.Slug)
+	}
 
 	newId, err := svc.database.Categories().CreateCategory(ctx, model)
 	if err != nil {

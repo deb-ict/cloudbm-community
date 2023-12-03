@@ -58,10 +58,3 @@ func (m *Product) TryGetTranslation(language string) (*ProductTranslation, error
 func (m *Product) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *ProductFilter) HasFilter() bool {
-	if f.CategoryId != "" {
-		return true
-	}
-	return false
-}
