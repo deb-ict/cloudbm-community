@@ -48,6 +48,8 @@ type CreateCategoryV1 struct {
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
 	ThumbnailUri string                   `json:"thumbnail_uri"`
+	SortOrder    int64                    `json:"sort_order"`
+	IsEnabled    bool                     `json:"is_enabled"`
 }
 
 type UpdateCategoryV1 struct {
@@ -196,8 +198,8 @@ func CategoryFromCreateViewModel(viewModel *CreateCategoryV1) *model.Category {
 		Translations: make([]*model.CategoryTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
 		ThumbnailUri: viewModel.ThumbnailUri,
-		SortOrder:    -1,
-		IsEnabled:    true,
+		SortOrder:    viewModel.SortOrder,
+		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
 		model.Translations = append(model.Translations, CategoryTranslationFromViewModel(translation))
