@@ -84,7 +84,7 @@ func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	result, count, err := api.service.GetCompanyAddresses(ctx, companyId, paging.PageIndex-1, paging.PageSize, filter, sort)
+	result, count, err := api.service.GetCompanyAddresses(ctx, companyId, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
 	}

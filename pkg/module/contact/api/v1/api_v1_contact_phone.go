@@ -64,7 +64,7 @@ func (api *apiV1) GetContactPhonesHandlerV1(w http.ResponseWriter, r *http.Reque
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	result, count, err := api.service.GetContactPhones(ctx, contactId, paging.PageIndex-1, paging.PageSize, filter, sort)
+	result, count, err := api.service.GetContactPhones(ctx, contactId, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
 	}

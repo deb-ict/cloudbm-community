@@ -57,7 +57,7 @@ func (api *apiV1) GetCompaniesHandlerV1(w http.ResponseWriter, r *http.Request) 
 	filter := &model.CompanyFilter{}
 	sort := rest.GetSorting(r)
 
-	result, count, err := api.service.GetCompanies(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
+	result, count, err := api.service.GetCompanies(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
 	}

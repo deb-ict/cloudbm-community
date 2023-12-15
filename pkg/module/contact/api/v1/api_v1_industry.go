@@ -56,7 +56,7 @@ func (api *apiV1) GetIndustriesHandlerV1(w http.ResponseWriter, r *http.Request)
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	result, count, err := api.service.GetIndustries(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
+	result, count, err := api.service.GetIndustries(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
 	}

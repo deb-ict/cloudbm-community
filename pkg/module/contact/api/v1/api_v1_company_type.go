@@ -56,7 +56,7 @@ func (api *apiV1) GetCompanyTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	result, count, err := api.service.GetCompanyTypes(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
+	result, count, err := api.service.GetCompanyTypes(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
 	}

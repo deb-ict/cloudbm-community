@@ -59,7 +59,7 @@ func (api *apiV1) GetContactsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	filter := &model.ContactFilter{}
 	sort := rest.GetSorting(r)
 
-	result, count, err := api.service.GetContacts(ctx, paging.PageIndex-1, paging.PageSize, filter, sort)
+	result, count, err := api.service.GetContacts(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
 		return
 	}
