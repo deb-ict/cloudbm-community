@@ -15,7 +15,6 @@ type CategoryV1 struct {
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
 	ThumbnailUri string                   `json:"thumbnail_uri"`
-	SortOrder    int64                    `json:"sort_order"`
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
@@ -39,7 +38,6 @@ type CategoryListItemV1 struct {
 	Summary      string `json:"summary"`
 	ThumbnailId  string `json:"thumbnail_id"`
 	ThumbnailUri string `json:"thumbnail_uri"`
-	SortOrder    int64  `json:"sort_order"`
 	IsEnabled    bool   `json:"is_enabled"`
 }
 
@@ -48,7 +46,6 @@ type CreateCategoryV1 struct {
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
 	ThumbnailUri string                   `json:"thumbnail_uri"`
-	SortOrder    int64                    `json:"sort_order"`
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
@@ -57,26 +54,15 @@ type UpdateCategoryV1 struct {
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
 	ThumbnailUri string                   `json:"thumbnail_uri"`
-	SortOrder    int64                    `json:"sort_order"`
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
 func (api *apiV1) GetCateogiesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseCategoryFilter(r)
 	paging := rest.GetPaging(r)
-	filter := &model.CategoryFilter{}
 	sort := rest.GetSorting(r)
-
-	parentId := r.URL.Query().Get("parentId")
-	if parentId != "" {
-		filter.ParentId = parentId
-	}
-
-	language := r.URL.Query().Get("language")
-	if language == "" {
-		language = api.service.LanguageProvider().UserLanguage(ctx)
-	}
 
 	result, count, err := api.service.GetCategories(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
@@ -92,7 +78,7 @@ func (api *apiV1) GetCateogiesHandlerV1(w http.ResponseWriter, r *http.Request) 
 		Items: make([]*CategoryListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CategoryToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CategoryToListItemViewModel(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -162,6 +148,25 @@ func (api *apiV1) DeleteCategoryHandlerV1(w http.ResponseWriter, r *http.Request
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
+func (api *apiV1) parseCategoryFilter(r *http.Request) *model.CategoryFilter {
+	filter := &model.CategoryFilter{
+		AllLevels: true,
+	}
+
+	allLevels := r.URL.Query().Get("allLevels")
+	if allLevels == "false" || allLevels == "0" {
+		filter.AllLevels = false
+	}
+	filter.Language = r.URL.Query().Get("language")
+	if filter.Language == "" {
+		filter.Language = api.service.LanguageProvider().UserLanguage(r.Context())
+	}
+	filter.Name = r.URL.Query().Get("name")
+	filter.ParentId = r.URL.Query().Get("parent")
+
+	return filter
+}
+
 func CategoryToViewModel(model *model.Category) *CategoryV1 {
 	viewModel := &CategoryV1{
 		Id:           model.Id,
@@ -169,7 +174,6 @@ func CategoryToViewModel(model *model.Category) *CategoryV1 {
 		Translations: make([]*CategoryTranslationV1, 0),
 		ThumbnailId:  model.ThumbnailId,
 		ThumbnailUri: model.ThumbnailUri,
-		SortOrder:    model.SortOrder,
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
@@ -187,7 +191,6 @@ func CategoryToListItemViewModel(model *model.Category, language string, default
 		Summary:      translation.Summary,
 		ThumbnailId:  model.ThumbnailId,
 		ThumbnailUri: model.ThumbnailUri,
-		SortOrder:    model.SortOrder,
 		IsEnabled:    model.IsEnabled,
 	}
 }
@@ -198,7 +201,6 @@ func CategoryFromCreateViewModel(viewModel *CreateCategoryV1) *model.Category {
 		Translations: make([]*model.CategoryTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
 		ThumbnailUri: viewModel.ThumbnailUri,
-		SortOrder:    viewModel.SortOrder,
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
@@ -213,7 +215,6 @@ func CategoryFromUpdateViewModel(viewModel *UpdateCategoryV1) *model.Category {
 		Translations: make([]*model.CategoryTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
 		ThumbnailUri: viewModel.ThumbnailUri,
-		SortOrder:    viewModel.SortOrder,
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {

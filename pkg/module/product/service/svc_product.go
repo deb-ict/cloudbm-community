@@ -31,8 +31,9 @@ func (svc *service) GetProductById(ctx context.Context, id string) (*model.Produ
 
 func (svc *service) GetProductByName(ctx context.Context, language string, name string) (*model.Product, error) {
 	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+	normalizedName := svc.stringNormalizer.NormalizeString(name)
 
-	data, err := svc.database.Products().GetProductByName(ctx, normalizedLanguage, name)
+	data, err := svc.database.Products().GetProductByName(ctx, normalizedLanguage, normalizedName)
 	if err != nil {
 		return nil, err
 	}
@@ -59,12 +60,11 @@ func (svc *service) GetProductBySlug(ctx context.Context, language string, slug 
 }
 
 func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*model.Product, error) {
-	//TODO: Check for duplicas
+	model.Normalize(svc.stringNormalizer)
 
-	// Normalize translations
-	for _, translation := range model.Translations {
-		translation.Language = svc.stringNormalizer.NormalizeString(translation.Language)
-		translation.Slug = svc.stringNormalizer.NormalizeString(translation.Slug)
+	err := svc.checkDuplicateProduct(ctx, model)
+	if err != nil {
+		return nil, err
 	}
 
 	newId, err := svc.database.Products().CreateProduct(ctx, model)
@@ -76,6 +76,13 @@ func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*m
 }
 
 func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.Product) (*model.Product, error) {
+	model.Normalize(svc.stringNormalizer)
+
+	err := svc.checkDuplicateProduct(ctx, model)
+	if err != nil {
+		return nil, err
+	}
+
 	data, err := svc.database.Products().GetProductById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -83,8 +90,7 @@ func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.P
 	if data == nil {
 		return nil, product.ErrProductNotFound
 	}
-
-	//TODO: Set fields
+	data.UpdateModel(model)
 
 	err = svc.database.Products().UpdateProduct(ctx, data)
 	if err != nil {
@@ -108,5 +114,39 @@ func (svc *service) DeleteProduct(ctx context.Context, id string) error {
 		return err
 	}
 
+	return nil
+}
+
+func (svc *service) checkDuplicateProduct(ctx context.Context, model *model.Product) error {
+	for _, translation := range model.Translations {
+		if err := svc.checkDuplicateProductName(ctx, model, translation); err != nil {
+			return err
+		}
+		if err := svc.checkDuplicateProductSlug(ctx, model, translation); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *service) checkDuplicateProductName(ctx context.Context, model *model.Product, translation *model.ProductTranslation) error {
+	duplicate, err := svc.database.Categories().GetCategoryByName(ctx, translation.Language, translation.NormalizedName)
+	if err != nil {
+		return err
+	}
+	if duplicate != nil && duplicate.Id != model.Id {
+		return product.ErrProductDuplicateName
+	}
+	return nil
+}
+
+func (svc *service) checkDuplicateProductSlug(ctx context.Context, model *model.Product, translation *model.ProductTranslation) error {
+	duplicate, err := svc.database.Categories().GetCategoryBySlug(ctx, translation.Language, translation.Slug)
+	if err != nil {
+		return err
+	}
+	if duplicate != nil && duplicate.Id != model.Id {
+		return product.ErrProductDuplicateSlug
+	}
 	return nil
 }

@@ -65,19 +65,9 @@ type UpdateProductV1 struct {
 func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseProductFilter(r)
 	paging := rest.GetPaging(r)
-	filter := &model.ProductFilter{}
 	sort := rest.GetSorting(r)
-
-	categoryId := r.URL.Query().Get("categoryId")
-	if categoryId != "" {
-		filter.CategoryId = categoryId
-	}
-
-	language := r.URL.Query().Get("language")
-	if language == "" {
-		language = api.service.LanguageProvider().UserLanguage(ctx)
-	}
 
 	result, count, err := api.service.GetProducts(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
 	if api.handleError(w, err) {
@@ -93,7 +83,7 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*ProductListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ProductToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ProductToListItemViewModel(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -176,6 +166,19 @@ func (api *apiV1) DeleteProductHandlerV1(w http.ResponseWriter, r *http.Request)
 	}
 
 	rest.WriteStatus(w, http.StatusNoContent)
+}
+
+func (api *apiV1) parseProductFilter(r *http.Request) *model.ProductFilter {
+	filter := &model.ProductFilter{}
+
+	filter.Language = r.URL.Query().Get("language")
+	if filter.Language == "" {
+		filter.Language = api.service.LanguageProvider().UserLanguage(r.Context())
+	}
+	filter.Name = r.URL.Query().Get("name")
+	filter.CategoryId = r.URL.Query().Get("category")
+
+	return filter
 }
 
 func ProductToViewModel(model *model.Product, language string, defaultLanguage string) *ProductV1 {

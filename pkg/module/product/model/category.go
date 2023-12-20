@@ -3,6 +3,7 @@ package model
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
+	"github.com/gosimple/slug"
 )
 
 type Category struct {
@@ -11,20 +12,43 @@ type Category struct {
 	Translations []*CategoryTranslation
 	ThumbnailId  string
 	ThumbnailUri string
-	SortOrder    int64
 	IsEnabled    bool
 }
 
 type CategoryTranslation struct {
-	Language    string
-	Name        string
-	Slug        string
-	Summary     string
-	Description string
+	Language       string
+	Name           string
+	NormalizedName string
+	Slug           string
+	Summary        string
+	Description    string
 }
 
 type CategoryFilter struct {
-	ParentId string
+	Language  string
+	Name      string
+	ParentId  string
+	AllLevels bool
+}
+
+func (m *Category) Normalize(normalizer core.StringNormalizer) {
+	for _, translation := range m.Translations {
+		translation.Language = localization.NormalizeLanguage(translation.Language)
+		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
+		if translation.Slug == "" {
+			translation.Slug = slug.MakeLang(translation.NormalizedName, translation.Language)
+		}
+		translation.Slug = normalizer.NormalizeString(translation.Slug)
+	}
+}
+
+func (m *Category) UpdateModel(other *Category) {
+	m.ParentId = other.ParentId
+	m.Translations = make([]*CategoryTranslation, 0)
+	m.Translations = append(m.Translations, other.Translations...)
+	m.ThumbnailId = other.ThumbnailId
+	m.ThumbnailUri = other.ThumbnailUri
+	m.IsEnabled = other.IsEnabled
 }
 
 func (m *Category) GetTranslation(language string, defaultLanguage string) *CategoryTranslation {
