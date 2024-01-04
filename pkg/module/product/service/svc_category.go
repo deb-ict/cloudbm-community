@@ -63,6 +63,7 @@ func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug
 
 func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (*model.Category, error) {
 	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
 
 	err := svc.checkDuplicateCategory(ctx, model)
 	if err != nil {
@@ -79,6 +80,7 @@ func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (
 
 func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.Category) (*model.Category, error) {
 	model.Normalize(svc.stringNormalizer)
+	model.Id = id
 
 	err := svc.checkDuplicateCategory(ctx, model)
 	if err != nil {
@@ -110,8 +112,6 @@ func (svc *service) DeleteCategory(ctx context.Context, id string) error {
 	if data == nil {
 		return product.ErrCategoryNotFound
 	}
-
-	//TODO: Check dependencies
 
 	err = svc.database.Categories().DeleteCategory(ctx, data)
 	if err != nil {

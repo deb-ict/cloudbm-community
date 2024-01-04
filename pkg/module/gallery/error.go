@@ -3,9 +3,7 @@ package gallery
 import "errors"
 
 var (
-	ErrCategoryNotFound error = errors.New("category not found")
-)
-
-var (
-	ErrMediaNotFound error = errors.New("media not found")
+	ErrImageNotFound      error = errors.New("image not found")
+	ErrImageDuplicateName error = errors.New("image with same name exists")
+	ErrImageDuplicateSlug error = errors.New("image with same slug exists")
 )

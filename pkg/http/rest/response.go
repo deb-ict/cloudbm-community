@@ -15,22 +15,25 @@ type errorInfo struct {
 	Message    string `json:"message"`
 }
 
-func WriteResult(w http.ResponseWriter, data interface{}) {
-	w.Header().Set(ContentTypeHeaderName, ContentTypeHeaderValue)
-	json.NewEncoder(w).Encode(data)
+func WriteResult(w http.ResponseWriter, data any) {
+	WriteJsonResponse(w, http.StatusOK, data)
 }
 
 func WriteError(w http.ResponseWriter, statusCode int, message string) {
-	info := &errorInfo{
+	WriteJsonResponse(w, statusCode, &errorInfo{
 		StatusCode: statusCode,
 		Message:    message,
-	}
-	w.Header().Set(ContentTypeHeaderName, ContentTypeHeaderValue)
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(info)
+	})
 }
 
 func WriteStatus(w http.ResponseWriter, statusCode int) {
+	WriteJsonResponse(w, statusCode, nil)
+}
+
+func WriteJsonResponse(w http.ResponseWriter, statusCode int, data any) {
 	w.Header().Set(ContentTypeHeaderName, ContentTypeHeaderValue)
 	w.WriteHeader(statusCode)
+	if data != nil {
+		json.NewEncoder(w).Encode(data)
+	}
 }

@@ -78,6 +78,7 @@ func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.Us
 	}
 
 	if !user.EmailVerified {
+		//TODO: Generate activation token
 		//TODO: Send activation email
 	}
 
@@ -119,6 +120,13 @@ func (svc *service) DeleteUser(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (svc *service) VerifyPassword(ctx context.Context, user *model.User, password string) error {
+	if svc.passwordHasher.VerifyPassword(password, user.PasswordHash) {
+		return nil
+	}
+	return auth.ErrPasswordNotMatch
 }
 
 func (svc *service) checkDuplicateUsername(ctx context.Context, user *model.User) error {

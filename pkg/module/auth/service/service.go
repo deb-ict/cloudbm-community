@@ -34,6 +34,14 @@ func NewService(database auth.Database, opts *ServiceOptions) auth.Service {
 	return svc
 }
 
+func (svc *service) UserNormalizer() auth.UserNormalizer {
+	return svc.userNormalizer
+}
+
+func (svc *service) PasswordHasher() auth.PasswordHasher {
+	return svc.passwordHasher
+}
+
 func (svc *service) FeatureProvider() core.FeatureProvider {
 	return svc.featureProvider
 }

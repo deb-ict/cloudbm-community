@@ -8,6 +8,8 @@ import (
 )
 
 type Service interface {
+	UserNormalizer() UserNormalizer
+	PasswordHasher() PasswordHasher
 	FeatureProvider() core.FeatureProvider
 
 	GetUsers(ctx context.Context, offset int64, limit int64, filter *model.UserFilter, sort *core.Sort) ([]*model.User, int64, error)
@@ -17,4 +19,6 @@ type Service interface {
 	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
 	UpdateUser(ctx context.Context, id string, user *model.User) (*model.User, error)
 	DeleteUser(ctx context.Context, id string) error
+
+	VerifyPassword(ctx context.Context, user *model.User, password string) error
 }

@@ -17,7 +17,7 @@ type apiV1 struct {
 	service product.Service
 }
 
-func NewApi(service product.Service) ApiV1 {
+func NewApiV1(service product.Service) ApiV1 {
 	return &apiV1{
 		service: service,
 	}

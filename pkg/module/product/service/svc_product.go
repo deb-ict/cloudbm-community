@@ -4,11 +4,13 @@ import (
 	"context"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
 )
 
 func (svc *service) GetProducts(ctx context.Context, offset int64, limit int64, filter *model.ProductFilter, sort *core.Sort) ([]*model.Product, int64, error) {
+	filter.Language = localization.NormalizeLanguage(filter.Language)
 	data, count, err := svc.database.Products().GetProducts(ctx, offset, limit, filter, sort)
 	if err != nil {
 		return nil, 0, err
@@ -30,7 +32,7 @@ func (svc *service) GetProductById(ctx context.Context, id string) (*model.Produ
 }
 
 func (svc *service) GetProductByName(ctx context.Context, language string, name string) (*model.Product, error) {
-	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+	normalizedLanguage := localization.NormalizeLanguage(language)
 	normalizedName := svc.stringNormalizer.NormalizeString(name)
 
 	data, err := svc.database.Products().GetProductByName(ctx, normalizedLanguage, normalizedName)
@@ -45,7 +47,7 @@ func (svc *service) GetProductByName(ctx context.Context, language string, name 
 }
 
 func (svc *service) GetProductBySlug(ctx context.Context, language string, slug string) (*model.Product, error) {
-	normalizedLanguage := svc.stringNormalizer.NormalizeString(language)
+	normalizedLanguage := localization.NormalizeLanguage(language)
 	normalizedSlug := svc.stringNormalizer.NormalizeString(slug)
 
 	data, err := svc.database.Products().GetProductBySlug(ctx, normalizedLanguage, normalizedSlug)
@@ -61,6 +63,7 @@ func (svc *service) GetProductBySlug(ctx context.Context, language string, slug 
 
 func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*model.Product, error) {
 	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
 
 	err := svc.checkDuplicateProduct(ctx, model)
 	if err != nil {
@@ -77,6 +80,7 @@ func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*m
 
 func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.Product) (*model.Product, error) {
 	model.Normalize(svc.stringNormalizer)
+	model.Id = id
 
 	err := svc.checkDuplicateProduct(ctx, model)
 	if err != nil {
