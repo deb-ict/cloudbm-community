@@ -32,7 +32,7 @@ func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/v1/product/{id}", api.DeleteProductHandlerV1).Methods(http.MethodDelete)
 
 	// Categories
-	r.HandleFunc("/v1/category", api.GetCateogiesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/category", api.GetCategoriesHandlerV1).Methods(http.MethodGet)
 	r.HandleFunc("/v1/category/{id}", api.GetCategoryByIdHandlerV1).Methods(http.MethodGet)
 	r.HandleFunc("/v1/category", api.CreateCategoryHandlerV1).Methods(http.MethodPost)
 	r.HandleFunc("/v1/category/{id}", api.UpdateCategoryHandlerV1).Methods(http.MethodPut)
@@ -47,8 +47,16 @@ func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
 	switch err {
 	case product.ErrProductNotFound:
 		rest.WriteError(w, http.StatusNotFound, err.Error())
+	case product.ErrProductDuplicateName:
+		rest.WriteError(w, http.StatusBadRequest, err.Error())
+	case product.ErrProductDuplicateSlug:
+		rest.WriteError(w, http.StatusBadRequest, err.Error())
 	case product.ErrCategoryNotFound:
 		rest.WriteError(w, http.StatusNotFound, err.Error())
+	case product.ErrCategoryDuplicateName:
+		rest.WriteError(w, http.StatusBadRequest, err.Error())
+	case product.ErrCategoryDuplicateSlug:
+		rest.WriteError(w, http.StatusBadRequest, err.Error())
 	case core.ErrTranslationNotFound:
 		rest.WriteError(w, http.StatusNotFound, err.Error())
 	case core.ErrInvalidId:

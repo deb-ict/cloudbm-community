@@ -57,7 +57,7 @@ type UpdateCategoryV1 struct {
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
-func (api *apiV1) GetCateogiesHandlerV1(w http.ResponseWriter, r *http.Request) {
+func (api *apiV1) GetCategoriesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	filter := api.parseCategoryFilter(r)

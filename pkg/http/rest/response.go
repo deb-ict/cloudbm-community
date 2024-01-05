@@ -10,9 +10,14 @@ const (
 	ContentTypeHeaderValue string = "application/json; charset=utf-8"
 )
 
-type errorInfo struct {
+type ErrorInfo struct {
 	StatusCode int    `json:"status"`
 	Message    string `json:"message"`
+}
+
+type ValidationErrorInfo struct {
+	ErrorInfo
+	Errors map[string][]string
 }
 
 func WriteResult(w http.ResponseWriter, data any) {
@@ -20,10 +25,28 @@ func WriteResult(w http.ResponseWriter, data any) {
 }
 
 func WriteError(w http.ResponseWriter, statusCode int, message string) {
-	WriteJsonResponse(w, statusCode, &errorInfo{
+	WriteErrorInfo(w, &ErrorInfo{
 		StatusCode: statusCode,
 		Message:    message,
 	})
+}
+
+func WriteValidationError(w http.ResponseWriter, message string, errors map[string][]string) {
+	WriteValidationErrorInfo(w, &ValidationErrorInfo{
+		ErrorInfo: ErrorInfo{
+			StatusCode: http.StatusBadRequest,
+			Message:    message,
+		},
+		Errors: errors,
+	})
+}
+
+func WriteErrorInfo(w http.ResponseWriter, info *ErrorInfo) {
+	WriteJsonResponse(w, info.StatusCode, info)
+}
+
+func WriteValidationErrorInfo(w http.ResponseWriter, info *ValidationErrorInfo) {
+	WriteJsonResponse(w, http.StatusBadRequest, info)
 }
 
 func WriteStatus(w http.ResponseWriter, statusCode int) {
