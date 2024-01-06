@@ -10,12 +10,14 @@ type ServiceOptions struct {
 	StringNormalizer core.StringNormalizer
 	FeatureProvider  core.FeatureProvider
 	LanguageProvider localization.LanguageProvider
+	StorageFolder    string
 }
 
 type service struct {
 	stringNormalizer core.StringNormalizer
 	featureProvider  core.FeatureProvider
 	languageProvider localization.LanguageProvider
+	storageFolder    string
 	database         gallery.Database
 }
 
@@ -47,14 +49,21 @@ func (svc *service) LanguageProvider() localization.LanguageProvider {
 	return svc.languageProvider
 }
 
-func (opt *ServiceOptions) EnsureDefaults() {
-	if opt.StringNormalizer == nil {
-		opt.StringNormalizer = core.DefaultStringNormalizer()
+func (svc *service) StorageFolder() string {
+	return svc.storageFolder
+}
+
+func (opts *ServiceOptions) EnsureDefaults() {
+	if opts.StringNormalizer == nil {
+		opts.StringNormalizer = core.DefaultStringNormalizer()
 	}
-	if opt.FeatureProvider == nil {
-		opt.FeatureProvider = core.DefaultFeatureProvider()
+	if opts.FeatureProvider == nil {
+		opts.FeatureProvider = core.DefaultFeatureProvider()
 	}
-	if opt.LanguageProvider == nil {
-		opt.LanguageProvider = localization.NewDefaultLanguageProvider()
+	if opts.LanguageProvider == nil {
+		opts.LanguageProvider = localization.NewDefaultLanguageProvider()
+	}
+	if opts.StorageFolder == "" {
+		opts.StorageFolder = "/data/gallery"
 	}
 }

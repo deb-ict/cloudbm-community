@@ -25,13 +25,13 @@ func NewApiV1(service gallery.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Images
-	/*
-		r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet)
-		r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet)
-		r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost)
-		r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut)
-		r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete)
-	*/
+	r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut)
+	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1).Methods(http.MethodPost)
+	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1).Methods(http.MethodGet)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
@@ -42,6 +42,14 @@ func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
 	switch err {
 	case gallery.ErrImageNotFound:
 		rest.WriteError(w, http.StatusNotFound, err.Error())
+	case gallery.ErrImageFileNotFound:
+		rest.WriteError(w, http.StatusNotFound, err.Error())
+	case gallery.ErrImageFormatNotSupported:
+		rest.WriteError(w, http.StatusUnsupportedMediaType, err.Error())
+	case gallery.ErrImageDuplicateName:
+		rest.WriteError(w, http.StatusBadRequest, err.Error())
+	case gallery.ErrImageDuplicateSlug:
+		rest.WriteError(w, http.StatusBadRequest, err.Error())
 	case core.ErrTranslationNotFound:
 		rest.WriteError(w, http.StatusNotFound, err.Error())
 	case core.ErrInvalidId:

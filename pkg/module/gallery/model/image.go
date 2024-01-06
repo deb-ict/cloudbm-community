@@ -7,14 +7,15 @@ import (
 )
 
 type Image struct {
-	Id            string
-	Translations  []*ImageTranslation
-	StorageFolder string
-	FileName      string
-	FileSize      int64
-	MimeType      string
-	Width         int
-	Height        int
+	Id               string
+	Translations     []*ImageTranslation
+	StorageFolder    string
+	FileName         string
+	OriginalFileName string
+	FileSize         int64
+	MimeType         string
+	Width            int
+	Height           int
 }
 
 type ImageTranslation struct {
@@ -46,12 +47,7 @@ func (m *Image) Normalize(normalizer core.StringNormalizer) {
 func (m *Image) UpdateModel(other *Image) {
 	m.Translations = make([]*ImageTranslation, 0)
 	m.Translations = append(m.Translations, other.Translations...)
-	m.StorageFolder = other.StorageFolder
-	m.FileName = other.FileName
-	m.FileSize = other.FileSize
-	m.MimeType = other.MimeType
-	m.Width = other.Width
-	m.Height = other.Height
+	m.OriginalFileName = other.OriginalFileName
 }
 
 func (m *Image) GetTranslation(language string, defaultLanguage string) *ImageTranslation {
