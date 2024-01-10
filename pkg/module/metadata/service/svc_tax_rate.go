@@ -28,7 +28,9 @@ func (svc *service) GetTaxRateById(ctx context.Context, id string) (*model.TaxRa
 }
 
 func (svc *service) CreateTaxRate(ctx context.Context, model *model.TaxRate) (*model.TaxRate, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateTaxRate(ctx, model)
 	if err != nil {
 		return nil, err
@@ -43,6 +45,9 @@ func (svc *service) CreateTaxRate(ctx context.Context, model *model.TaxRate) (*m
 }
 
 func (svc *service) UpdateTaxRate(ctx context.Context, id string, model *model.TaxRate) (*model.TaxRate, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.database.TaxRates().GetTaxRateById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -50,9 +55,7 @@ func (svc *service) UpdateTaxRate(ctx context.Context, id string, model *model.T
 	if data == nil {
 		return nil, metadata.ErrTaxRateNotFound
 	}
-
-	data.Translations = model.Translations
-	data.Rate = model.Rate
+	data.UpdateModel(model)
 
 	err = svc.validateTaxRate(ctx, data)
 	if err != nil {

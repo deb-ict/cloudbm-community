@@ -46,6 +46,8 @@ func (svc *service) GetCompanyUriById(ctx context.Context, companyId string, id 
 }
 
 func (svc *service) CreateCompanyUri(ctx context.Context, companyId string, model *model.Uri) (*model.Uri, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err

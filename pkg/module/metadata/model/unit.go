@@ -9,17 +9,34 @@ type Unit struct {
 	Id           string
 	Key          string
 	Translations []*UnitTranslation
-	IsSystem     bool
 	IsEnabled    bool
 }
 
 type UnitTranslation struct {
-	Language    string
-	Name        string
-	Description string
+	Language       string
+	Name           string
+	NormalizedName string
+	Description    string
 }
 
 type UnitFilter struct {
+	Language string
+	Name     string
+}
+
+func (m *Unit) Normalize(normalizer core.StringNormalizer) {
+	m.Key = normalizer.NormalizeString(m.Key)
+	for _, translation := range m.Translations {
+		translation.Language = localization.NormalizeLanguage(translation.Language)
+		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
+	}
+}
+
+func (m *Unit) UpdateModel(other *Unit) {
+	m.Translations = make([]*UnitTranslation, 0)
+	for _, translation := range other.Translations {
+		m.Translations = append(m.Translations, translation.Clone())
+	}
 }
 
 func (m *Unit) GetTranslation(language string, defaultLanguage string) *UnitTranslation {
@@ -50,4 +67,32 @@ func (m *Unit) TryGetTranslation(language string) (*UnitTranslation, error) {
 
 func (m *Unit) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (m *Unit) Clone() *Unit {
+	if m == nil {
+		return nil
+	}
+	model := &Unit{
+		Id:           m.Id,
+		Key:          m.Key,
+		Translations: make([]*UnitTranslation, 0),
+		IsEnabled:    m.IsEnabled,
+	}
+	for _, translation := range m.Translations {
+		model.Translations = append(model.Translations, translation.Clone())
+	}
+	return model
+}
+
+func (m *UnitTranslation) Clone() *UnitTranslation {
+	if m == nil {
+		return nil
+	}
+	return &UnitTranslation{
+		Language:       m.Language,
+		Name:           m.Name,
+		NormalizedName: m.NormalizedName,
+		Description:    m.Description,
+	}
 }

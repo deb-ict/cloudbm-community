@@ -61,17 +61,18 @@ func (svc *service) GetUserByEmail(ctx context.Context, email string) (*model.Us
 	return data, nil
 }
 
-func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
-	user.Normalize(svc.userNormalizer)
+func (svc *service) CreateUser(ctx context.Context, model *model.User) (*model.User, error) {
+	model.Normalize(svc.userNormalizer)
+	model.Id = ""
 
-	if err := svc.checkDuplicateUsername(ctx, user); err != nil {
+	if err := svc.checkDuplicateUsername(ctx, model); err != nil {
 		return nil, err
 	}
-	if err := svc.checkDuplicateEmail(ctx, user); err != nil {
+	if err := svc.checkDuplicateEmail(ctx, model); err != nil {
 		return nil, err
 	}
 
-	newId, err := svc.database.Users().CreateUser(ctx, user)
+	newId, err := svc.database.Users().CreateUser(ctx, model)
 	if err != nil {
 		logrus.Errorf("Failed to create user in database: %v", err)
 		return nil, err
@@ -80,8 +81,9 @@ func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.Us
 	return svc.GetUserById(ctx, newId)
 }
 
-func (svc *service) UpdateUser(ctx context.Context, id string, user *model.User) (*model.User, error) {
-	user.Normalize(svc.userNormalizer)
+func (svc *service) UpdateUser(ctx context.Context, id string, model *model.User) (*model.User, error) {
+	model.Normalize(svc.userNormalizer)
+	model.Id = id
 
 	data, err := svc.database.Users().GetUserById(ctx, id)
 	if err != nil {
@@ -90,9 +92,9 @@ func (svc *service) UpdateUser(ctx context.Context, id string, user *model.User)
 	if data == nil {
 		return nil, auth.ErrUserNotFound
 	}
-	data.UpdateModel(user)
+	data.UpdateModel(model)
 
-	err = svc.database.Users().UpdateUser(ctx, user)
+	err = svc.database.Users().UpdateUser(ctx, model)
 	if err != nil {
 		return nil, err
 	}

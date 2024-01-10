@@ -28,7 +28,9 @@ func (svc *service) GetUnitById(ctx context.Context, id string) (*model.Unit, er
 }
 
 func (svc *service) CreateUnit(ctx context.Context, model *model.Unit) (*model.Unit, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateUnit(ctx, model)
 	if err != nil {
 		return nil, err
@@ -43,6 +45,9 @@ func (svc *service) CreateUnit(ctx context.Context, model *model.Unit) (*model.U
 }
 
 func (svc *service) UpdateUnit(ctx context.Context, id string, model *model.Unit) (*model.Unit, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.database.Units().GetUnitById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -50,8 +55,7 @@ func (svc *service) UpdateUnit(ctx context.Context, id string, model *model.Unit
 	if data == nil {
 		return nil, metadata.ErrUnitNotFound
 	}
-
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateUnit(ctx, data)
 	if err != nil {
