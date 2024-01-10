@@ -2,14 +2,17 @@ package auth
 
 import (
 	"context"
+	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth/model"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/security"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/util"
 )
 
 type Service interface {
-	UserNormalizer() UserNormalizer
-	PasswordHasher() PasswordHasher
+	UserNormalizer() util.UserNormalizer
+	PasswordHasher() security.PasswordHasher
 	FeatureProvider() core.FeatureProvider
 
 	GetUsers(ctx context.Context, offset int64, limit int64, filter *model.UserFilter, sort *core.Sort) ([]*model.User, int64, error)
@@ -20,5 +23,7 @@ type Service interface {
 	UpdateUser(ctx context.Context, id string, user *model.User) (*model.User, error)
 	DeleteUser(ctx context.Context, id string) error
 
+	LockUser(ctx context.Context, user *model.User, duration time.Duration) (*model.User, error)
+	UnlockUser(ctx context.Context, user *model.User) (*model.User, error)
 	VerifyPassword(ctx context.Context, user *model.User, password string) error
 }

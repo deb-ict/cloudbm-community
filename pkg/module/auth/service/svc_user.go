@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth"
@@ -61,8 +62,7 @@ func (svc *service) GetUserByEmail(ctx context.Context, email string) (*model.Us
 }
 
 func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
-	svc.userNormalizer.NormalizeUser(user)
-	user.Id = ""
+	user.Normalize(svc.userNormalizer)
 
 	if err := svc.checkDuplicateUsername(ctx, user); err != nil {
 		return nil, err
@@ -81,8 +81,7 @@ func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.Us
 }
 
 func (svc *service) UpdateUser(ctx context.Context, id string, user *model.User) (*model.User, error) {
-	svc.userNormalizer.NormalizeUser(user)
-	user.Id = id
+	user.Normalize(svc.userNormalizer)
 
 	data, err := svc.database.Users().GetUserById(ctx, id)
 	if err != nil {
@@ -93,7 +92,12 @@ func (svc *service) UpdateUser(ctx context.Context, id string, user *model.User)
 	}
 	data.UpdateModel(user)
 
-	return nil, core.ErrNotImplemented
+	err = svc.database.Users().UpdateUser(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return svc.GetUserById(ctx, id)
 }
 
 func (svc *service) DeleteUser(ctx context.Context, id string) error {
@@ -113,15 +117,37 @@ func (svc *service) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
+func (svc *service) LockUser(ctx context.Context, user *model.User, duration time.Duration) (*model.User, error) {
+	user.Lock(duration)
+
+	err := svc.database.Users().UpdateUser(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return svc.GetUserById(ctx, user.Id())
+}
+
+func (svc *service) UnlockUser(ctx context.Context, user *model.User) (*model.User, error) {
+	user.Unlock()
+
+	err := svc.database.Users().UpdateUser(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return svc.GetUserById(ctx, user.Id())
+}
+
 func (svc *service) VerifyPassword(ctx context.Context, user *model.User, password string) error {
-	if svc.passwordHasher.VerifyPassword(password, user.PasswordHash) {
+	if user.VerifyPassword(svc.passwordHasher, password) {
 		return nil
 	}
 	return auth.ErrPasswordNotMatch
 }
 
 func (svc *service) checkDuplicateUsername(ctx context.Context, user *model.User) error {
-	existing, err := svc.database.Users().GetUserByUsername(ctx, user.NormalizedUsername)
+	existing, err := svc.database.Users().GetUserByUsername(ctx, user.NormalizedUsername())
 	if err != nil {
 		return err
 	}
@@ -132,7 +158,7 @@ func (svc *service) checkDuplicateUsername(ctx context.Context, user *model.User
 }
 
 func (svc *service) checkDuplicateEmail(ctx context.Context, user *model.User) error {
-	existing, err := svc.database.Users().GetUserByEmail(ctx, user.NormalizedEmail)
+	existing, err := svc.database.Users().GetUserByEmail(ctx, user.NormalizedEmail())
 	if err != nil {
 		return err
 	}

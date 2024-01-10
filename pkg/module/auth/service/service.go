@@ -3,18 +3,20 @@ package service
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/security"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/util"
 )
 
 type ServiceOptions struct {
 	FeatureProvider core.FeatureProvider
-	UserNormalizer  auth.UserNormalizer
-	PasswordHasher  auth.PasswordHasher
+	UserNormalizer  util.UserNormalizer
+	PasswordHasher  security.PasswordHasher
 }
 
 type service struct {
 	featureProvider core.FeatureProvider
-	userNormalizer  auth.UserNormalizer
-	passwordHasher  auth.PasswordHasher
+	userNormalizer  util.UserNormalizer
+	passwordHasher  security.PasswordHasher
 	database        auth.Database
 }
 
@@ -34,11 +36,11 @@ func NewService(database auth.Database, opts *ServiceOptions) auth.Service {
 	return svc
 }
 
-func (svc *service) UserNormalizer() auth.UserNormalizer {
+func (svc *service) UserNormalizer() util.UserNormalizer {
 	return svc.userNormalizer
 }
 
-func (svc *service) PasswordHasher() auth.PasswordHasher {
+func (svc *service) PasswordHasher() security.PasswordHasher {
 	return svc.passwordHasher
 }
 
@@ -51,9 +53,9 @@ func (opts *ServiceOptions) EnsureDefaults() {
 		opts.FeatureProvider = core.DefaultFeatureProvider()
 	}
 	if opts.UserNormalizer == nil {
-		opts.UserNormalizer = auth.DefaultUserNormalizer()
+		opts.UserNormalizer = util.DefaultUserNormalizer()
 	}
 	if opts.PasswordHasher == nil {
-		opts.PasswordHasher = auth.DefaultPasswordHasher()
+		opts.PasswordHasher = security.DefaultPasswordHasher()
 	}
 }
