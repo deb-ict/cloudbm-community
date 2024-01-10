@@ -20,6 +20,8 @@ type User struct {
 }
 
 type UserFilter struct {
+	Username string
+	Email    string
 }
 
 func (m *User) Locked() bool {
