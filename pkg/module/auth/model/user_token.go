@@ -13,71 +13,31 @@ const (
 )
 
 type UserToken struct {
-	id         string
-	tokenType  UserTokenType
-	tokenValue string
-	expiration time.Time
-}
-
-func (m *UserToken) Id() string {
-	if m == nil {
-		return ""
-	}
-	return m.id
-}
-
-func (m *UserToken) TokenType() UserTokenType {
-	if m == nil {
-		return UserTokenType_Undefined
-	}
-	return m.tokenType
-}
-
-func (m *UserToken) TokenValue() string {
-	if m == nil {
-		return ""
-	}
-	return m.tokenValue
-}
-
-func (m *UserToken) SetTokenValue(value string) {
-	if m != nil {
-		m.tokenValue = value
-	}
-}
-
-func (m *UserToken) Expiration() time.Time {
-	if m == nil {
-		return time.Now().UTC()
-	}
-	return m.expiration
-}
-
-func (m *UserToken) SetAbsoluteExpiration(value time.Time) {
-	if m != nil {
-		m.expiration = value
-	}
-}
-
-func (m *UserToken) SetRelativeExpiration(duration time.Duration) {
-	if m != nil {
-		m.expiration = time.Now().UTC().Add(duration)
-	}
+	Id         string
+	Type       UserTokenType
+	Token      string
+	Expiration time.Time
 }
 
 func (m *UserToken) UpdateModel(other *UserToken) {
 	if m == nil || other == nil {
 		return
 	}
-	m.tokenValue = other.tokenValue
-	m.expiration = other.expiration
+	m.Token = other.Token
+	m.Expiration = other.Expiration
+}
+
+func (m *UserToken) SetExpiration(duration time.Duration) {
+	if m != nil {
+		m.Expiration = time.Now().UTC().Add(duration)
+	}
 }
 
 func (m *UserToken) HasExpired() bool {
 	if m == nil {
 		return true
 	}
-	return time.Now().UTC().After(m.expiration)
+	return time.Now().UTC().After(m.Expiration)
 }
 
 func (m *UserToken) Clone() *UserToken {
@@ -85,10 +45,10 @@ func (m *UserToken) Clone() *UserToken {
 		return nil
 	}
 	return &UserToken{
-		id:         m.id,
-		tokenType:  m.tokenType,
-		tokenValue: m.tokenValue,
-		expiration: m.expiration,
+		Id:         m.Id,
+		Type:       m.Type,
+		Token:      m.Token,
+		Expiration: m.Expiration,
 	}
 }
 

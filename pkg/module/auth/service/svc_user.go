@@ -125,7 +125,7 @@ func (svc *service) LockUser(ctx context.Context, user *model.User, duration tim
 		return nil, err
 	}
 
-	return svc.GetUserById(ctx, user.Id())
+	return svc.GetUserById(ctx, user.Id)
 }
 
 func (svc *service) UnlockUser(ctx context.Context, user *model.User) (*model.User, error) {
@@ -136,7 +136,7 @@ func (svc *service) UnlockUser(ctx context.Context, user *model.User) (*model.Us
 		return nil, err
 	}
 
-	return svc.GetUserById(ctx, user.Id())
+	return svc.GetUserById(ctx, user.Id)
 }
 
 func (svc *service) VerifyPassword(ctx context.Context, user *model.User, password string) error {
@@ -147,7 +147,7 @@ func (svc *service) VerifyPassword(ctx context.Context, user *model.User, passwo
 }
 
 func (svc *service) checkDuplicateUsername(ctx context.Context, user *model.User) error {
-	existing, err := svc.database.Users().GetUserByUsername(ctx, user.NormalizedUsername())
+	existing, err := svc.database.Users().GetUserByUsername(ctx, user.NormalizedUsername)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (svc *service) checkDuplicateUsername(ctx context.Context, user *model.User
 }
 
 func (svc *service) checkDuplicateEmail(ctx context.Context, user *model.User) error {
-	existing, err := svc.database.Users().GetUserByEmail(ctx, user.NormalizedEmail())
+	existing, err := svc.database.Users().GetUserByEmail(ctx, user.NormalizedEmail)
 	if err != nil {
 		return err
 	}

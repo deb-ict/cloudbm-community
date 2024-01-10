@@ -153,47 +153,46 @@ func (api *apiV1) parseUserFilterV1(r *http.Request) *model.UserFilter {
 
 func UserToViewModel(model *model.User) *UserV1 {
 	return &UserV1{
-		Id:            model.Id(),
-		Username:      model.Username(),
-		Email:         model.Email(),
-		EmailVerified: model.EmailVerified(),
-		Phone:         model.Phone(),
-		PhoneVerified: model.PhoneVerified(),
-		IsLocked:      model.IsLocked(),
-		IsEnabled:     model.IsEnabled(),
+		Id:            model.Id,
+		Username:      model.Username,
+		Email:         model.Email,
+		EmailVerified: model.EmailVerified,
+		Phone:         model.Phone,
+		PhoneVerified: model.PhoneVerified,
+		IsLocked:      model.IsLocked,
+		IsEnabled:     model.IsEnabled,
 	}
 }
 
 func UserToListItemViewModelV1(model *model.User) *UserListItemV1 {
 	return &UserListItemV1{
-		Id:            model.Id(),
-		Username:      model.Username(),
-		Email:         model.Email(),
-		EmailVerified: model.EmailVerified(),
-		Phone:         model.Phone(),
-		PhoneVerified: model.PhoneVerified(),
-		IsLocked:      model.IsLocked(),
-		IsEnabled:     model.IsEnabled(),
+		Id:            model.Id,
+		Username:      model.Username,
+		Email:         model.Email,
+		EmailVerified: model.EmailVerified,
+		Phone:         model.Phone,
+		PhoneVerified: model.PhoneVerified,
+		IsLocked:      model.IsLocked,
+		IsEnabled:     model.IsEnabled,
 	}
 }
 
 func UserFromCreateViewModelV1(viewModel *CreateUserV1) *model.User {
-	model := model.NewUser(&model.NewUserOptions{
-		Username: viewModel.Username,
-		Email:    viewModel.Email,
-	})
-	model.SetEmailVerified(viewModel.EmailVerified)
-	model.SetPhone(viewModel.Phone)
-	model.SetPhoneVerified(viewModel.PhoneVerified)
-	model.SetEnabled(viewModel.IsEnabled)
-	return model
+	return &model.User{
+		Username:      viewModel.Username,
+		Email:         viewModel.Email,
+		EmailVerified: viewModel.EmailVerified,
+		Phone:         viewModel.Phone,
+		PhoneVerified: viewModel.PhoneVerified,
+		IsEnabled:     viewModel.IsEnabled,
+	}
 }
 
 func UserFromUpdateViewModelV1(viewModel *UpdateUserV1) *model.User {
-	model := model.NewUser(nil)
-	model.SetEmailVerified(viewModel.EmailVerified)
-	model.SetPhone(viewModel.Phone)
-	model.SetPhoneVerified(viewModel.PhoneVerified)
-	model.SetEnabled(viewModel.IsEnabled)
-	return model
+	return &model.User{
+		EmailVerified: viewModel.EmailVerified,
+		Phone:         viewModel.Phone,
+		PhoneVerified: viewModel.PhoneVerified,
+		IsEnabled:     viewModel.IsEnabled,
+	}
 }
