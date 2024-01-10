@@ -63,8 +63,8 @@ type UpdateTaxRateV1 struct {
 func (api *apiV1) GetTaxRatesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseTaxRateFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.TaxRateFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -86,7 +86,7 @@ func (api *apiV1) GetTaxRatesHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*TaxRateListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, TaxRateToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, TaxRateToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -103,10 +103,10 @@ func (api *apiV1) GetTaxRateByIdHandlerV1(w http.ResponseWriter, r *http.Request
 
 	language := r.URL.Query().Get("language")
 	if language == "" {
-		response := TaxRateToViewModel(result)
+		response := TaxRateToViewModelV1(result)
 		rest.WriteResult(w, response)
 	} else {
-		response := TaxRateToLocalizedViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+		response := TaxRateToLocalizedViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 		rest.WriteResult(w, response)
 	}
 }
@@ -120,12 +120,12 @@ func (api *apiV1) CreateTaxRateHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.CreateTaxRate(ctx, TaxRateFromCreateModel(model))
+	result, err := api.service.CreateTaxRate(ctx, TaxRateFromCreateModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := TaxRateToViewModel(result)
+	response := TaxRateToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -140,12 +140,12 @@ func (api *apiV1) UpdateTaxRateHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.UpdateTaxRate(ctx, id, TaxRateFromUpdateModel(model))
+	result, err := api.service.UpdateTaxRate(ctx, id, TaxRateFromUpdateModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := TaxRateToViewModel(result)
+	response := TaxRateToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -162,7 +162,11 @@ func (api *apiV1) DeleteTaxRateHandlerV1(w http.ResponseWriter, r *http.Request)
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func TaxRateToViewModel(model *model.TaxRate) *TaxRateV1 {
+func (api *apiV1) parseTaxRateFilterV1(r *http.Request) *model.TaxRateFilter {
+	return &model.TaxRateFilter{}
+}
+
+func TaxRateToViewModelV1(model *model.TaxRate) *TaxRateV1 {
 	viewModel := &TaxRateV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -171,12 +175,12 @@ func TaxRateToViewModel(model *model.TaxRate) *TaxRateV1 {
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, TaxRateTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, TaxRateTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func TaxRateToLocalizedViewModel(model *model.TaxRate, language string, defaultLanguage string) *LocalizedTaxRateV1 {
+func TaxRateToLocalizedViewModelV1(model *model.TaxRate, language string, defaultLanguage string) *LocalizedTaxRateV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &LocalizedTaxRateV1{
 		Id:          model.Id,
@@ -188,7 +192,7 @@ func TaxRateToLocalizedViewModel(model *model.TaxRate, language string, defaultL
 	}
 }
 
-func TaxRateToListItemViewModel(model *model.TaxRate, language string, defaultLanguage string) *TaxRateListItemV1 {
+func TaxRateToListItemViewModelV1(model *model.TaxRate, language string, defaultLanguage string) *TaxRateListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &TaxRateListItemV1{
 		Id:          model.Id,
@@ -200,7 +204,7 @@ func TaxRateToListItemViewModel(model *model.TaxRate, language string, defaultLa
 	}
 }
 
-func TaxRateFromCreateModel(viewModel *CreateTaxRateV1) *model.TaxRate {
+func TaxRateFromCreateModelV1(viewModel *CreateTaxRateV1) *model.TaxRate {
 	model := &model.TaxRate{
 		Key:          viewModel.Key,
 		Translations: make([]*model.TaxRateTranslation, 0),
@@ -208,12 +212,12 @@ func TaxRateFromCreateModel(viewModel *CreateTaxRateV1) *model.TaxRate {
 		IsEnabled:    true,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, TaxRateTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, TaxRateTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func TaxRateFromUpdateModel(viewModel *UpdateTaxRateV1) *model.TaxRate {
+func TaxRateFromUpdateModelV1(viewModel *UpdateTaxRateV1) *model.TaxRate {
 	model := &model.TaxRate{
 		Key:          viewModel.Key,
 		Translations: make([]*model.TaxRateTranslation, 0),
@@ -221,12 +225,12 @@ func TaxRateFromUpdateModel(viewModel *UpdateTaxRateV1) *model.TaxRate {
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, TaxRateTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, TaxRateTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func TaxRateTranslationToViewModel(model *model.TaxRateTranslation) *TaxRateTranslationV1 {
+func TaxRateTranslationToViewModelV1(model *model.TaxRateTranslation) *TaxRateTranslationV1 {
 	return &TaxRateTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -234,7 +238,7 @@ func TaxRateTranslationToViewModel(model *model.TaxRateTranslation) *TaxRateTran
 	}
 }
 
-func TaxRateTranslationFromViewModel(viewModel *TaxRateTranslationV1) *model.TaxRateTranslation {
+func TaxRateTranslationFromViewModelV1(viewModel *TaxRateTranslationV1) *model.TaxRateTranslation {
 	return &model.TaxRateTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

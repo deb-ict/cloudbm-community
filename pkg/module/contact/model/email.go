@@ -8,12 +8,9 @@ type Email struct {
 }
 
 type EmailFilter struct {
+	TypeId string
 }
 
 func (m *Email) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *EmailFilter) HasFilter() bool {
-	return false
 }

@@ -51,8 +51,8 @@ func (api *apiV1) GetContactEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	contactId := mux.Vars(r)["contactId"]
 
+	filter := api.parseContactEmailFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.EmailFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +74,7 @@ func (api *apiV1) GetContactEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 		Items: make([]*ContactEmailListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ContactEmailToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ContactEmailToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -95,7 +95,7 @@ func (api *apiV1) GetContactEmailByIdHandlerV1(w http.ResponseWriter, r *http.Re
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactEmailToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -109,7 +109,7 @@ func (api *apiV1) CreateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	result, err := api.service.CreateContactEmail(ctx, contactId, ContactEmailFromCreateViewModel(model))
+	result, err := api.service.CreateContactEmail(ctx, contactId, ContactEmailFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -119,7 +119,7 @@ func (api *apiV1) CreateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactEmailToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -135,7 +135,7 @@ func (api *apiV1) UpdateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	result, err := api.service.UpdateContactEmail(ctx, contactId, id, ContactEmailFromUpdateViewModel(model))
+	result, err := api.service.UpdateContactEmail(ctx, contactId, id, ContactEmailFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -145,7 +145,7 @@ func (api *apiV1) UpdateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactEmailToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactEmailToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -163,7 +163,13 @@ func (api *apiV1) DeleteContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func ContactEmailToViewModel(model *model.Email, language string, defaultLanguage string) *ContactEmailV1 {
+func (api *apiV1) parseContactEmailFilterV1(r *http.Request) *model.EmailFilter {
+	return &model.EmailFilter{
+		TypeId: r.URL.Query().Get("type"),
+	}
+}
+
+func ContactEmailToViewModelV1(model *model.Email, language string, defaultLanguage string) *ContactEmailV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &ContactEmailV1{
 		Id: model.Id,
@@ -178,7 +184,7 @@ func ContactEmailToViewModel(model *model.Email, language string, defaultLanguag
 	}
 }
 
-func ContactEmailToListItemViewModel(model *model.Email, language string, defaultLanguage string) *ContactEmailListItemV1 {
+func ContactEmailToListItemViewModelV1(model *model.Email, language string, defaultLanguage string) *ContactEmailListItemV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &ContactEmailListItemV1{
 		Id: model.Id,
@@ -193,7 +199,7 @@ func ContactEmailToListItemViewModel(model *model.Email, language string, defaul
 	}
 }
 
-func ContactEmailFromCreateViewModel(viewModel *CreateContactEmailV1) *model.Email {
+func ContactEmailFromCreateViewModelV1(viewModel *CreateContactEmailV1) *model.Email {
 	return &model.Email{
 		Type: model.EmailType{
 			Id: viewModel.TypeId,
@@ -203,7 +209,7 @@ func ContactEmailFromCreateViewModel(viewModel *CreateContactEmailV1) *model.Ema
 	}
 }
 
-func ContactEmailFromUpdateViewModel(viewModel *UpdateContactEmailV1) *model.Email {
+func ContactEmailFromUpdateViewModelV1(viewModel *UpdateContactEmailV1) *model.Email {
 	return &model.Email{
 		Type: model.EmailType{
 			Id: viewModel.TypeId,

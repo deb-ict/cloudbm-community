@@ -75,8 +75,8 @@ func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	companyId := mux.Vars(r)["companyId"]
 
+	filter := api.parseCompanyAddressFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.AddressFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -98,7 +98,7 @@ func (api *apiV1) GetCompanyAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 		Items: make([]*CompanyAddressListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyAddressToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyAddressToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -119,7 +119,7 @@ func (api *apiV1) GetCompanyAddressByIdHandlerV1(w http.ResponseWriter, r *http.
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyAddressToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -133,7 +133,7 @@ func (api *apiV1) CreateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	result, err := api.service.CreateCompanyAddress(ctx, companyId, CompanyAddressFromCreateViewModel(model))
+	result, err := api.service.CreateCompanyAddress(ctx, companyId, CompanyAddressFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -143,7 +143,7 @@ func (api *apiV1) CreateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyAddressToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -159,7 +159,7 @@ func (api *apiV1) UpdateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	result, err := api.service.UpdateCompanyAddress(ctx, companyId, id, CompanyAddressFromUpdateViewModel(model))
+	result, err := api.service.UpdateCompanyAddress(ctx, companyId, id, CompanyAddressFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -169,7 +169,7 @@ func (api *apiV1) UpdateCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyAddressToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -187,7 +187,13 @@ func (api *apiV1) DeleteCompanyAddressHandlerV1(w http.ResponseWriter, r *http.R
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func CompanyAddressToViewModel(model *model.Address, language string, defaultLanguage string) *CompanyAddressV1 {
+func (api *apiV1) parseCompanyAddressFilterV1(r *http.Request) *model.AddressFilter {
+	return &model.AddressFilter{
+		TypeId: r.URL.Query().Get("type"),
+	}
+}
+
+func CompanyAddressToViewModelV1(model *model.Address, language string, defaultLanguage string) *CompanyAddressV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &CompanyAddressV1{
 		Id: model.Id,
@@ -208,7 +214,7 @@ func CompanyAddressToViewModel(model *model.Address, language string, defaultLan
 	}
 }
 
-func CompanyAddressToListItemViewModel(model *model.Address, language string, defaultLanguage string) *CompanyAddressListItemV1 {
+func CompanyAddressToListItemViewModelV1(model *model.Address, language string, defaultLanguage string) *CompanyAddressListItemV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &CompanyAddressListItemV1{
 		Id: model.Id,
@@ -229,7 +235,7 @@ func CompanyAddressToListItemViewModel(model *model.Address, language string, de
 	}
 }
 
-func CompanyAddressFromCreateViewModel(viewModel *CreateCompanyAddressV1) *model.Address {
+func CompanyAddressFromCreateViewModelV1(viewModel *CreateCompanyAddressV1) *model.Address {
 	return &model.Address{
 		Type: model.AddressType{
 			Id: viewModel.TypeId,
@@ -245,7 +251,7 @@ func CompanyAddressFromCreateViewModel(viewModel *CreateCompanyAddressV1) *model
 	}
 }
 
-func CompanyAddressFromUpdateViewModel(viewModel *UpdateCompanyAddressV1) *model.Address {
+func CompanyAddressFromUpdateViewModelV1(viewModel *UpdateCompanyAddressV1) *model.Address {
 	return &model.Address{
 		Type: model.AddressType{
 			Id: viewModel.TypeId,

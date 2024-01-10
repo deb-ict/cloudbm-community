@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -51,8 +52,8 @@ type UpdateAddressTypeV1 struct {
 func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseAddressTypeFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.AddressTypeFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +75,7 @@ func (api *apiV1) GetAddressTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 		Items: make([]*AddressTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, AddressTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, AddressTypeToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -89,7 +90,7 @@ func (api *apiV1) GetAddressTypeByIdHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	response := AddressTypeToViewModel(result)
+	response := AddressTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -102,12 +103,12 @@ func (api *apiV1) CreateAddressTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	result, err := api.service.CreateAddressType(ctx, AddressTypeFromCreateViewModel(model))
+	result, err := api.service.CreateAddressType(ctx, AddressTypeFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := AddressTypeToViewModel(result)
+	response := AddressTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -122,12 +123,12 @@ func (api *apiV1) UpdateAddressTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	result, err := api.service.UpdateAddressType(ctx, id, AddressTypeFromUpdateViewModel(model))
+	result, err := api.service.UpdateAddressType(ctx, id, AddressTypeFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := AddressTypeToViewModel(result)
+	response := AddressTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -144,7 +145,14 @@ func (api *apiV1) DeleteAddressTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func AddressTypeToViewModel(model *model.AddressType) *AddressTypeV1 {
+func (api *apiV1) parseAddressTypeFilterV1(r *http.Request) *model.AddressTypeFilter {
+	return &model.AddressTypeFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func AddressTypeToViewModelV1(model *model.AddressType) *AddressTypeV1 {
 	viewModel := &AddressTypeV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -153,12 +161,12 @@ func AddressTypeToViewModel(model *model.AddressType) *AddressTypeV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, AddressTypeTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, AddressTypeTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func AddressTypeToListItemViewModel(model *model.AddressType, language string, defaultLanguage string) *AddressTypeListItemV1 {
+func AddressTypeToListItemViewModelV1(model *model.AddressType, language string, defaultLanguage string) *AddressTypeListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &AddressTypeListItemV1{
 		Id:          model.Id,
@@ -170,30 +178,30 @@ func AddressTypeToListItemViewModel(model *model.AddressType, language string, d
 	}
 }
 
-func AddressTypeFromCreateViewModel(viewModel *CreateAddressTypeV1) *model.AddressType {
+func AddressTypeFromCreateViewModelV1(viewModel *CreateAddressTypeV1) *model.AddressType {
 	model := &model.AddressType{
 		Key:          viewModel.Key,
 		Translations: make([]*model.AddressTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, AddressTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, AddressTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func AddressTypeFromUpdateViewModel(viewModel *UpdateAddressTypeV1) *model.AddressType {
+func AddressTypeFromUpdateViewModelV1(viewModel *UpdateAddressTypeV1) *model.AddressType {
 	model := &model.AddressType{
 		Translations: make([]*model.AddressTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, AddressTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, AddressTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func AddressTypeTranslationToViewModel(model *model.AddressTypeTranslation) *AddressTypeTranslationV1 {
+func AddressTypeTranslationToViewModelV1(model *model.AddressTypeTranslation) *AddressTypeTranslationV1 {
 	return &AddressTypeTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -201,7 +209,7 @@ func AddressTypeTranslationToViewModel(model *model.AddressTypeTranslation) *Add
 	}
 }
 
-func AddressTypeTranslationFromViewModel(viewModel *AddressTypeTranslationV1) *model.AddressTypeTranslation {
+func AddressTypeTranslationFromViewModelV1(viewModel *AddressTypeTranslationV1) *model.AddressTypeTranslation {
 	return &model.AddressTypeTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

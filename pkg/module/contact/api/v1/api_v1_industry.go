@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -47,8 +48,8 @@ type UpdateIndustryV1 struct {
 func (api *apiV1) GetIndustriesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseIndustryFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.IndustryFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -70,7 +71,7 @@ func (api *apiV1) GetIndustriesHandlerV1(w http.ResponseWriter, r *http.Request)
 		Items: make([]*IndustryListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, IndustryToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, IndustryToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -85,7 +86,7 @@ func (api *apiV1) GetIndustryByIdHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	response := IndustryToViewModel(result)
+	response := IndustryToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -98,12 +99,12 @@ func (api *apiV1) CreateIndustryHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := api.service.CreateIndustry(ctx, IndustryFromCreateViewModel(model))
+	result, err := api.service.CreateIndustry(ctx, IndustryFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := IndustryToViewModel(result)
+	response := IndustryToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -118,12 +119,12 @@ func (api *apiV1) UpdateIndustryHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := api.service.UpdateIndustry(ctx, id, IndustryFromUpdateViewModel(model))
+	result, err := api.service.UpdateIndustry(ctx, id, IndustryFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := IndustryToViewModel(result)
+	response := IndustryToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -140,7 +141,14 @@ func (api *apiV1) DeleteIndustryHandlerV1(w http.ResponseWriter, r *http.Request
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func IndustryToViewModel(model *model.Industry) *IndustryV1 {
+func (api *apiV1) parseIndustryFilterV1(r *http.Request) *model.IndustryFilter {
+	return &model.IndustryFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func IndustryToViewModelV1(model *model.Industry) *IndustryV1 {
 	viewModel := &IndustryV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -148,12 +156,12 @@ func IndustryToViewModel(model *model.Industry) *IndustryV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, IndustryTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, IndustryTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func IndustryToListItemViewModel(model *model.Industry, language string, defaultLanguage string) *IndustryListItemV1 {
+func IndustryToListItemViewModelV1(model *model.Industry, language string, defaultLanguage string) *IndustryListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &IndustryListItemV1{
 		Id:          model.Id,
@@ -164,28 +172,28 @@ func IndustryToListItemViewModel(model *model.Industry, language string, default
 	}
 }
 
-func IndustryFromCreateViewModel(viewModel *CreateIndustryV1) *model.Industry {
+func IndustryFromCreateViewModelV1(viewModel *CreateIndustryV1) *model.Industry {
 	model := &model.Industry{
 		Key:          viewModel.Key,
 		Translations: make([]*model.IndustryTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, IndustryTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, IndustryTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func IndustryFromUpdateViewModel(viewModel *UpdateIndustryV1) *model.Industry {
+func IndustryFromUpdateViewModelV1(viewModel *UpdateIndustryV1) *model.Industry {
 	model := &model.Industry{
 		Translations: make([]*model.IndustryTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, IndustryTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, IndustryTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func IndustryTranslationToViewModel(model *model.IndustryTranslation) *IndustryTranslationV1 {
+func IndustryTranslationToViewModelV1(model *model.IndustryTranslation) *IndustryTranslationV1 {
 	return &IndustryTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -193,7 +201,7 @@ func IndustryTranslationToViewModel(model *model.IndustryTranslation) *IndustryT
 	}
 }
 
-func IndustryTranslationFromViewModel(viewModel *IndustryTranslationV1) *model.IndustryTranslation {
+func IndustryTranslationFromViewModelV1(viewModel *IndustryTranslationV1) *model.IndustryTranslation {
 	return &model.IndustryTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

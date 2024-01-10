@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -47,8 +48,8 @@ type UpdateJobTitleV1 struct {
 func (api *apiV1) GetJobTitlesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseJobTitleFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.JobTitleFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -70,7 +71,7 @@ func (api *apiV1) GetJobTitlesHandlerV1(w http.ResponseWriter, r *http.Request) 
 		Items: make([]*JobTitleListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, JobTitleToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, JobTitleToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -85,7 +86,7 @@ func (api *apiV1) GetJobTitleByIdHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	response := JobTitleToViewModel(result)
+	response := JobTitleToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -98,12 +99,12 @@ func (api *apiV1) CreateJobTitleHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := api.service.CreateJobTitle(ctx, JobTitleFromCreateViewModel(model))
+	result, err := api.service.CreateJobTitle(ctx, JobTitleFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := JobTitleToViewModel(result)
+	response := JobTitleToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -118,12 +119,12 @@ func (api *apiV1) UpdateJobTitleHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := api.service.UpdateJobTitle(ctx, id, JobTitleFromUpdateViewModel(model))
+	result, err := api.service.UpdateJobTitle(ctx, id, JobTitleFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := JobTitleToViewModel(result)
+	response := JobTitleToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -140,7 +141,14 @@ func (api *apiV1) DeleteJobTitleHandlerV1(w http.ResponseWriter, r *http.Request
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func JobTitleToViewModel(model *model.JobTitle) *JobTitleV1 {
+func (api *apiV1) parseJobTitleFilterV1(r *http.Request) *model.JobTitleFilter {
+	return &model.JobTitleFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func JobTitleToViewModelV1(model *model.JobTitle) *JobTitleV1 {
 	viewModel := &JobTitleV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -148,12 +156,12 @@ func JobTitleToViewModel(model *model.JobTitle) *JobTitleV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, JobTitleTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, JobTitleTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func JobTitleToListItemViewModel(model *model.JobTitle, language string, defaultLanguage string) *JobTitleListItemV1 {
+func JobTitleToListItemViewModelV1(model *model.JobTitle, language string, defaultLanguage string) *JobTitleListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &JobTitleListItemV1{
 		Id:          model.Id,
@@ -164,28 +172,28 @@ func JobTitleToListItemViewModel(model *model.JobTitle, language string, default
 	}
 }
 
-func JobTitleFromCreateViewModel(viewModel *CreateJobTitleV1) *model.JobTitle {
+func JobTitleFromCreateViewModelV1(viewModel *CreateJobTitleV1) *model.JobTitle {
 	model := &model.JobTitle{
 		Key:          viewModel.Key,
 		Translations: make([]*model.JobTitleTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, JobTitleTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, JobTitleTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func JobTitleFromUpdateViewModel(viewModel *UpdateJobTitleV1) *model.JobTitle {
+func JobTitleFromUpdateViewModelV1(viewModel *UpdateJobTitleV1) *model.JobTitle {
 	model := &model.JobTitle{
 		Translations: make([]*model.JobTitleTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, JobTitleTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, JobTitleTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func JobTitleTranslationToViewModel(model *model.JobTitleTranslation) *JobTitleTranslationV1 {
+func JobTitleTranslationToViewModelV1(model *model.JobTitleTranslation) *JobTitleTranslationV1 {
 	return &JobTitleTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -193,7 +201,7 @@ func JobTitleTranslationToViewModel(model *model.JobTitleTranslation) *JobTitleT
 	}
 }
 
-func JobTitleTranslationFromViewModel(viewModel *JobTitleTranslationV1) *model.JobTitleTranslation {
+func JobTitleTranslationFromViewModelV1(viewModel *JobTitleTranslationV1) *model.JobTitleTranslation {
 	return &model.JobTitleTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

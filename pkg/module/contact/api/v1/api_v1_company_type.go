@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -47,8 +48,8 @@ type UpdateCompanyTypeV1 struct {
 func (api *apiV1) GetCompanyTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseCompanyTypeFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.CompanyTypeFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -70,7 +71,7 @@ func (api *apiV1) GetCompanyTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 		Items: make([]*CompanyTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyTypeToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -85,7 +86,7 @@ func (api *apiV1) GetCompanyTypeByIdHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	response := CompanyTypeToViewModel(result)
+	response := CompanyTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -98,12 +99,12 @@ func (api *apiV1) CreateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	result, err := api.service.CreateCompanyType(ctx, CompanyTypeFromCreateViewModel(model))
+	result, err := api.service.CreateCompanyType(ctx, CompanyTypeFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := CompanyTypeToViewModel(result)
+	response := CompanyTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -118,12 +119,12 @@ func (api *apiV1) UpdateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	result, err := api.service.UpdateCompanyType(ctx, id, CompanyTypeFromUpdateViewModel(model))
+	result, err := api.service.UpdateCompanyType(ctx, id, CompanyTypeFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := CompanyTypeToViewModel(result)
+	response := CompanyTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -140,7 +141,14 @@ func (api *apiV1) DeleteCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func CompanyTypeToViewModel(model *model.CompanyType) *CompanyTypeV1 {
+func (api *apiV1) parseCompanyTypeFilterV1(r *http.Request) *model.CompanyTypeFilter {
+	return &model.CompanyTypeFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func CompanyTypeToViewModelV1(model *model.CompanyType) *CompanyTypeV1 {
 	viewModel := &CompanyTypeV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -148,12 +156,12 @@ func CompanyTypeToViewModel(model *model.CompanyType) *CompanyTypeV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, CompanyTypeTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, CompanyTypeTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func CompanyTypeToListItemViewModel(model *model.CompanyType, language string, defaultLanguage string) *CompanyTypeListItemV1 {
+func CompanyTypeToListItemViewModelV1(model *model.CompanyType, language string, defaultLanguage string) *CompanyTypeListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &CompanyTypeListItemV1{
 		Id:          model.Id,
@@ -164,28 +172,28 @@ func CompanyTypeToListItemViewModel(model *model.CompanyType, language string, d
 	}
 }
 
-func CompanyTypeFromCreateViewModel(viewModel *CreateCompanyTypeV1) *model.CompanyType {
+func CompanyTypeFromCreateViewModelV1(viewModel *CreateCompanyTypeV1) *model.CompanyType {
 	model := &model.CompanyType{
 		Key:          viewModel.Key,
 		Translations: make([]*model.CompanyTypeTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, CompanyTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, CompanyTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func CompanyTypeFromUpdateViewModel(viewModel *UpdateCompanyTypeV1) *model.CompanyType {
+func CompanyTypeFromUpdateViewModelV1(viewModel *UpdateCompanyTypeV1) *model.CompanyType {
 	model := &model.CompanyType{
 		Translations: make([]*model.CompanyTypeTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, CompanyTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, CompanyTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func CompanyTypeTranslationToViewModel(model *model.CompanyTypeTranslation) *CompanyTypeTranslationV1 {
+func CompanyTypeTranslationToViewModelV1(model *model.CompanyTypeTranslation) *CompanyTypeTranslationV1 {
 	return &CompanyTypeTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -193,7 +201,7 @@ func CompanyTypeTranslationToViewModel(model *model.CompanyTypeTranslation) *Com
 	}
 }
 
-func CompanyTypeTranslationFromViewModel(viewModel *CompanyTypeTranslationV1) *model.CompanyTypeTranslation {
+func CompanyTypeTranslationFromViewModelV1(viewModel *CompanyTypeTranslationV1) *model.CompanyTypeTranslation {
 	return &model.CompanyTypeTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

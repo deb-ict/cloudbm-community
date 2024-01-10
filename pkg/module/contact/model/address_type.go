@@ -20,7 +20,8 @@ type AddressTypeTranslation struct {
 }
 
 type AddressTypeFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *AddressType) GetTranslation(language string, defaultLanguage string) *AddressTypeTranslation {
@@ -51,8 +52,4 @@ func (m *AddressType) TryGetTranslation(language string) (*AddressTypeTranslatio
 
 func (m *AddressType) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *AddressTypeFilter) HasFilter() bool {
-	return false
 }

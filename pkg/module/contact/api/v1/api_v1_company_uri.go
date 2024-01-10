@@ -51,8 +51,8 @@ func (api *apiV1) GetCompanyUrisHandlerV1(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	companyId := mux.Vars(r)["companyId"]
 
+	filter := api.parseCompanyUriFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.UriFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +74,7 @@ func (api *apiV1) GetCompanyUrisHandlerV1(w http.ResponseWriter, r *http.Request
 		Items: make([]*CompanyUriListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyUriToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyUriToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -95,7 +95,7 @@ func (api *apiV1) GetCompanyUriByIdHandlerV1(w http.ResponseWriter, r *http.Requ
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyUriToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyUriToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -109,7 +109,7 @@ func (api *apiV1) CreateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	result, err := api.service.CreateCompanyUri(ctx, companyId, CompanyUriFromCreateViewModel(model))
+	result, err := api.service.CreateCompanyUri(ctx, companyId, CompanyUriFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -119,7 +119,7 @@ func (api *apiV1) CreateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyUriToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyUriToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -135,7 +135,7 @@ func (api *apiV1) UpdateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	result, err := api.service.UpdateCompanyUri(ctx, companyId, id, CompanyUriFromUpdateViewModel(model))
+	result, err := api.service.UpdateCompanyUri(ctx, companyId, id, CompanyUriFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -145,7 +145,7 @@ func (api *apiV1) UpdateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyUriToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyUriToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -163,7 +163,13 @@ func (api *apiV1) DeleteCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func CompanyUriToViewModel(model *model.Uri, language string, defaultLanguage string) *CompanyUriV1 {
+func (api *apiV1) parseCompanyUriFilterV1(r *http.Request) *model.UriFilter {
+	return &model.UriFilter{
+		TypeId: r.URL.Query().Get("type"),
+	}
+}
+
+func CompanyUriToViewModelV1(model *model.Uri, language string, defaultLanguage string) *CompanyUriV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &CompanyUriV1{
 		Id: model.Id,
@@ -178,7 +184,7 @@ func CompanyUriToViewModel(model *model.Uri, language string, defaultLanguage st
 	}
 }
 
-func CompanyUriToListItemViewModel(model *model.Uri, language string, defaultLanguage string) *CompanyUriListItemV1 {
+func CompanyUriToListItemViewModelV1(model *model.Uri, language string, defaultLanguage string) *CompanyUriListItemV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &CompanyUriListItemV1{
 		Id: model.Id,
@@ -193,7 +199,7 @@ func CompanyUriToListItemViewModel(model *model.Uri, language string, defaultLan
 	}
 }
 
-func CompanyUriFromCreateViewModel(viewModel *CreateCompanyUriV1) *model.Uri {
+func CompanyUriFromCreateViewModelV1(viewModel *CreateCompanyUriV1) *model.Uri {
 	return &model.Uri{
 		Type: model.UriType{
 			Id: viewModel.TypeId,
@@ -203,7 +209,7 @@ func CompanyUriFromCreateViewModel(viewModel *CreateCompanyUriV1) *model.Uri {
 	}
 }
 
-func CompanyUriFromUpdateViewModel(viewModel *UpdateCompanyUriV1) *model.Uri {
+func CompanyUriFromUpdateViewModelV1(viewModel *UpdateCompanyUriV1) *model.Uri {
 	return &model.Uri{
 		Type: model.UriType{
 			Id: viewModel.TypeId,

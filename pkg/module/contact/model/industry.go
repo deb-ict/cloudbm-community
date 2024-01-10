@@ -19,7 +19,8 @@ type IndustryTranslation struct {
 }
 
 type IndustryFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *Industry) GetTranslation(language string, defaultLanguage string) *IndustryTranslation {
@@ -50,8 +51,4 @@ func (m *Industry) TryGetTranslation(language string) (*IndustryTranslation, err
 
 func (m *Industry) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *IndustryFilter) HasFilter() bool {
-	return false
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery/model"
 	"github.com/gorilla/mux"
 )
@@ -56,7 +57,7 @@ type UpdateImageV1 struct {
 func (api *apiV1) GetImagesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	filter := api.parseImageFilter(r)
+	filter := api.parseImageFilterV1(r)
 	paging := rest.GetPaging(r)
 	sort := rest.GetSorting(r)
 
@@ -74,7 +75,7 @@ func (api *apiV1) GetImagesHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*ImageListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ImageToListItemViewModel(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ImageToListItemViewModelV1(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -89,7 +90,7 @@ func (api *apiV1) GetImageByIdHandlerV1(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	response := ImageToViewModel(result)
+	response := ImageToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -102,12 +103,12 @@ func (api *apiV1) CreateImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := api.service.CreateImage(ctx, ImageFromCreateViewModel(model))
+	result, err := api.service.CreateImage(ctx, ImageFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := ImageToViewModel(result)
+	response := ImageToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -122,12 +123,12 @@ func (api *apiV1) UpdateImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := api.service.UpdateImage(ctx, id, ImageFromUpdateViewModel(model))
+	result, err := api.service.UpdateImage(ctx, id, ImageFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := ImageToViewModel(result)
+	response := ImageToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -166,7 +167,7 @@ func (api *apiV1) UploadImageFileHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	response := ImageToViewModel(result)
+	response := ImageToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -185,19 +186,14 @@ func (api *apiV1) DownloadImageFileHandlerV1(w http.ResponseWriter, r *http.Requ
 	_, _ = io.Copy(w, file)
 }
 
-func (api *apiV1) parseImageFilter(r *http.Request) *model.ImageFilter {
-	filter := &model.ImageFilter{}
-
-	filter.Language = r.URL.Query().Get("language")
-	if filter.Language == "" {
-		filter.Language = api.service.LanguageProvider().UserLanguage(r.Context())
+func (api *apiV1) parseImageFilterV1(r *http.Request) *model.ImageFilter {
+	return &model.ImageFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
 	}
-	filter.Name = r.URL.Query().Get("name")
-
-	return filter
 }
 
-func ImageToViewModel(model *model.Image) *ImageV1 {
+func ImageToViewModelV1(model *model.Image) *ImageV1 {
 	viewModel := &ImageV1{
 		Id:           model.Id,
 		Translations: make([]*ImageTranslationV1, 0),
@@ -208,12 +204,12 @@ func ImageToViewModel(model *model.Image) *ImageV1 {
 		Height:       model.Height,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, ImageTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, ImageTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func ImageToListItemViewModel(model *model.Image, language string, defaultLanguage string) *ImageListItemV1 {
+func ImageToListItemViewModelV1(model *model.Image, language string, defaultLanguage string) *ImageListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &ImageListItemV1{
 		Id:       model.Id,
@@ -226,29 +222,29 @@ func ImageToListItemViewModel(model *model.Image, language string, defaultLangua
 	}
 }
 
-func ImageFromCreateViewModel(viewModel *CreateImageV1) *model.Image {
+func ImageFromCreateViewModelV1(viewModel *CreateImageV1) *model.Image {
 	model := &model.Image{
 		OriginalFileName: viewModel.FileName,
 		Translations:     make([]*model.ImageTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, ImageTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, ImageTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func ImageFromUpdateViewModel(viewModel *UpdateImageV1) *model.Image {
+func ImageFromUpdateViewModelV1(viewModel *UpdateImageV1) *model.Image {
 	model := &model.Image{
 		OriginalFileName: viewModel.FileName,
 		Translations:     make([]*model.ImageTranslation, 0),
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, ImageTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, ImageTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func ImageTranslationToViewModel(model *model.ImageTranslation) *ImageTranslationV1 {
+func ImageTranslationToViewModelV1(model *model.ImageTranslation) *ImageTranslationV1 {
 	return &ImageTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -258,7 +254,7 @@ func ImageTranslationToViewModel(model *model.ImageTranslation) *ImageTranslatio
 	}
 }
 
-func ImageTranslationFromViewModel(viewModel *ImageTranslationV1) *model.ImageTranslation {
+func ImageTranslationFromViewModelV1(viewModel *ImageTranslationV1) *model.ImageTranslation {
 	return &model.ImageTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

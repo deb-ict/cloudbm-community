@@ -20,7 +20,8 @@ type PhoneTypeTranslation struct {
 }
 
 type PhoneTypeFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *PhoneType) GetTranslation(language string, defaultLanguage string) *PhoneTypeTranslation {
@@ -51,8 +52,4 @@ func (m *PhoneType) TryGetTranslation(language string) (*PhoneTypeTranslation, e
 
 func (m *PhoneType) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *PhoneTypeFilter) HasFilter() bool {
-	return false
 }

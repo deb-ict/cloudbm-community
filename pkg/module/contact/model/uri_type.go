@@ -20,7 +20,8 @@ type UriTypeTranslation struct {
 }
 
 type UriTypeFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *UriType) GetTranslation(language string, defaultLanguage string) *UriTypeTranslation {
@@ -51,8 +52,4 @@ func (m *UriType) TryGetTranslation(language string) (*UriTypeTranslation, error
 
 func (m *UriType) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *UriTypeFilter) HasFilter() bool {
-	return false
 }

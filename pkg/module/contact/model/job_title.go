@@ -19,7 +19,8 @@ type JobTitleTranslation struct {
 }
 
 type JobTitleFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *JobTitle) GetTranslation(language string, defaultLanguage string) *JobTitleTranslation {
@@ -50,8 +51,4 @@ func (m *JobTitle) TryGetTranslation(language string) (*JobTitleTranslation, err
 
 func (m *JobTitle) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *JobTitleFilter) HasFilter() bool {
-	return false
 }

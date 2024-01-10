@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -51,8 +52,8 @@ type UpdateUriTypeV1 struct {
 func (api *apiV1) GetUriTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseUriTypeFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.UriTypeFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +75,7 @@ func (api *apiV1) GetUriTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*UriTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, UriTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, UriTypeToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -89,7 +90,7 @@ func (api *apiV1) GetUriTypeByIdHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	response := UriTypeToViewModel(result)
+	response := UriTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -102,12 +103,12 @@ func (api *apiV1) CreateUriTypeHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.CreateUriType(ctx, UriTypeFromCreateViewModel(model))
+	result, err := api.service.CreateUriType(ctx, UriTypeFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := UriTypeToViewModel(result)
+	response := UriTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -122,12 +123,12 @@ func (api *apiV1) UpdateUriTypeHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.UpdateUriType(ctx, id, UriTypeFromUpdateViewModel(model))
+	result, err := api.service.UpdateUriType(ctx, id, UriTypeFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := UriTypeToViewModel(result)
+	response := UriTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -144,7 +145,14 @@ func (api *apiV1) DeleteUriTypeHandlerV1(w http.ResponseWriter, r *http.Request)
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func UriTypeToViewModel(model *model.UriType) *UriTypeV1 {
+func (api *apiV1) parseUriTypeFilterV1(r *http.Request) *model.UriTypeFilter {
+	return &model.UriTypeFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func UriTypeToViewModelV1(model *model.UriType) *UriTypeV1 {
 	viewModel := &UriTypeV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -153,12 +161,12 @@ func UriTypeToViewModel(model *model.UriType) *UriTypeV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, UriTypeTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, UriTypeTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func UriTypeToListItemViewModel(model *model.UriType, language string, defaultLanguage string) *UriTypeListItemV1 {
+func UriTypeToListItemViewModelV1(model *model.UriType, language string, defaultLanguage string) *UriTypeListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &UriTypeListItemV1{
 		Id:          model.Id,
@@ -170,30 +178,30 @@ func UriTypeToListItemViewModel(model *model.UriType, language string, defaultLa
 	}
 }
 
-func UriTypeFromCreateViewModel(viewModel *CreateUriTypeV1) *model.UriType {
+func UriTypeFromCreateViewModelV1(viewModel *CreateUriTypeV1) *model.UriType {
 	model := &model.UriType{
 		Key:          viewModel.Key,
 		Translations: make([]*model.UriTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, UriTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, UriTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func UriTypeFromUpdateViewModel(viewModel *UpdateUriTypeV1) *model.UriType {
+func UriTypeFromUpdateViewModelV1(viewModel *UpdateUriTypeV1) *model.UriType {
 	model := &model.UriType{
 		Translations: make([]*model.UriTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, UriTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, UriTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func UriTypeTranslationToViewModel(model *model.UriTypeTranslation) *UriTypeTranslationV1 {
+func UriTypeTranslationToViewModelV1(model *model.UriTypeTranslation) *UriTypeTranslationV1 {
 	return &UriTypeTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -201,7 +209,7 @@ func UriTypeTranslationToViewModel(model *model.UriTypeTranslation) *UriTypeTran
 	}
 }
 
-func UriTypeTranslationFromViewModel(viewModel *UriTypeTranslationV1) *model.UriTypeTranslation {
+func UriTypeTranslationFromViewModelV1(viewModel *UriTypeTranslationV1) *model.UriTypeTranslation {
 	return &model.UriTypeTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

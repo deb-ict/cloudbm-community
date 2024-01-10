@@ -9,12 +9,9 @@ type Phone struct {
 }
 
 type PhoneFilter struct {
+	TypeId string
 }
 
 func (m *Phone) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *PhoneFilter) HasFilter() bool {
-	return false
 }

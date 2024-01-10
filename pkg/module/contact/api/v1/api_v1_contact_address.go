@@ -75,8 +75,8 @@ func (api *apiV1) GetContactAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	contactId := mux.Vars(r)["contactId"]
 
+	filter := api.parseContactAddressFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.AddressFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -98,7 +98,7 @@ func (api *apiV1) GetContactAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 		Items: make([]*ContactAddressListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ContactAddressToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ContactAddressToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -119,7 +119,7 @@ func (api *apiV1) GetContactAddressByIdHandlerV1(w http.ResponseWriter, r *http.
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactAddressToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -133,7 +133,7 @@ func (api *apiV1) CreateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	result, err := api.service.CreateContactAddress(ctx, contactId, ContactAddressFromCreateViewModel(model))
+	result, err := api.service.CreateContactAddress(ctx, contactId, ContactAddressFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -143,7 +143,7 @@ func (api *apiV1) CreateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactAddressToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -159,7 +159,7 @@ func (api *apiV1) UpdateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	result, err := api.service.UpdateContactAddress(ctx, contactId, id, ContactAddressFromUpdateViewModel(model))
+	result, err := api.service.UpdateContactAddress(ctx, contactId, id, ContactAddressFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -169,7 +169,7 @@ func (api *apiV1) UpdateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactAddressToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactAddressToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -187,7 +187,13 @@ func (api *apiV1) DeleteContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func ContactAddressToViewModel(model *model.Address, language string, defaultLanguage string) *ContactAddressV1 {
+func (api *apiV1) parseContactAddressFilterV1(r *http.Request) *model.AddressFilter {
+	return &model.AddressFilter{
+		TypeId: r.URL.Query().Get("type"),
+	}
+}
+
+func ContactAddressToViewModelV1(model *model.Address, language string, defaultLanguage string) *ContactAddressV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &ContactAddressV1{
 		Id: model.Id,
@@ -208,7 +214,7 @@ func ContactAddressToViewModel(model *model.Address, language string, defaultLan
 	}
 }
 
-func ContactAddressToListItemViewModel(model *model.Address, language string, defaultLanguage string) *ContactAddressListItemV1 {
+func ContactAddressToListItemViewModelV1(model *model.Address, language string, defaultLanguage string) *ContactAddressListItemV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &ContactAddressListItemV1{
 		Id: model.Id,
@@ -229,7 +235,7 @@ func ContactAddressToListItemViewModel(model *model.Address, language string, de
 	}
 }
 
-func ContactAddressFromCreateViewModel(viewModel *CreateContactAddressV1) *model.Address {
+func ContactAddressFromCreateViewModelV1(viewModel *CreateContactAddressV1) *model.Address {
 	return &model.Address{
 		Type: model.AddressType{
 			Id: viewModel.TypeId,
@@ -245,7 +251,7 @@ func ContactAddressFromCreateViewModel(viewModel *CreateContactAddressV1) *model
 	}
 }
 
-func ContactAddressFromUpdateViewModel(viewModel *UpdateContactAddressV1) *model.Address {
+func ContactAddressFromUpdateViewModelV1(viewModel *UpdateContactAddressV1) *model.Address {
 	return &model.Address{
 		Type: model.AddressType{
 			Id: viewModel.TypeId,

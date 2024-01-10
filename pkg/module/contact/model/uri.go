@@ -14,7 +14,3 @@ type UriFilter struct {
 func (m *Uri) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *UriFilter) HasFilter() bool {
-	return false
-}

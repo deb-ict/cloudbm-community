@@ -22,7 +22,3 @@ type ContactFilter struct {
 func (m *Contact) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *ContactFilter) HasFilter() bool {
-	return false
-}

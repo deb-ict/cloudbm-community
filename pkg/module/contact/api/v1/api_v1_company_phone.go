@@ -55,8 +55,8 @@ func (api *apiV1) GetCompanyPhonesHandlerV1(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	companyId := mux.Vars(r)["companyId"]
 
+	filter := api.parseCompanyPhoneFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.PhoneFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -78,7 +78,7 @@ func (api *apiV1) GetCompanyPhonesHandlerV1(w http.ResponseWriter, r *http.Reque
 		Items: make([]*CompanyPhoneListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyPhoneToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CompanyPhoneToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -99,7 +99,7 @@ func (api *apiV1) GetCompanyPhoneByIdHandlerV1(w http.ResponseWriter, r *http.Re
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyPhoneToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyPhoneToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -113,7 +113,7 @@ func (api *apiV1) CreateCompanyPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	result, err := api.service.CreateCompanyPhone(ctx, companyId, CompanyPhoneFromCreateViewModel(model))
+	result, err := api.service.CreateCompanyPhone(ctx, companyId, CompanyPhoneFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -123,7 +123,7 @@ func (api *apiV1) CreateCompanyPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyPhoneToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyPhoneToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -139,7 +139,7 @@ func (api *apiV1) UpdateCompanyPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	result, err := api.service.UpdateCompanyPhone(ctx, companyId, id, CompanyPhoneFromUpdateViewModel(model))
+	result, err := api.service.UpdateCompanyPhone(ctx, companyId, id, CompanyPhoneFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -149,7 +149,7 @@ func (api *apiV1) UpdateCompanyPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := CompanyPhoneToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := CompanyPhoneToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -167,7 +167,13 @@ func (api *apiV1) DeleteCompanyPhoneHandlerV1(w http.ResponseWriter, r *http.Req
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func CompanyPhoneToViewModel(model *model.Phone, language string, defaultLanguage string) *CompanyPhoneV1 {
+func (api *apiV1) parseCompanyPhoneFilterV1(r *http.Request) *model.PhoneFilter {
+	return &model.PhoneFilter{
+		TypeId: r.URL.Query().Get("type"),
+	}
+}
+
+func CompanyPhoneToViewModelV1(model *model.Phone, language string, defaultLanguage string) *CompanyPhoneV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &CompanyPhoneV1{
 		Id: model.Id,
@@ -183,7 +189,7 @@ func CompanyPhoneToViewModel(model *model.Phone, language string, defaultLanguag
 	}
 }
 
-func CompanyPhoneToListItemViewModel(model *model.Phone, language string, defaultLanguage string) *CompanyPhoneListItemV1 {
+func CompanyPhoneToListItemViewModelV1(model *model.Phone, language string, defaultLanguage string) *CompanyPhoneListItemV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &CompanyPhoneListItemV1{
 		Id: model.Id,
@@ -199,7 +205,7 @@ func CompanyPhoneToListItemViewModel(model *model.Phone, language string, defaul
 	}
 }
 
-func CompanyPhoneFromCreateViewModel(viewModel *CreateCompanyPhoneV1) *model.Phone {
+func CompanyPhoneFromCreateViewModelV1(viewModel *CreateCompanyPhoneV1) *model.Phone {
 	return &model.Phone{
 		Type: model.PhoneType{
 			Id: viewModel.TypeId,
@@ -210,7 +216,7 @@ func CompanyPhoneFromCreateViewModel(viewModel *CreateCompanyPhoneV1) *model.Pho
 	}
 }
 
-func CompanyPhoneFromUpdateViewModel(viewModel *UpdateCompanyPhoneV1) *model.Phone {
+func CompanyPhoneFromUpdateViewModelV1(viewModel *UpdateCompanyPhoneV1) *model.Phone {
 	return &model.Phone{
 		Type: model.PhoneType{
 			Id: viewModel.TypeId,

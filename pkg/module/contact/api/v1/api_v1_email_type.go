@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -51,8 +52,8 @@ type UpdateEmailTypeV1 struct {
 func (api *apiV1) GetEmailTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseEmailTypeFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.EmailTypeFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +75,7 @@ func (api *apiV1) GetEmailTypesHandlerV1(w http.ResponseWriter, r *http.Request)
 		Items: make([]*EmailTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, EmailTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, EmailTypeToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -89,7 +90,7 @@ func (api *apiV1) GetEmailTypeByIdHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response := EmailTypeToViewModel(result)
+	response := EmailTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -102,12 +103,12 @@ func (api *apiV1) CreateEmailTypeHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result, err := api.service.CreateEmailType(ctx, EmailTypeFromCreateViewModel(model))
+	result, err := api.service.CreateEmailType(ctx, EmailTypeFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := EmailTypeToViewModel(result)
+	response := EmailTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -122,12 +123,12 @@ func (api *apiV1) UpdateEmailTypeHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result, err := api.service.UpdateEmailType(ctx, id, EmailTypeFromUpdateViewModel(model))
+	result, err := api.service.UpdateEmailType(ctx, id, EmailTypeFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := EmailTypeToViewModel(result)
+	response := EmailTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -144,7 +145,14 @@ func (api *apiV1) DeleteEmailTypeHandlerV1(w http.ResponseWriter, r *http.Reques
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func EmailTypeToViewModel(model *model.EmailType) *EmailTypeV1 {
+func (api *apiV1) parseEmailTypeFilterV1(r *http.Request) *model.EmailTypeFilter {
+	return &model.EmailTypeFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func EmailTypeToViewModelV1(model *model.EmailType) *EmailTypeV1 {
 	viewModel := &EmailTypeV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -153,12 +161,12 @@ func EmailTypeToViewModel(model *model.EmailType) *EmailTypeV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, EmailTypeTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, EmailTypeTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func EmailTypeToListItemViewModel(model *model.EmailType, language string, defaultLanguage string) *EmailTypeListItemV1 {
+func EmailTypeToListItemViewModelV1(model *model.EmailType, language string, defaultLanguage string) *EmailTypeListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &EmailTypeListItemV1{
 		Id:          model.Id,
@@ -170,30 +178,30 @@ func EmailTypeToListItemViewModel(model *model.EmailType, language string, defau
 	}
 }
 
-func EmailTypeFromCreateViewModel(viewModel *CreateEmailTypeV1) *model.EmailType {
+func EmailTypeFromCreateViewModelV1(viewModel *CreateEmailTypeV1) *model.EmailType {
 	model := &model.EmailType{
 		Key:          viewModel.Key,
 		Translations: make([]*model.EmailTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, EmailTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, EmailTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func EmailTypeFromUpdateViewModel(viewModel *UpdateEmailTypeV1) *model.EmailType {
+func EmailTypeFromUpdateViewModelV1(viewModel *UpdateEmailTypeV1) *model.EmailType {
 	model := &model.EmailType{
 		Translations: make([]*model.EmailTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, EmailTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, EmailTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func EmailTypeTranslationToViewModel(model *model.EmailTypeTranslation) *EmailTypeTranslationV1 {
+func EmailTypeTranslationToViewModelV1(model *model.EmailTypeTranslation) *EmailTypeTranslationV1 {
 	return &EmailTypeTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -201,7 +209,7 @@ func EmailTypeTranslationToViewModel(model *model.EmailTypeTranslation) *EmailTy
 	}
 }
 
-func EmailTypeTranslationFromViewModel(viewModel *EmailTypeTranslationV1) *model.EmailTypeTranslation {
+func EmailTypeTranslationFromViewModelV1(viewModel *EmailTypeTranslationV1) *model.EmailTypeTranslation {
 	return &model.EmailTypeTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

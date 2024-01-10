@@ -52,7 +52,3 @@ func (m *TaxRate) TryGetTranslation(language string) (*TaxRateTranslation, error
 func (m *TaxRate) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *TaxRateFilter) HasFilter() bool {
-	return false
-}

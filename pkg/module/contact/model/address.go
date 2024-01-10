@@ -14,12 +14,9 @@ type Address struct {
 }
 
 type AddressFilter struct {
+	TypeId string
 }
 
 func (m *Address) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *AddressFilter) HasFilter() bool {
-	return false
 }

@@ -19,7 +19,8 @@ type ContactTitleTranslation struct {
 }
 
 type ContactTitleFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *ContactTitle) GetTranslation(language string, defaultLanguage string) *ContactTitleTranslation {
@@ -50,8 +51,4 @@ func (m *ContactTitle) TryGetTranslation(language string) (*ContactTitleTranslat
 
 func (m *ContactTitle) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *ContactTitleFilter) HasFilter() bool {
-	return false
 }

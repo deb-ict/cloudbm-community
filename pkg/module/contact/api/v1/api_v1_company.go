@@ -53,8 +53,8 @@ type UpdateCompanyV1 struct {
 func (api *apiV1) GetCompaniesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseCompanyFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.CompanyFilter{}
 	sort := rest.GetSorting(r)
 
 	result, count, err := api.service.GetCompanies(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
@@ -71,7 +71,7 @@ func (api *apiV1) GetCompaniesHandlerV1(w http.ResponseWriter, r *http.Request) 
 		Items: make([]*CompanyListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CompanyToListItemViewModel(item))
+		response.Items = append(response.Items, CompanyToListItemViewModelV1(item))
 	}
 
 	rest.WriteResult(w, response)
@@ -86,7 +86,7 @@ func (api *apiV1) GetCompanyByIdHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	response := CompanyToViewModel(result)
+	response := CompanyToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -99,12 +99,12 @@ func (api *apiV1) CreateCompanyHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.CreateCompany(ctx, CompanyFromCreateViewModel(model))
+	result, err := api.service.CreateCompany(ctx, CompanyFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := CompanyToViewModel(result)
+	response := CompanyToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -119,12 +119,12 @@ func (api *apiV1) UpdateCompanyHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.UpdateCompany(ctx, id, CompanyFromUpdateViewModel(model))
+	result, err := api.service.UpdateCompany(ctx, id, CompanyFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := CompanyToViewModel(result)
+	response := CompanyToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -141,7 +141,13 @@ func (api *apiV1) DeleteCompanyHandlerV1(w http.ResponseWriter, r *http.Request)
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func CompanyToViewModel(model *model.Company) *CompanyV1 {
+func (api *apiV1) parseCompanyFilterV1(r *http.Request) *model.CompanyFilter {
+	return &model.CompanyFilter{
+		Name: r.URL.Query().Get("name"),
+	}
+}
+
+func CompanyToViewModelV1(model *model.Company) *CompanyV1 {
 	viewModel := &CompanyV1{
 		Id:        model.Id,
 		Name:      model.Name,
@@ -150,15 +156,15 @@ func CompanyToViewModel(model *model.Company) *CompanyV1 {
 		IsSystem:  model.IsSystem,
 	}
 	if model.Type != nil {
-		viewModel.Type = CompanyTypeToViewModel(model.Type)
+		viewModel.Type = CompanyTypeToViewModelV1(model.Type)
 	}
 	if model.Industry != nil {
-		viewModel.Industry = IndustryToViewModel(model.Industry)
+		viewModel.Industry = IndustryToViewModelV1(model.Industry)
 	}
 	return viewModel
 }
 
-func CompanyToListItemViewModel(model *model.Company) *CompanyListItemV1 {
+func CompanyToListItemViewModelV1(model *model.Company) *CompanyListItemV1 {
 	viewModel := &CompanyListItemV1{
 		Id:        model.Id,
 		Name:      model.Name,
@@ -167,16 +173,16 @@ func CompanyToListItemViewModel(model *model.Company) *CompanyListItemV1 {
 		IsSystem:  model.IsSystem,
 	}
 	if model.Type != nil {
-		viewModel.Type = CompanyTypeToViewModel(model.Type)
+		viewModel.Type = CompanyTypeToViewModelV1(model.Type)
 	}
 	if model.Industry != nil {
-		viewModel.Industry = IndustryToViewModel(model.Industry)
+		viewModel.Industry = IndustryToViewModelV1(model.Industry)
 	}
 	return viewModel
 
 }
 
-func CompanyFromCreateViewModel(viewModel *CreateCompanyV1) *model.Company {
+func CompanyFromCreateViewModelV1(viewModel *CreateCompanyV1) *model.Company {
 	return &model.Company{
 		Name:      viewModel.Name,
 		VatNumber: viewModel.VatNumber,
@@ -194,7 +200,7 @@ func CompanyFromCreateViewModel(viewModel *CreateCompanyV1) *model.Company {
 	}
 }
 
-func CompanyFromUpdateViewModel(viewModel *UpdateCompanyV1) *model.Company {
+func CompanyFromUpdateViewModelV1(viewModel *UpdateCompanyV1) *model.Company {
 	return &model.Company{
 		Name:      viewModel.Name,
 		VatNumber: viewModel.VatNumber,

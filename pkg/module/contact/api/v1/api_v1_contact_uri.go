@@ -51,8 +51,8 @@ func (api *apiV1) GetContactUrisHandlerV1(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	contactId := mux.Vars(r)["contactId"]
 
+	filter := api.parseContactUriFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.UriFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +74,7 @@ func (api *apiV1) GetContactUrisHandlerV1(w http.ResponseWriter, r *http.Request
 		Items: make([]*ContactUriListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ContactUriToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ContactUriToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -95,7 +95,7 @@ func (api *apiV1) GetContactUriByIdHandlerV1(w http.ResponseWriter, r *http.Requ
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactUriToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactUriToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -109,7 +109,7 @@ func (api *apiV1) CreateContactUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	result, err := api.service.CreateContactUri(ctx, contactId, ContactUriFromCreateViewModel(model))
+	result, err := api.service.CreateContactUri(ctx, contactId, ContactUriFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -119,7 +119,7 @@ func (api *apiV1) CreateContactUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactUriToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactUriToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -135,7 +135,7 @@ func (api *apiV1) UpdateContactUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	result, err := api.service.UpdateContactUri(ctx, contactId, id, ContactUriFromUpdateViewModel(model))
+	result, err := api.service.UpdateContactUri(ctx, contactId, id, ContactUriFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -145,7 +145,7 @@ func (api *apiV1) UpdateContactUriHandlerV1(w http.ResponseWriter, r *http.Reque
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ContactUriToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ContactUriToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -163,7 +163,13 @@ func (api *apiV1) DeleteContactUriHandlerV1(w http.ResponseWriter, r *http.Reque
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func ContactUriToViewModel(model *model.Uri, language string, defaultLanguage string) *ContactUriV1 {
+func (api *apiV1) parseContactUriFilterV1(r *http.Request) *model.UriFilter {
+	return &model.UriFilter{
+		TypeId: r.URL.Query().Get("type"),
+	}
+}
+
+func ContactUriToViewModelV1(model *model.Uri, language string, defaultLanguage string) *ContactUriV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &ContactUriV1{
 		Id: model.Id,
@@ -178,7 +184,7 @@ func ContactUriToViewModel(model *model.Uri, language string, defaultLanguage st
 	}
 }
 
-func ContactUriToListItemViewModel(model *model.Uri, language string, defaultLanguage string) *ContactUriListItemV1 {
+func ContactUriToListItemViewModelV1(model *model.Uri, language string, defaultLanguage string) *ContactUriListItemV1 {
 	typeTranslation := model.Type.GetTranslation(language, defaultLanguage)
 	return &ContactUriListItemV1{
 		Id: model.Id,
@@ -193,7 +199,7 @@ func ContactUriToListItemViewModel(model *model.Uri, language string, defaultLan
 	}
 }
 
-func ContactUriFromCreateViewModel(viewModel *CreateContactUriV1) *model.Uri {
+func ContactUriFromCreateViewModelV1(viewModel *CreateContactUriV1) *model.Uri {
 	return &model.Uri{
 		Type: model.UriType{
 			Id: viewModel.TypeId,
@@ -203,7 +209,7 @@ func ContactUriFromCreateViewModel(viewModel *CreateContactUriV1) *model.Uri {
 	}
 }
 
-func ContactUriFromUpdateViewModel(viewModel *UpdateContactUriV1) *model.Uri {
+func ContactUriFromUpdateViewModelV1(viewModel *UpdateContactUriV1) *model.Uri {
 	return &model.Uri{
 		Type: model.UriType{
 			Id: viewModel.TypeId,

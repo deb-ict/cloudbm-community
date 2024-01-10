@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 	"github.com/gorilla/mux"
 )
@@ -51,8 +52,8 @@ type UpdatePhoneTypeV1 struct {
 func (api *apiV1) GetPhoneTypesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parsePhoneTypeFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.PhoneTypeFilter{}
 	sort := rest.GetSorting(r)
 
 	language := r.URL.Query().Get("language")
@@ -74,7 +75,7 @@ func (api *apiV1) GetPhoneTypesHandlerV1(w http.ResponseWriter, r *http.Request)
 		Items: make([]*PhoneTypeListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, PhoneTypeToListItemViewModel(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, PhoneTypeToListItemViewModelV1(item, language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -89,7 +90,7 @@ func (api *apiV1) GetPhoneTypeByIdHandlerV1(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	response := PhoneTypeToViewModel(result)
+	response := PhoneTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -102,12 +103,12 @@ func (api *apiV1) CreatePhoneTypeHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result, err := api.service.CreatePhoneType(ctx, PhoneTypeFromCreateViewModel(model))
+	result, err := api.service.CreatePhoneType(ctx, PhoneTypeFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := PhoneTypeToViewModel(result)
+	response := PhoneTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -122,12 +123,12 @@ func (api *apiV1) UpdatePhoneTypeHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result, err := api.service.UpdatePhoneType(ctx, id, PhoneTypeFromUpdateViewModel(model))
+	result, err := api.service.UpdatePhoneType(ctx, id, PhoneTypeFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := PhoneTypeToViewModel(result)
+	response := PhoneTypeToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -144,7 +145,14 @@ func (api *apiV1) DeletePhoneTypeHandlerV1(w http.ResponseWriter, r *http.Reques
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func PhoneTypeToViewModel(model *model.PhoneType) *PhoneTypeV1 {
+func (api *apiV1) parsePhoneTypeFilterV1(r *http.Request) *model.PhoneTypeFilter {
+	return &model.PhoneTypeFilter{
+		Language: localization.GetHttpRequestLanguage(r, api.service.LanguageProvider()),
+		Name:     r.URL.Query().Get("name"),
+	}
+}
+
+func PhoneTypeToViewModelV1(model *model.PhoneType) *PhoneTypeV1 {
 	viewModel := &PhoneTypeV1{
 		Id:           model.Id,
 		Key:          model.Key,
@@ -153,12 +161,12 @@ func PhoneTypeToViewModel(model *model.PhoneType) *PhoneTypeV1 {
 		IsSystem:     model.IsSystem,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, PhoneTypeTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, PhoneTypeTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func PhoneTypeToListItemViewModel(model *model.PhoneType, language string, defaultLanguage string) *PhoneTypeListItemV1 {
+func PhoneTypeToListItemViewModelV1(model *model.PhoneType, language string, defaultLanguage string) *PhoneTypeListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &PhoneTypeListItemV1{
 		Id:          model.Id,
@@ -170,30 +178,30 @@ func PhoneTypeToListItemViewModel(model *model.PhoneType, language string, defau
 	}
 }
 
-func PhoneTypeFromCreateViewModel(viewModel *CreatePhoneTypeV1) *model.PhoneType {
+func PhoneTypeFromCreateViewModelV1(viewModel *CreatePhoneTypeV1) *model.PhoneType {
 	model := &model.PhoneType{
 		Key:          viewModel.Key,
 		Translations: make([]*model.PhoneTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func PhoneTypeFromUpdateViewModel(viewModel *UpdatePhoneTypeV1) *model.PhoneType {
+func PhoneTypeFromUpdateViewModelV1(viewModel *UpdatePhoneTypeV1) *model.PhoneType {
 	model := &model.PhoneType{
 		Translations: make([]*model.PhoneTypeTranslation, 0),
 		IsDefault:    viewModel.IsDefault,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, PhoneTypeTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func PhoneTypeTranslationToViewModel(model *model.PhoneTypeTranslation) *PhoneTypeTranslationV1 {
+func PhoneTypeTranslationToViewModelV1(model *model.PhoneTypeTranslation) *PhoneTypeTranslationV1 {
 	return &PhoneTypeTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -201,7 +209,7 @@ func PhoneTypeTranslationToViewModel(model *model.PhoneTypeTranslation) *PhoneTy
 	}
 }
 
-func PhoneTypeTranslationFromViewModel(viewModel *PhoneTypeTranslationV1) *model.PhoneTypeTranslation {
+func PhoneTypeTranslationFromViewModelV1(viewModel *PhoneTypeTranslationV1) *model.PhoneTypeTranslation {
 	return &model.PhoneTypeTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

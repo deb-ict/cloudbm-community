@@ -51,7 +51,3 @@ func (m *Unit) TryGetTranslation(language string) (*UnitTranslation, error) {
 func (m *Unit) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *UnitFilter) HasFilter() bool {
-	return false
-}

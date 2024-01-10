@@ -21,7 +21,3 @@ type CompanyFilter struct {
 func (m *Company) IsTransient() bool {
 	return m.Id == ""
 }
-
-func (f *CompanyFilter) HasFilter() bool {
-	return false
-}

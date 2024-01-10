@@ -55,8 +55,8 @@ type UpdateContactV1 struct {
 func (api *apiV1) GetContactsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	filter := api.parseContactFilterV1(r)
 	paging := rest.GetPaging(r)
-	filter := &model.ContactFilter{}
 	sort := rest.GetSorting(r)
 
 	result, count, err := api.service.GetContacts(ctx, (paging.PageIndex-1)*paging.PageSize, paging.PageSize, filter, sort)
@@ -73,7 +73,7 @@ func (api *apiV1) GetContactsHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*ContactListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ContactToListItemViewModel(item))
+		response.Items = append(response.Items, ContactToListItemViewModelV1(item))
 	}
 
 	rest.WriteResult(w, response)
@@ -88,7 +88,7 @@ func (api *apiV1) GetContactByIdHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	response := ContactToViewModel(result)
+	response := ContactToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -101,12 +101,12 @@ func (api *apiV1) CreateContactHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.CreateContact(ctx, ContactFromCreateViewModel(model))
+	result, err := api.service.CreateContact(ctx, ContactFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := ContactToViewModel(result)
+	response := ContactToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -121,12 +121,12 @@ func (api *apiV1) UpdateContactHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.UpdateContact(ctx, id, ContactFromUpdateViewModel(model))
+	result, err := api.service.UpdateContact(ctx, id, ContactFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := ContactToViewModel(result)
+	response := ContactToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -143,7 +143,13 @@ func (api *apiV1) DeleteContactHandlerV1(w http.ResponseWriter, r *http.Request)
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func ContactToViewModel(model *model.Contact) *ContactV1 {
+func (api *apiV1) parseContactFilterV1(r *http.Request) *model.ContactFilter {
+	return &model.ContactFilter{
+		Name: r.URL.Query().Get("name"),
+	}
+}
+
+func ContactToViewModelV1(model *model.Contact) *ContactV1 {
 	viewModel := &ContactV1{
 		Id:         model.Id,
 		FamilyName: model.FamilyName,
@@ -153,12 +159,12 @@ func ContactToViewModel(model *model.Contact) *ContactV1 {
 		IsSystem:   model.IsSystem,
 	}
 	if model.Title != nil {
-		viewModel.Title = ContactTitleToViewModel(model.Title)
+		viewModel.Title = ContactTitleToViewModelV1(model.Title)
 	}
 	return viewModel
 }
 
-func ContactToListItemViewModel(model *model.Contact) *ContactListItemV1 {
+func ContactToListItemViewModelV1(model *model.Contact) *ContactListItemV1 {
 	viewModel := &ContactListItemV1{
 		Id:         model.Id,
 		FamilyName: model.FamilyName,
@@ -168,12 +174,12 @@ func ContactToListItemViewModel(model *model.Contact) *ContactListItemV1 {
 		IsSystem:   model.IsSystem,
 	}
 	if model.Title != nil {
-		viewModel.Title = ContactTitleToViewModel(model.Title)
+		viewModel.Title = ContactTitleToViewModelV1(model.Title)
 	}
 	return viewModel
 }
 
-func ContactFromCreateViewModel(viewModel *CreateContactV1) *model.Contact {
+func ContactFromCreateViewModelV1(viewModel *CreateContactV1) *model.Contact {
 	return &model.Contact{
 		UserId: viewModel.UserId,
 		Title: &model.ContactTitle{
@@ -186,7 +192,7 @@ func ContactFromCreateViewModel(viewModel *CreateContactV1) *model.Contact {
 	}
 }
 
-func ContactFromUpdateViewModel(viewModel *UpdateContactV1) *model.Contact {
+func ContactFromUpdateViewModelV1(viewModel *UpdateContactV1) *model.Contact {
 	return &model.Contact{
 		UserId: viewModel.UserId,
 		Title: &model.ContactTitle{

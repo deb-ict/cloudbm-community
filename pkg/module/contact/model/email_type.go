@@ -20,7 +20,8 @@ type EmailTypeTranslation struct {
 }
 
 type EmailTypeFilter struct {
-	Name string
+	Language string
+	Name     string
 }
 
 func (m *EmailType) GetTranslation(language string, defaultLanguage string) *EmailTypeTranslation {
@@ -51,8 +52,4 @@ func (m *EmailType) TryGetTranslation(language string) (*EmailTypeTranslation, e
 
 func (m *EmailType) IsTransient() bool {
 	return m.Id == ""
-}
-
-func (f *EmailTypeFilter) HasFilter() bool {
-	return false
 }
