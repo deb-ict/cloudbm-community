@@ -46,6 +46,8 @@ func (svc *service) GetCompanyAddressById(ctx context.Context, companyId string,
 }
 
 func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, model *model.Address) (*model.Address, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, 
 }
 
 func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, id string, model *model.Address) (*model.Address, error) {
+	model.Id = id
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -89,16 +93,7 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 	if data == nil {
 		return nil, contact.ErrCompanyAddressNotFound
 	}
-
-	data.Type = model.Type
-	data.Street = model.Street
-	data.StreetNr = model.StreetNr
-	data.Unit = model.Unit
-	data.PostalCode = model.PostalCode
-	data.City = model.City
-	data.State = model.State
-	data.Country = model.Country
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateCompanyAddress(ctx, parent, data)
 	if err != nil {

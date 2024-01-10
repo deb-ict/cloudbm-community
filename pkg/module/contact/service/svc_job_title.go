@@ -30,7 +30,9 @@ func (svc *service) GetJobTitleById(ctx context.Context, id string) (*model.JobT
 }
 
 func (svc *service) CreateJobTitle(ctx context.Context, model *model.JobTitle) (*model.JobTitle, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateJobTitleName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -45,6 +47,9 @@ func (svc *service) CreateJobTitle(ctx context.Context, model *model.JobTitle) (
 }
 
 func (svc *service) UpdateJobTitle(ctx context.Context, id string, model *model.JobTitle) (*model.JobTitle, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetJobTitleById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -52,8 +57,7 @@ func (svc *service) UpdateJobTitle(ctx context.Context, id string, model *model.
 	if data == nil {
 		return nil, contact.ErrJobTitleNotFound
 	}
-
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateJobTitleName(ctx, data)
 	if err != nil {

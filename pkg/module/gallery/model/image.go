@@ -46,8 +46,10 @@ func (m *Image) Normalize(normalizer core.StringNormalizer) {
 
 func (m *Image) UpdateModel(other *Image) {
 	m.Translations = make([]*ImageTranslation, 0)
-	m.Translations = append(m.Translations, other.Translations...)
 	m.OriginalFileName = other.OriginalFileName
+	for _, translation := range other.Translations {
+		m.Translations = append(m.Translations, translation.Clone())
+	}
 }
 
 func (m *Image) GetTranslation(language string, defaultLanguage string) *ImageTranslation {
@@ -78,4 +80,39 @@ func (m *Image) TryGetTranslation(language string) (*ImageTranslation, error) {
 
 func (m *Image) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (m *Image) Clone() *Image {
+	if m == nil {
+		return nil
+	}
+	model := &Image{
+		Id:               m.Id,
+		Translations:     make([]*ImageTranslation, 0),
+		StorageFolder:    m.StorageFolder,
+		FileName:         m.FileName,
+		OriginalFileName: m.OriginalFileName,
+		FileSize:         m.FileSize,
+		MimeType:         m.MimeType,
+		Width:            m.Width,
+		Height:           m.Height,
+	}
+	for _, translation := range m.Translations {
+		model.Translations = append(model.Translations, translation.Clone())
+	}
+	return model
+}
+
+func (m *ImageTranslation) Clone() *ImageTranslation {
+	if m == nil {
+		return nil
+	}
+	return &ImageTranslation{
+		Language:       m.Language,
+		Name:           m.Name,
+		NormalizedName: m.NormalizedName,
+		Slug:           m.Slug,
+		Summary:        m.Summary,
+		Description:    m.Description,
+	}
 }

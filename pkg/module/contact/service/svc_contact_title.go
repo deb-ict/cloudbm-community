@@ -30,7 +30,9 @@ func (svc *service) GetContactTitleById(ctx context.Context, id string) (*model.
 }
 
 func (svc *service) CreateContactTitle(ctx context.Context, model *model.ContactTitle) (*model.ContactTitle, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateContactTitleName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -45,6 +47,9 @@ func (svc *service) CreateContactTitle(ctx context.Context, model *model.Contact
 }
 
 func (svc *service) UpdateContactTitle(ctx context.Context, id string, model *model.ContactTitle) (*model.ContactTitle, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetContactTitleById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -52,8 +57,7 @@ func (svc *service) UpdateContactTitle(ctx context.Context, id string, model *mo
 	if data == nil {
 		return nil, contact.ErrContactTitleNotFound
 	}
-
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateContactTitleName(ctx, data)
 	if err != nil {

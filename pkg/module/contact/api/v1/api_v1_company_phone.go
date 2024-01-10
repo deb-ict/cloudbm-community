@@ -207,7 +207,7 @@ func CompanyPhoneToListItemViewModelV1(model *model.Phone, language string, defa
 
 func CompanyPhoneFromCreateViewModelV1(viewModel *CreateCompanyPhoneV1) *model.Phone {
 	return &model.Phone{
-		Type: model.PhoneType{
+		Type: &model.PhoneType{
 			Id: viewModel.TypeId,
 		},
 		PhoneNumber: viewModel.PhoneNumber,
@@ -218,7 +218,7 @@ func CompanyPhoneFromCreateViewModelV1(viewModel *CreateCompanyPhoneV1) *model.P
 
 func CompanyPhoneFromUpdateViewModelV1(viewModel *UpdateCompanyPhoneV1) *model.Phone {
 	return &model.Phone{
-		Type: model.PhoneType{
+		Type: &model.PhoneType{
 			Id: viewModel.TypeId,
 		},
 		PhoneNumber: viewModel.PhoneNumber,

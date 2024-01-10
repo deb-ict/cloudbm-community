@@ -30,7 +30,9 @@ func (svc *service) GetPhoneTypeById(ctx context.Context, id string) (*model.Pho
 }
 
 func (svc *service) CreatePhoneType(ctx context.Context, model *model.PhoneType) (*model.PhoneType, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validatePhoneTypeName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -52,6 +54,9 @@ func (svc *service) CreatePhoneType(ctx context.Context, model *model.PhoneType)
 }
 
 func (svc *service) UpdatePhoneType(ctx context.Context, id string, model *model.PhoneType) (*model.PhoneType, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetPhoneTypeById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -59,9 +64,7 @@ func (svc *service) UpdatePhoneType(ctx context.Context, id string, model *model
 	if data == nil {
 		return nil, contact.ErrPhoneTypeNotFound
 	}
-
-	data.IsDefault = model.IsDefault
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validatePhoneTypeName(ctx, data)
 	if err != nil {

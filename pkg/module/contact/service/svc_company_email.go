@@ -46,6 +46,8 @@ func (svc *service) GetCompanyEmailById(ctx context.Context, companyId string, i
 }
 
 func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, model *model.Email) (*model.Email, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateCompanyEmail(ctx context.Context, companyId string, mo
 }
 
 func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id string, model *model.Email) (*model.Email, error) {
+	model.Id = id
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -89,10 +93,7 @@ func (svc *service) UpdateCompanyEmail(ctx context.Context, companyId string, id
 	if data == nil {
 		return nil, contact.ErrCompanyEmailNotFound
 	}
-
-	data.Type = model.Type
-	data.Email = model.Email
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateCompanyEmail(ctx, parent, data)
 	if err != nil {

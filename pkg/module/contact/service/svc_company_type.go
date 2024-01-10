@@ -30,7 +30,9 @@ func (svc *service) GetCompanyTypeById(ctx context.Context, id string) (*model.C
 }
 
 func (svc *service) CreateCompanyType(ctx context.Context, model *model.CompanyType) (*model.CompanyType, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateCompanyTypeName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -45,6 +47,9 @@ func (svc *service) CreateCompanyType(ctx context.Context, model *model.CompanyT
 }
 
 func (svc *service) UpdateCompanyType(ctx context.Context, id string, model *model.CompanyType) (*model.CompanyType, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetCompanyTypeById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -52,8 +57,7 @@ func (svc *service) UpdateCompanyType(ctx context.Context, id string, model *mod
 	if data == nil {
 		return nil, contact.ErrCompanyTypeNotFound
 	}
-
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateCompanyTypeName(ctx, data)
 	if err != nil {

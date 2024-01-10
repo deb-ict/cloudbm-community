@@ -46,6 +46,8 @@ func (svc *service) GetContactPhoneById(ctx context.Context, contactId string, i
 }
 
 func (svc *service) CreateContactPhone(ctx context.Context, contactId string, model *model.Phone) (*model.Phone, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, mo
 }
 
 func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id string, model *model.Phone) (*model.Phone, error) {
+	model.Id = id
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -89,11 +93,7 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 	if data == nil {
 		return nil, contact.ErrContactPhoneNotFound
 	}
-
-	data.Type = model.Type
-	data.PhoneNumber = model.PhoneNumber
-	data.Extension = model.Extension
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateContactPhone(ctx, parent, data)
 	if err != nil {

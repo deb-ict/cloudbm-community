@@ -201,7 +201,7 @@ func ContactUriToListItemViewModelV1(model *model.Uri, language string, defaultL
 
 func ContactUriFromCreateViewModelV1(viewModel *CreateContactUriV1) *model.Uri {
 	return &model.Uri{
-		Type: model.UriType{
+		Type: &model.UriType{
 			Id: viewModel.TypeId,
 		},
 		Uri:       viewModel.Uri,
@@ -211,7 +211,7 @@ func ContactUriFromCreateViewModelV1(viewModel *CreateContactUriV1) *model.Uri {
 
 func ContactUriFromUpdateViewModelV1(viewModel *UpdateContactUriV1) *model.Uri {
 	return &model.Uri{
-		Type: model.UriType{
+		Type: &model.UriType{
 			Id: viewModel.TypeId,
 		},
 		Uri:       viewModel.Uri,

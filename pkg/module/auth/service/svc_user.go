@@ -61,8 +61,8 @@ func (svc *service) GetUserByEmail(ctx context.Context, email string) (*model.Us
 }
 
 func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
-	user.NormalizedUsername = svc.userNormalizer.NormalizeUsername(user.Username)
-	user.NormalizedEmail = svc.userNormalizer.NormalizeEmail(user.Email)
+	svc.userNormalizer.NormalizeUser(user)
+	user.Id = ""
 
 	if err := svc.checkDuplicateUsername(ctx, user); err != nil {
 		return nil, err
@@ -77,15 +77,13 @@ func (svc *service) CreateUser(ctx context.Context, user *model.User) (*model.Us
 		return nil, err
 	}
 
-	if !user.EmailVerified {
-		//TODO: Generate activation token
-		//TODO: Send activation email
-	}
-
 	return svc.GetUserById(ctx, newId)
 }
 
 func (svc *service) UpdateUser(ctx context.Context, id string, user *model.User) (*model.User, error) {
+	svc.userNormalizer.NormalizeUser(user)
+	user.Id = id
+
 	data, err := svc.database.Users().GetUserById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -93,14 +91,7 @@ func (svc *service) UpdateUser(ctx context.Context, id string, user *model.User)
 	if data == nil {
 		return nil, auth.ErrUserNotFound
 	}
-
-	data.EmailVerified = user.EmailVerified
-	data.Phone = user.Phone
-	data.PhoneVerified = user.PhoneVerified
-	data.LoginFailures = user.LoginFailures
-	data.IsEnabled = user.IsEnabled
-	data.IsLocked = user.IsLocked
-	data.LockEnd = user.LockEnd
+	data.UpdateModel(user)
 
 	return nil, core.ErrNotImplemented
 }

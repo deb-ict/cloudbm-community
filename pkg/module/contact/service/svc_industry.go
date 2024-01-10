@@ -30,7 +30,9 @@ func (svc *service) GetIndustryById(ctx context.Context, id string) (*model.Indu
 }
 
 func (svc *service) CreateIndustry(ctx context.Context, model *model.Industry) (*model.Industry, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateIndustryName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -45,6 +47,9 @@ func (svc *service) CreateIndustry(ctx context.Context, model *model.Industry) (
 }
 
 func (svc *service) UpdateIndustry(ctx context.Context, id string, model *model.Industry) (*model.Industry, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetIndustryById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -52,8 +57,7 @@ func (svc *service) UpdateIndustry(ctx context.Context, id string, model *model.
 	if data == nil {
 		return nil, contact.ErrIndustryNotFound
 	}
-
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateIndustryName(ctx, data)
 	if err != nil {

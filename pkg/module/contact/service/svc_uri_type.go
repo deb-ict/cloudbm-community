@@ -30,7 +30,9 @@ func (svc *service) GetUriTypeById(ctx context.Context, id string) (*model.UriTy
 }
 
 func (svc *service) CreateUriType(ctx context.Context, model *model.UriType) (*model.UriType, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateUriTypeName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -52,6 +54,9 @@ func (svc *service) CreateUriType(ctx context.Context, model *model.UriType) (*m
 }
 
 func (svc *service) UpdateUriType(ctx context.Context, id string, model *model.UriType) (*model.UriType, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetUriTypeById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -59,9 +64,7 @@ func (svc *service) UpdateUriType(ctx context.Context, id string, model *model.U
 	if data == nil {
 		return nil, contact.ErrUriTypeNotFound
 	}
-
-	data.IsDefault = model.IsDefault
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateUriTypeName(ctx, data)
 	if err != nil {

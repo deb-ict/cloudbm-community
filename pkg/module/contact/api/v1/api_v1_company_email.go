@@ -201,7 +201,7 @@ func CompanyEmailToListItemViewModelV1(model *model.Email, language string, defa
 
 func CompanyEmailFromCreateViewModelV1(viewModel *CreateCompanyEmailV1) *model.Email {
 	return &model.Email{
-		Type: model.EmailType{
+		Type: &model.EmailType{
 			Id: viewModel.TypeId,
 		},
 		Email:     viewModel.Email,
@@ -211,7 +211,7 @@ func CompanyEmailFromCreateViewModelV1(viewModel *CreateCompanyEmailV1) *model.E
 
 func CompanyEmailFromUpdateViewModelV1(viewModel *UpdateCompanyEmailV1) *model.Email {
 	return &model.Email{
-		Type: model.EmailType{
+		Type: &model.EmailType{
 			Id: viewModel.TypeId,
 		},
 		Email:     viewModel.Email,

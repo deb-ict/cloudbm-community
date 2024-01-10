@@ -74,6 +74,8 @@ func (svc *service) CreateCompanyUri(ctx context.Context, companyId string, mode
 }
 
 func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id string, model *model.Uri) (*model.Uri, error) {
+	model.Id = id
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -89,10 +91,7 @@ func (svc *service) UpdateCompanyUri(ctx context.Context, companyId string, id s
 	if data == nil {
 		return nil, contact.ErrCompanyUriNotFound
 	}
-
-	data.Type = model.Type
-	data.Uri = model.Uri
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateCompanyUri(ctx, parent, data)
 	if err != nil {

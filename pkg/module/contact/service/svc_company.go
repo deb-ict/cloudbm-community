@@ -30,6 +30,8 @@ func (svc *service) GetCompanyById(ctx context.Context, id string) (*model.Compa
 }
 
 func (svc *service) CreateCompany(ctx context.Context, model *model.Company) (*model.Company, error) {
+	model.Id = ""
+
 	err := svc.validateCompany(ctx, model)
 	if err != nil {
 		return nil, err
@@ -44,6 +46,8 @@ func (svc *service) CreateCompany(ctx context.Context, model *model.Company) (*m
 }
 
 func (svc *service) UpdateCompany(ctx context.Context, id string, model *model.Company) (*model.Company, error) {
+	model.Id = id
+
 	data, err := svc.GetCompanyById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -51,12 +55,7 @@ func (svc *service) UpdateCompany(ctx context.Context, id string, model *model.C
 	if data == nil {
 		return nil, contact.ErrCompanyNotFound
 	}
-
-	data.Name = model.Name
-	data.VatNumber = model.VatNumber
-	data.Type = model.Type
-	data.Industry = model.Industry
-	data.IsEnabled = model.IsEnabled
+	data.UpdateModel(model)
 
 	err = svc.validateCompany(ctx, data)
 	if err != nil {

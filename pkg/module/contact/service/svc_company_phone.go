@@ -46,6 +46,8 @@ func (svc *service) GetCompanyPhoneById(ctx context.Context, companyId string, i
 }
 
 func (svc *service) CreateCompanyPhone(ctx context.Context, companyId string, model *model.Phone) (*model.Phone, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateCompanyPhone(ctx context.Context, companyId string, mo
 }
 
 func (svc *service) UpdateCompanyPhone(ctx context.Context, companyId string, id string, model *model.Phone) (*model.Phone, error) {
+	model.Id = id
+
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
 		return nil, err
@@ -89,11 +93,7 @@ func (svc *service) UpdateCompanyPhone(ctx context.Context, companyId string, id
 	if data == nil {
 		return nil, contact.ErrCompanyPhoneNotFound
 	}
-
-	data.Type = model.Type
-	data.PhoneNumber = model.PhoneNumber
-	data.Extension = model.Extension
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateCompanyPhone(ctx, parent, data)
 	if err != nil {

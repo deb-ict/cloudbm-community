@@ -181,7 +181,6 @@ func ContactToListItemViewModelV1(model *model.Contact) *ContactListItemV1 {
 
 func ContactFromCreateViewModelV1(viewModel *CreateContactV1) *model.Contact {
 	return &model.Contact{
-		UserId: viewModel.UserId,
 		Title: &model.ContactTitle{
 			Id: viewModel.TitleId,
 		},
@@ -194,7 +193,6 @@ func ContactFromCreateViewModelV1(viewModel *CreateContactV1) *model.Contact {
 
 func ContactFromUpdateViewModelV1(viewModel *UpdateContactV1) *model.Contact {
 	return &model.Contact{
-		UserId: viewModel.UserId,
 		Title: &model.ContactTitle{
 			Id: viewModel.TitleId,
 		},

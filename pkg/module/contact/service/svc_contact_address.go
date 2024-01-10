@@ -46,6 +46,8 @@ func (svc *service) GetContactAddressById(ctx context.Context, contactId string,
 }
 
 func (svc *service) CreateContactAddress(ctx context.Context, contactId string, model *model.Address) (*model.Address, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 }
 
 func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, id string, model *model.Address) (*model.Address, error) {
+	model.Id = id
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -89,16 +93,7 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 	if data == nil {
 		return nil, contact.ErrContactAddressNotFound
 	}
-
-	data.Type = model.Type
-	data.Street = model.Street
-	data.StreetNr = model.StreetNr
-	data.Unit = model.Unit
-	data.PostalCode = model.PostalCode
-	data.City = model.City
-	data.State = model.State
-	data.Country = model.Country
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateContactAddress(ctx, parent, data)
 	if err != nil {

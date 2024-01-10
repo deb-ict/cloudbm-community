@@ -237,7 +237,7 @@ func CompanyAddressToListItemViewModelV1(model *model.Address, language string, 
 
 func CompanyAddressFromCreateViewModelV1(viewModel *CreateCompanyAddressV1) *model.Address {
 	return &model.Address{
-		Type: model.AddressType{
+		Type: &model.AddressType{
 			Id: viewModel.TypeId,
 		},
 		Street:     viewModel.Street,
@@ -253,7 +253,7 @@ func CompanyAddressFromCreateViewModelV1(viewModel *CreateCompanyAddressV1) *mod
 
 func CompanyAddressFromUpdateViewModelV1(viewModel *UpdateCompanyAddressV1) *model.Address {
 	return &model.Address{
-		Type: model.AddressType{
+		Type: &model.AddressType{
 			Id: viewModel.TypeId,
 		},
 		Street:     viewModel.Street,

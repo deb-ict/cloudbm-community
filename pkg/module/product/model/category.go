@@ -44,9 +44,11 @@ func (m *Category) Normalize(normalizer core.StringNormalizer) {
 func (m *Category) UpdateModel(other *Category) {
 	m.ParentId = other.ParentId
 	m.Translations = make([]*CategoryTranslation, 0)
-	m.Translations = append(m.Translations, other.Translations...)
 	m.ThumbnailId = other.ThumbnailId
 	m.IsEnabled = other.IsEnabled
+	for _, translation := range other.Translations {
+		m.Translations = append(m.Translations, translation.Clone())
+	}
 }
 
 func (m *Category) GetTranslation(language string, defaultLanguage string) *CategoryTranslation {
@@ -77,4 +79,35 @@ func (m *Category) TryGetTranslation(language string) (*CategoryTranslation, err
 
 func (m *Category) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (m *Category) Clone() *Category {
+	if m == nil {
+		return nil
+	}
+	model := &Category{
+		Id:           m.Id,
+		ParentId:     m.ParentId,
+		Translations: make([]*CategoryTranslation, 0),
+		ThumbnailId:  m.ThumbnailId,
+		IsEnabled:    m.IsEnabled,
+	}
+	for _, translation := range m.Translations {
+		model.Translations = append(model.Translations, translation.Clone())
+	}
+	return model
+}
+
+func (m *CategoryTranslation) Clone() *CategoryTranslation {
+	if m == nil {
+		return nil
+	}
+	return &CategoryTranslation{
+		Language:       m.Language,
+		Name:           m.Name,
+		NormalizedName: m.NormalizedName,
+		Slug:           m.Slug,
+		Summary:        m.Summary,
+		Description:    m.Description,
+	}
 }

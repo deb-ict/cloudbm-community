@@ -30,7 +30,9 @@ func (svc *service) GetEmailTypeById(ctx context.Context, id string) (*model.Ema
 }
 
 func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType) (*model.EmailType, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateEmailTypeName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -52,6 +54,9 @@ func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType)
 }
 
 func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model.EmailType) (*model.EmailType, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.GetEmailTypeById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -59,9 +64,7 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model
 	if data == nil {
 		return nil, contact.ErrEmailTypeNotFound
 	}
-
-	data.IsDefault = model.IsDefault
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateEmailTypeName(ctx, data)
 	if err != nil {

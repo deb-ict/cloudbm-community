@@ -13,14 +13,29 @@ type JobTitle struct {
 }
 
 type JobTitleTranslation struct {
-	Language    string
-	Name        string
-	Description string
+	Language       string
+	Name           string
+	NormalizedName string
+	Description    string
 }
 
 type JobTitleFilter struct {
 	Language string
 	Name     string
+}
+
+func (m *JobTitle) Normalize(normalizer core.StringNormalizer) {
+	for _, translation := range m.Translations {
+		translation.Language = localization.NormalizeLanguage(translation.Language)
+		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
+	}
+}
+
+func (m *JobTitle) UpdateModel(other *JobTitle) {
+	m.Translations = make([]*JobTitleTranslation, 0)
+	for _, translation := range other.Translations {
+		m.Translations = append(m.Translations, translation.Clone())
+	}
 }
 
 func (m *JobTitle) GetTranslation(language string, defaultLanguage string) *JobTitleTranslation {
@@ -51,4 +66,32 @@ func (m *JobTitle) TryGetTranslation(language string) (*JobTitleTranslation, err
 
 func (m *JobTitle) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (m *JobTitle) Clone() *JobTitle {
+	if m == nil {
+		return nil
+	}
+	model := &JobTitle{
+		Id:           m.Id,
+		Key:          m.Key,
+		Translations: make([]*JobTitleTranslation, 0),
+		IsSystem:     m.IsSystem,
+	}
+	for _, translation := range m.Translations {
+		model.Translations = append(model.Translations, translation.Clone())
+	}
+	return model
+}
+
+func (m *JobTitleTranslation) Clone() *JobTitleTranslation {
+	if m == nil {
+		return nil
+	}
+	return &JobTitleTranslation{
+		Language:       m.Language,
+		Name:           m.Name,
+		NormalizedName: m.NormalizedName,
+		Description:    m.Description,
+	}
 }

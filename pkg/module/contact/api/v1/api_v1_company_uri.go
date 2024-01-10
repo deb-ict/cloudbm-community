@@ -201,7 +201,7 @@ func CompanyUriToListItemViewModelV1(model *model.Uri, language string, defaultL
 
 func CompanyUriFromCreateViewModelV1(viewModel *CreateCompanyUriV1) *model.Uri {
 	return &model.Uri{
-		Type: model.UriType{
+		Type: &model.UriType{
 			Id: viewModel.TypeId,
 		},
 		Uri:       viewModel.Uri,
@@ -211,7 +211,7 @@ func CompanyUriFromCreateViewModelV1(viewModel *CreateCompanyUriV1) *model.Uri {
 
 func CompanyUriFromUpdateViewModelV1(viewModel *UpdateCompanyUriV1) *model.Uri {
 	return &model.Uri{
-		Type: model.UriType{
+		Type: &model.UriType{
 			Id: viewModel.TypeId,
 		},
 		Uri:       viewModel.Uri,

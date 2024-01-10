@@ -46,6 +46,8 @@ func (svc *service) GetContactUriById(ctx context.Context, contactId string, id 
 }
 
 func (svc *service) CreateContactUri(ctx context.Context, contactId string, model *model.Uri) (*model.Uri, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateContactUri(ctx context.Context, contactId string, mode
 }
 
 func (svc *service) UpdateContactUri(ctx context.Context, contactId string, id string, model *model.Uri) (*model.Uri, error) {
+	model.Id = id
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -89,10 +93,7 @@ func (svc *service) UpdateContactUri(ctx context.Context, contactId string, id s
 	if data == nil {
 		return nil, contact.ErrContactUriNotFound
 	}
-
-	data.Type = model.Type
-	data.Uri = model.Uri
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateContactUri(ctx, parent, data)
 	if err != nil {

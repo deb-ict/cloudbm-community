@@ -46,6 +46,8 @@ func (svc *service) GetContactEmailById(ctx context.Context, contactId string, i
 }
 
 func (svc *service) CreateContactEmail(ctx context.Context, contactId string, model *model.Email) (*model.Email, error) {
+	model.Id = ""
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -74,6 +76,8 @@ func (svc *service) CreateContactEmail(ctx context.Context, contactId string, mo
 }
 
 func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id string, model *model.Email) (*model.Email, error) {
+	model.Id = id
+
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
 		return nil, err
@@ -89,10 +93,7 @@ func (svc *service) UpdateContactEmail(ctx context.Context, contactId string, id
 	if data == nil {
 		return nil, contact.ErrContactEmailNotFound
 	}
-
-	data.Type = model.Type
-	data.Email = model.Email
-	data.IsDefault = model.IsDefault
+	data.UpdateModel(model)
 
 	err = svc.validateContactEmail(ctx, parent, data)
 	if err != nil {

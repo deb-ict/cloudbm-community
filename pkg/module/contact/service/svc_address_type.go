@@ -30,7 +30,9 @@ func (svc *service) GetAddressTypeById(ctx context.Context, id string) (*model.A
 }
 
 func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressType) (*model.AddressType, error) {
-	model.Key = svc.StringNormalizer().NormalizeString(model.Key)
+	model.Normalize(svc.stringNormalizer)
+	model.Id = ""
+
 	err := svc.validateAddressTypeName(ctx, model)
 	if err != nil {
 		return nil, err
@@ -52,6 +54,9 @@ func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressT
 }
 
 func (svc *service) UpdateAddressType(ctx context.Context, id string, model *model.AddressType) (*model.AddressType, error) {
+	model.Normalize(svc.stringNormalizer)
+	model.Id = id
+
 	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -59,9 +64,7 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 	if data == nil {
 		return nil, contact.ErrAddressTypeNotFound
 	}
-
-	data.IsDefault = model.IsDefault
-	data.Translations = model.Translations
+	data.UpdateModel(model)
 
 	err = svc.validateAddressTypeName(ctx, data)
 	if err != nil {

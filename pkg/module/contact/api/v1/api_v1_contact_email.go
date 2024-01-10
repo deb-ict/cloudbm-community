@@ -201,7 +201,7 @@ func ContactEmailToListItemViewModelV1(model *model.Email, language string, defa
 
 func ContactEmailFromCreateViewModelV1(viewModel *CreateContactEmailV1) *model.Email {
 	return &model.Email{
-		Type: model.EmailType{
+		Type: &model.EmailType{
 			Id: viewModel.TypeId,
 		},
 		Email:     viewModel.Email,
@@ -211,7 +211,7 @@ func ContactEmailFromCreateViewModelV1(viewModel *CreateContactEmailV1) *model.E
 
 func ContactEmailFromUpdateViewModelV1(viewModel *UpdateContactEmailV1) *model.Email {
 	return &model.Email{
-		Type: model.EmailType{
+		Type: &model.EmailType{
 			Id: viewModel.TypeId,
 		},
 		Email:     viewModel.Email,

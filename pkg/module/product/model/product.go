@@ -50,7 +50,6 @@ func (m *Product) UpdateModel(other *Product) {
 	m.CategoryIds = make([]string, 0)
 	m.CategoryIds = append(m.CategoryIds, other.CategoryIds...)
 	m.Translations = make([]*ProductTranslation, 0)
-	m.Translations = append(m.Translations, other.Translations...)
 	m.ThumbnailId = other.ThumbnailId
 	m.Ean = other.Ean
 	m.Sku = other.Sku
@@ -58,6 +57,9 @@ func (m *Product) UpdateModel(other *Product) {
 	m.RegularPrice = other.RegularPrice
 	m.SalesPrice = other.SalesPrice
 	m.IsEnabled = other.IsEnabled
+	for _, translation := range other.Translations {
+		m.Translations = append(m.Translations, translation.Clone())
+	}
 }
 
 func (m *Product) GetTranslation(language string, defaultLanguage string) *ProductTranslation {
@@ -89,4 +91,41 @@ func (m *Product) TryGetTranslation(language string) (*ProductTranslation, error
 
 func (m *Product) IsTransient() bool {
 	return m.Id == ""
+}
+
+func (m *Product) Clone() *Product {
+	if m == nil {
+		return nil
+	}
+	model := &Product{
+		Id:           m.Id,
+		CategoryIds:  make([]string, 0),
+		Translations: make([]*ProductTranslation, 0),
+		ThumbnailId:  m.ThumbnailId,
+		Ean:          m.Ean,
+		Sku:          m.Sku,
+		Mpn:          m.Mpn,
+		RegularPrice: m.RegularPrice,
+		SalesPrice:   m.SalesPrice,
+		IsEnabled:    m.IsEnabled,
+	}
+	model.CategoryIds = append(model.CategoryIds, m.CategoryIds...)
+	for _, translation := range m.Translations {
+		model.Translations = append(model.Translations, translation.Clone())
+	}
+	return model
+}
+
+func (m *ProductTranslation) Clone() *ProductTranslation {
+	if m == nil {
+		return nil
+	}
+	return &ProductTranslation{
+		Language:       m.Language,
+		Name:           m.Name,
+		NormalizedName: m.NormalizedName,
+		Slug:           m.Slug,
+		Summary:        m.Summary,
+		Description:    m.Description,
+	}
 }
