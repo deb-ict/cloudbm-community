@@ -12,9 +12,11 @@ type Product struct {
 	CategoryIds  []string
 	Translations []*ProductTranslation
 	ThumbnailId  string
-	ThumbnailUri string
-	Gtin         string
+	Ean          string
+	Sku          string
+	Mpn          string
 	RegularPrice decimal.Decimal
+	SalesPrice   decimal.Decimal
 	IsEnabled    bool
 }
 
@@ -50,8 +52,11 @@ func (m *Product) UpdateModel(other *Product) {
 	m.Translations = make([]*ProductTranslation, 0)
 	m.Translations = append(m.Translations, other.Translations...)
 	m.ThumbnailId = other.ThumbnailId
-	m.ThumbnailUri = other.ThumbnailUri
-	m.Price = other.Price
+	m.Ean = other.Ean
+	m.Sku = other.Sku
+	m.Mpn = other.Mpn
+	m.RegularPrice = other.RegularPrice
+	m.SalesPrice = other.SalesPrice
 	m.IsEnabled = other.IsEnabled
 }
 

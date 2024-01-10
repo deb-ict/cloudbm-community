@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
 	"github.com/gorilla/mux"
-	"github.com/shopspring/decimal"
 )
 
 type ProductV1 struct {
@@ -15,8 +15,11 @@ type ProductV1 struct {
 	CategoryIds  []string                `json:"category_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
-	ThumbnailUri string                  `json:"thumbnail_uri"`
-	Price        string                  `json:"price"`
+	Ean          string                  `json:"ean"`
+	Sku          string                  `json:"sku"`
+	Mpn          string                  `json:"mpn"`
+	RegularPrice string                  `json:"regular_price"`
+	SalesPrice   string                  `json:"sales_price"`
 	IsEnabled    bool                    `json:"is_enabled"`
 }
 
@@ -39,8 +42,11 @@ type ProductListItemV1 struct {
 	Slug         string `json:"slug"`
 	Summary      string `json:"summary"`
 	ThumbnailId  string `json:"thumbnail_id"`
-	ThumbnailUri string `json:"thumbnail_uri"`
-	Price        string `json:"price"`
+	Ean          string `json:"ean"`
+	Sku          string `json:"sku"`
+	Mpn          string `json:"mpn"`
+	RegularPrice string `json:"regular_price"`
+	SalesPrice   string `json:"sales_price"`
 	IsEnabled    bool   `json:"is_enabled"`
 }
 
@@ -48,8 +54,11 @@ type CreateProductV1 struct {
 	CategoryIds  []string                `json:"category_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
-	ThumbnailUri string                  `json:"thumbnail_uri"`
-	Price        string                  `json:"price"`
+	Ean          string                  `json:"ean"`
+	Sku          string                  `json:"sku"`
+	Mpn          string                  `json:"mpn"`
+	RegularPrice string                  `json:"regular_price"`
+	SalesPrice   string                  `json:"sales_price"`
 	IsEnabled    bool                    `json:"is_enabled"`
 }
 
@@ -57,8 +66,11 @@ type UpdateProductV1 struct {
 	CategoryIds  []string                `json:"category_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
-	ThumbnailUri string                  `json:"thumbnail_uri"`
-	Price        string                  `json:"price"`
+	Ean          string                  `json:"ean"`
+	Sku          string                  `json:"sku"`
+	Mpn          string                  `json:"mpn"`
+	RegularPrice string                  `json:"regular_price"`
+	SalesPrice   string                  `json:"sales_price"`
 	IsEnabled    bool                    `json:"is_enabled"`
 }
 
@@ -187,8 +199,11 @@ func ProductToViewModel(model *model.Product, language string, defaultLanguage s
 		CategoryIds:  model.CategoryIds,
 		Translations: make([]*ProductTranslationV1, 0),
 		ThumbnailId:  model.ThumbnailId,
-		ThumbnailUri: model.ThumbnailUri,
-		Price:        model.Price.String(),
+		Ean:          model.Ean,
+		Sku:          model.Sku,
+		Mpn:          model.Mpn,
+		RegularPrice: model.RegularPrice.String(),
+		SalesPrice:   model.SalesPrice.String(),
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
@@ -205,8 +220,11 @@ func ProductToListItemViewModel(model *model.Product, language string, defaultLa
 		Slug:         translation.Slug,
 		Summary:      translation.Summary,
 		ThumbnailId:  model.ThumbnailId,
-		ThumbnailUri: model.ThumbnailUri,
-		Price:        model.Price.String(),
+		Ean:          model.Ean,
+		Sku:          model.Sku,
+		Mpn:          model.Mpn,
+		RegularPrice: model.RegularPrice.String(),
+		SalesPrice:   model.SalesPrice.String(),
 		IsEnabled:    model.IsEnabled,
 	}
 }
@@ -216,8 +234,11 @@ func ProductFromCreateViewModel(viewModel *CreateProductV1) *model.Product {
 		CategoryIds:  viewModel.CategoryIds,
 		Translations: make([]*model.ProductTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
-		ThumbnailUri: viewModel.ThumbnailUri,
-		Price:        decimal.RequireFromString(viewModel.Price),
+		Ean:          viewModel.Ean,
+		Sku:          viewModel.Sku,
+		Mpn:          viewModel.Mpn,
+		RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
+		SalesPrice:   core.TryGetDecimalFromString(viewModel.SalesPrice),
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
@@ -231,8 +252,11 @@ func ProductFromUpdateViewModel(viewModel *UpdateProductV1) *model.Product {
 		CategoryIds:  viewModel.CategoryIds,
 		Translations: make([]*model.ProductTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
-		ThumbnailUri: viewModel.ThumbnailUri,
-		Price:        decimal.RequireFromString(viewModel.Price),
+		Ean:          viewModel.Ean,
+		Sku:          viewModel.Sku,
+		Mpn:          viewModel.Mpn,
+		RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
+		SalesPrice:   core.TryGetDecimalFromString(viewModel.SalesPrice),
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {

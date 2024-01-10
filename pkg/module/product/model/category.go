@@ -11,7 +11,6 @@ type Category struct {
 	ParentId     string
 	Translations []*CategoryTranslation
 	ThumbnailId  string
-	ThumbnailUri string
 	IsEnabled    bool
 }
 
@@ -47,7 +46,6 @@ func (m *Category) UpdateModel(other *Category) {
 	m.Translations = make([]*CategoryTranslation, 0)
 	m.Translations = append(m.Translations, other.Translations...)
 	m.ThumbnailId = other.ThumbnailId
-	m.ThumbnailUri = other.ThumbnailUri
 	m.IsEnabled = other.IsEnabled
 }
 

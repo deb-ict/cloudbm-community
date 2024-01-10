@@ -14,7 +14,6 @@ type CategoryV1 struct {
 	ParentId     string                   `json:"parent_id"`
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
-	ThumbnailUri string                   `json:"thumbnail_uri"`
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
@@ -32,20 +31,18 @@ type CategoryListV1 struct {
 }
 
 type CategoryListItemV1 struct {
-	Id           string `json:"id"`
-	Name         string `json:"name"`
-	Slug         string `json:"slug"`
-	Summary      string `json:"summary"`
-	ThumbnailId  string `json:"thumbnail_id"`
-	ThumbnailUri string `json:"thumbnail_uri"`
-	IsEnabled    bool   `json:"is_enabled"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Slug        string `json:"slug"`
+	Summary     string `json:"summary"`
+	ThumbnailId string `json:"thumbnail_id"`
+	IsEnabled   bool   `json:"is_enabled"`
 }
 
 type CreateCategoryV1 struct {
 	ParentId     string                   `json:"parent_id"`
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
-	ThumbnailUri string                   `json:"thumbnail_uri"`
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
@@ -53,7 +50,6 @@ type UpdateCategoryV1 struct {
 	ParentId     string                   `json:"parent_id"`
 	Translations []*CategoryTranslationV1 `json:"translations"`
 	ThumbnailId  string                   `json:"thumbnail_id"`
-	ThumbnailUri string                   `json:"thumbnail_uri"`
 	IsEnabled    bool                     `json:"is_enabled"`
 }
 
@@ -173,7 +169,6 @@ func CategoryToViewModel(model *model.Category) *CategoryV1 {
 		ParentId:     model.ParentId,
 		Translations: make([]*CategoryTranslationV1, 0),
 		ThumbnailId:  model.ThumbnailId,
-		ThumbnailUri: model.ThumbnailUri,
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
@@ -185,13 +180,12 @@ func CategoryToViewModel(model *model.Category) *CategoryV1 {
 func CategoryToListItemViewModel(model *model.Category, language string, defaultLanguage string) *CategoryListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &CategoryListItemV1{
-		Id:           model.Id,
-		Name:         translation.Name,
-		Slug:         translation.Slug,
-		Summary:      translation.Summary,
-		ThumbnailId:  model.ThumbnailId,
-		ThumbnailUri: model.ThumbnailUri,
-		IsEnabled:    model.IsEnabled,
+		Id:          model.Id,
+		Name:        translation.Name,
+		Slug:        translation.Slug,
+		Summary:     translation.Summary,
+		ThumbnailId: model.ThumbnailId,
+		IsEnabled:   model.IsEnabled,
 	}
 }
 
@@ -200,7 +194,6 @@ func CategoryFromCreateViewModel(viewModel *CreateCategoryV1) *model.Category {
 		ParentId:     viewModel.ParentId,
 		Translations: make([]*model.CategoryTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
-		ThumbnailUri: viewModel.ThumbnailUri,
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
@@ -214,7 +207,6 @@ func CategoryFromUpdateViewModel(viewModel *UpdateCategoryV1) *model.Category {
 		ParentId:     viewModel.ParentId,
 		Translations: make([]*model.CategoryTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
-		ThumbnailUri: viewModel.ThumbnailUri,
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
