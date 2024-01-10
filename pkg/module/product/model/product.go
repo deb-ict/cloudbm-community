@@ -13,7 +13,8 @@ type Product struct {
 	Translations []*ProductTranslation
 	ThumbnailId  string
 	ThumbnailUri string
-	Price        decimal.Decimal
+	Gtin         string
+	RegularPrice decimal.Decimal
 	IsEnabled    bool
 }
 
