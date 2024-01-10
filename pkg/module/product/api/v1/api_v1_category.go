@@ -56,7 +56,7 @@ type UpdateCategoryV1 struct {
 func (api *apiV1) GetCategoriesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	filter := api.parseCategoryFilter(r)
+	filter := api.parseCategoryFilterV1(r)
 	paging := rest.GetPaging(r)
 	sort := rest.GetSorting(r)
 
@@ -74,7 +74,7 @@ func (api *apiV1) GetCategoriesHandlerV1(w http.ResponseWriter, r *http.Request)
 		Items: make([]*CategoryListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, CategoryToListItemViewModel(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, CategoryToListItemViewModelV1(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -89,7 +89,7 @@ func (api *apiV1) GetCategoryByIdHandlerV1(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	response := CategoryToViewModel(result)
+	response := CategoryToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -102,12 +102,12 @@ func (api *apiV1) CreateCategoryHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := api.service.CreateCategory(ctx, CategoryFromCreateViewModel(model))
+	result, err := api.service.CreateCategory(ctx, CategoryFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := CategoryToViewModel(result)
+	response := CategoryToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -122,12 +122,12 @@ func (api *apiV1) UpdateCategoryHandlerV1(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	result, err := api.service.UpdateCategory(ctx, id, CategoryFromUpdateViewModel(model))
+	result, err := api.service.UpdateCategory(ctx, id, CategoryFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
 
-	response := CategoryToViewModel(result)
+	response := CategoryToViewModelV1(result)
 	rest.WriteResult(w, response)
 }
 
@@ -144,7 +144,7 @@ func (api *apiV1) DeleteCategoryHandlerV1(w http.ResponseWriter, r *http.Request
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func (api *apiV1) parseCategoryFilter(r *http.Request) *model.CategoryFilter {
+func (api *apiV1) parseCategoryFilterV1(r *http.Request) *model.CategoryFilter {
 	filter := &model.CategoryFilter{
 		AllLevels: true,
 	}
@@ -163,7 +163,7 @@ func (api *apiV1) parseCategoryFilter(r *http.Request) *model.CategoryFilter {
 	return filter
 }
 
-func CategoryToViewModel(model *model.Category) *CategoryV1 {
+func CategoryToViewModelV1(model *model.Category) *CategoryV1 {
 	viewModel := &CategoryV1{
 		Id:           model.Id,
 		ParentId:     model.ParentId,
@@ -172,12 +172,12 @@ func CategoryToViewModel(model *model.Category) *CategoryV1 {
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, CategoryTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, CategoryTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func CategoryToListItemViewModel(model *model.Category, language string, defaultLanguage string) *CategoryListItemV1 {
+func CategoryToListItemViewModelV1(model *model.Category, language string, defaultLanguage string) *CategoryListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &CategoryListItemV1{
 		Id:          model.Id,
@@ -189,7 +189,7 @@ func CategoryToListItemViewModel(model *model.Category, language string, default
 	}
 }
 
-func CategoryFromCreateViewModel(viewModel *CreateCategoryV1) *model.Category {
+func CategoryFromCreateViewModelV1(viewModel *CreateCategoryV1) *model.Category {
 	model := &model.Category{
 		ParentId:     viewModel.ParentId,
 		Translations: make([]*model.CategoryTranslation, 0),
@@ -197,12 +197,12 @@ func CategoryFromCreateViewModel(viewModel *CreateCategoryV1) *model.Category {
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, CategoryTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, CategoryTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func CategoryFromUpdateViewModel(viewModel *UpdateCategoryV1) *model.Category {
+func CategoryFromUpdateViewModelV1(viewModel *UpdateCategoryV1) *model.Category {
 	model := &model.Category{
 		ParentId:     viewModel.ParentId,
 		Translations: make([]*model.CategoryTranslation, 0),
@@ -210,12 +210,12 @@ func CategoryFromUpdateViewModel(viewModel *UpdateCategoryV1) *model.Category {
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, CategoryTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, CategoryTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func CategoryTranslationToViewModel(model *model.CategoryTranslation) *CategoryTranslationV1 {
+func CategoryTranslationToViewModelV1(model *model.CategoryTranslation) *CategoryTranslationV1 {
 	return &CategoryTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -225,7 +225,7 @@ func CategoryTranslationToViewModel(model *model.CategoryTranslation) *CategoryT
 	}
 }
 
-func CategoryTranslationFromViewModel(viewModel *CategoryTranslationV1) *model.CategoryTranslation {
+func CategoryTranslationFromViewModelV1(viewModel *CategoryTranslationV1) *model.CategoryTranslation {
 	return &model.CategoryTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,

@@ -77,7 +77,7 @@ type UpdateProductV1 struct {
 func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	filter := api.parseProductFilter(r)
+	filter := api.parseProductFilterV1(r)
 	paging := rest.GetPaging(r)
 	sort := rest.GetSorting(r)
 
@@ -95,7 +95,7 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 		Items: make([]*ProductListItemV1, 0),
 	}
 	for _, item := range result {
-		response.Items = append(response.Items, ProductToListItemViewModel(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
+		response.Items = append(response.Items, ProductToListItemViewModelV1(item, filter.Language, api.service.LanguageProvider().DefaultLanguage(ctx)))
 	}
 
 	rest.WriteResult(w, response)
@@ -115,7 +115,7 @@ func (api *apiV1) GetProductByIdHandlerV1(w http.ResponseWriter, r *http.Request
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ProductToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ProductToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -128,7 +128,7 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.CreateProduct(ctx, ProductFromCreateViewModel(model))
+	result, err := api.service.CreateProduct(ctx, ProductFromCreateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -138,7 +138,7 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ProductToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ProductToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -153,7 +153,7 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	result, err := api.service.UpdateProduct(ctx, id, ProductFromUpdateViewModel(model))
+	result, err := api.service.UpdateProduct(ctx, id, ProductFromUpdateViewModelV1(model))
 	if api.handleError(w, err) {
 		return
 	}
@@ -163,7 +163,7 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 		language = api.service.LanguageProvider().UserLanguage(ctx)
 	}
 
-	response := ProductToViewModel(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
+	response := ProductToViewModelV1(result, language, api.service.LanguageProvider().DefaultLanguage(ctx))
 	rest.WriteResult(w, response)
 }
 
@@ -180,7 +180,7 @@ func (api *apiV1) DeleteProductHandlerV1(w http.ResponseWriter, r *http.Request)
 	rest.WriteStatus(w, http.StatusNoContent)
 }
 
-func (api *apiV1) parseProductFilter(r *http.Request) *model.ProductFilter {
+func (api *apiV1) parseProductFilterV1(r *http.Request) *model.ProductFilter {
 	filter := &model.ProductFilter{}
 
 	filter.Language = r.URL.Query().Get("language")
@@ -193,7 +193,7 @@ func (api *apiV1) parseProductFilter(r *http.Request) *model.ProductFilter {
 	return filter
 }
 
-func ProductToViewModel(model *model.Product, language string, defaultLanguage string) *ProductV1 {
+func ProductToViewModelV1(model *model.Product, language string, defaultLanguage string) *ProductV1 {
 	viewModel := &ProductV1{
 		Id:           model.Id,
 		CategoryIds:  model.CategoryIds,
@@ -207,12 +207,12 @@ func ProductToViewModel(model *model.Product, language string, defaultLanguage s
 		IsEnabled:    model.IsEnabled,
 	}
 	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, ProductTranslationToViewModel(translation))
+		viewModel.Translations = append(viewModel.Translations, ProductTranslationToViewModelV1(translation))
 	}
 	return viewModel
 }
 
-func ProductToListItemViewModel(model *model.Product, language string, defaultLanguage string) *ProductListItemV1 {
+func ProductToListItemViewModelV1(model *model.Product, language string, defaultLanguage string) *ProductListItemV1 {
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &ProductListItemV1{
 		Id:           model.Id,
@@ -229,7 +229,7 @@ func ProductToListItemViewModel(model *model.Product, language string, defaultLa
 	}
 }
 
-func ProductFromCreateViewModel(viewModel *CreateProductV1) *model.Product {
+func ProductFromCreateViewModelV1(viewModel *CreateProductV1) *model.Product {
 	model := &model.Product{
 		CategoryIds:  viewModel.CategoryIds,
 		Translations: make([]*model.ProductTranslation, 0),
@@ -242,12 +242,12 @@ func ProductFromCreateViewModel(viewModel *CreateProductV1) *model.Product {
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, ProductTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, ProductTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func ProductFromUpdateViewModel(viewModel *UpdateProductV1) *model.Product {
+func ProductFromUpdateViewModelV1(viewModel *UpdateProductV1) *model.Product {
 	model := &model.Product{
 		CategoryIds:  viewModel.CategoryIds,
 		Translations: make([]*model.ProductTranslation, 0),
@@ -260,12 +260,12 @@ func ProductFromUpdateViewModel(viewModel *UpdateProductV1) *model.Product {
 		IsEnabled:    viewModel.IsEnabled,
 	}
 	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, ProductTranslationFromViewModel(translation))
+		model.Translations = append(model.Translations, ProductTranslationFromViewModelV1(translation))
 	}
 	return model
 }
 
-func ProductTranslationToViewModel(model *model.ProductTranslation) *ProductTranslationV1 {
+func ProductTranslationToViewModelV1(model *model.ProductTranslation) *ProductTranslationV1 {
 	return &ProductTranslationV1{
 		Language:    model.Language,
 		Name:        model.Name,
@@ -275,7 +275,7 @@ func ProductTranslationToViewModel(model *model.ProductTranslation) *ProductTran
 	}
 }
 
-func ProductTranslationFromViewModel(viewModel *ProductTranslationV1) *model.ProductTranslation {
+func ProductTranslationFromViewModelV1(viewModel *ProductTranslationV1) *model.ProductTranslation {
 	return &model.ProductTranslation{
 		Language:    viewModel.Language,
 		Name:        viewModel.Name,
