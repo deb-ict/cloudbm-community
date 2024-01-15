@@ -25,18 +25,18 @@ func NewApiV1(service product.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Products
-	r.HandleFunc("/v1/product", api.GetProductsHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/product/{id}", api.GetProductByIdHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/product", api.CreateProductHandlerV1).Methods(http.MethodPost)
-	r.HandleFunc("/v1/product/{id}", api.UpdateProductHandlerV1).Methods(http.MethodPut)
-	r.HandleFunc("/v1/product/{id}", api.DeleteProductHandlerV1).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/product", api.GetProductsHandlerV1).Methods(http.MethodGet).Name("product_api:GetProductsHandlerV1")
+	r.HandleFunc("/v1/product/{id}", api.GetProductByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetProductByIdHandlerV1")
+	r.HandleFunc("/v1/product", api.CreateProductHandlerV1).Methods(http.MethodPost).Name("product_api:CreateProductHandlerV1")
+	r.HandleFunc("/v1/product/{id}", api.UpdateProductHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateProductHandlerV1")
+	r.HandleFunc("/v1/product/{id}", api.DeleteProductHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteProductHandlerV1")
 
 	// Categories
-	r.HandleFunc("/v1/category", api.GetCategoriesHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/category/{id}", api.GetCategoryByIdHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/category", api.CreateCategoryHandlerV1).Methods(http.MethodPost)
-	r.HandleFunc("/v1/category/{id}", api.UpdateCategoryHandlerV1).Methods(http.MethodPut)
-	r.HandleFunc("/v1/category/{id}", api.DeleteCategoryHandlerV1).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/category", api.GetCategoriesHandlerV1).Methods(http.MethodGet).Name("product_api:GetCategoriesHandlerV1")
+	r.HandleFunc("/v1/category/{id}", api.GetCategoryByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetCategoryByIdHandlerV1")
+	r.HandleFunc("/v1/category", api.CreateCategoryHandlerV1).Methods(http.MethodPost).Name("product_api:CreateCategoryHandlerV1")
+	r.HandleFunc("/v1/category/{id}", api.UpdateCategoryHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateCategoryHandlerV1")
+	r.HandleFunc("/v1/category/{id}", api.DeleteCategoryHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteCategoryHandlerV1")
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

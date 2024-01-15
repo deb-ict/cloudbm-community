@@ -25,11 +25,11 @@ func NewApiV1(service auth.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Users
-	r.HandleFunc("/v1/user", api.GetUsersHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/user/{id}", api.GetUserByIdHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/user", api.CreateUserHandlerV1).Methods(http.MethodPost)
-	r.HandleFunc("/v1/user/{id}", api.UpdateUserHandlerV1).Methods(http.MethodPut)
-	r.HandleFunc("/v1/user/{id}", api.DeleteUserHandlerV1).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/user", api.GetUsersHandlerV1).Methods(http.MethodGet).Name("auth_api:GetUsersHandlerV1")
+	r.HandleFunc("/v1/user/{id}", api.GetUserByIdHandlerV1).Methods(http.MethodGet).Name("auth_api:GetUserByIdHandlerV1")
+	r.HandleFunc("/v1/user", api.CreateUserHandlerV1).Methods(http.MethodPost).Name("auth_api:CreateUserHandlerV1")
+	r.HandleFunc("/v1/user/{id}", api.UpdateUserHandlerV1).Methods(http.MethodPut).Name("auth_api:UpdateUserHandlerV1")
+	r.HandleFunc("/v1/user/{id}", api.DeleteUserHandlerV1).Methods(http.MethodDelete).Name("auth_api:DeleteUserHandlerV1")
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

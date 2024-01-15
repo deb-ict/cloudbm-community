@@ -25,13 +25,13 @@ func NewApiV1(service gallery.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Images
-	r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet)
-	r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost)
-	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut)
-	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete)
-	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1).Methods(http.MethodPost)
-	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1).Methods(http.MethodGet)
+	r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet).Name("gallery_api:GetImagesHandlerV1")
+	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet).Name("gallery_api:GetImageByIdHandlerV1")
+	r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost).Name("gallery_api:CreateImageHandlerV1")
+	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut).Name("gallery_api:UpdateImageHandlerV1")
+	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete).Name("gallery_api:DeleteImageHandlerV1")
+	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1).Methods(http.MethodPost).Name("gallery_api:UploadImageFileHandlerV1")
+	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1).Methods(http.MethodGet).Name("gallery_api:DownloadImageFileHandlerV1")
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
