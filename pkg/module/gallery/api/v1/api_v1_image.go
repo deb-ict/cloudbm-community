@@ -17,8 +17,8 @@ type ImageV1 struct {
 	FileName     string                `json:"fileName"`
 	FileSize     int64                 `json:"fileSize"`
 	MimeType     string                `json:"fileType"`
-	Width        int                   `json:"width"`
-	Height       int                   `json:"height"`
+	Width        int16                 `json:"width"`
+	Height       int16                 `json:"height"`
 }
 
 type ImageTranslationV1 struct {
