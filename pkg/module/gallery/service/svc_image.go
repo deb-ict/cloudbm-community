@@ -238,8 +238,8 @@ func (svc *service) SetImageFileInfo(ctx context.Context, id string, localFolder
 	data.FileName = localFileName
 	data.FileSize = fileInfo.Size()
 	data.MimeType = mimeType
-	data.Width = int16(config.Width)
-	data.Height = int16(config.Height)
+	data.Width = int32(config.Width)
+	data.Height = int32(config.Height)
 
 	err = svc.database.Images().UpdateImage(ctx, data)
 	if err != nil {

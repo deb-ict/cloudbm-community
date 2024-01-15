@@ -14,8 +14,8 @@ type Image struct {
 	OriginalFileName string
 	FileSize         int64
 	MimeType         string
-	Width            int16
-	Height           int16
+	Width            int32
+	Height           int32
 }
 
 type ImageTranslation struct {
