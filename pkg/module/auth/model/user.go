@@ -17,7 +17,7 @@ type User struct {
 	PhoneVerified      bool
 	NormalizedUsername string
 	NormalizedEmail    string
-	LoginFailures      int
+	LoginFailures      int32
 	IsLocked           bool
 	IsEnabled          bool
 	LockEnd            time.Time
