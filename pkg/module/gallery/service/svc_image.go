@@ -158,7 +158,7 @@ func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser,
 	return file, data.MimeType, nil
 }
 
-func (svc *service) SetImageFile(ctx context.Context, id string, file io.Reader, mimeType string, originalFileName string) (*model.Image, error) {
+func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader, mimeType string, originalFileName string) (*model.Image, error) {
 	// Get the file extension based on the mime type
 	fileExt := ""
 	switch mimeType {
@@ -191,7 +191,7 @@ func (svc *service) SetImageFile(ctx context.Context, id string, file io.Reader,
 	}
 
 	// Set the image file info
-	image, err := svc.SetImageFileInfo(ctx, id, localFolder, localFileName, originalFileName, mimeType)
+	image, err := svc.setImageFileInfo(ctx, id, localFolder, localFileName, originalFileName, mimeType)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +199,7 @@ func (svc *service) SetImageFile(ctx context.Context, id string, file io.Reader,
 	return image, nil
 }
 
-func (svc *service) SetImageFileInfo(ctx context.Context, id string, localFolder string, localFileName string, originalFileName string, mimeType string) (*model.Image, error) {
+func (svc *service) setImageFileInfo(ctx context.Context, id string, localFolder string, localFileName string, originalFileName string, mimeType string) (*model.Image, error) {
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
 		return nil, err

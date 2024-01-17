@@ -162,7 +162,7 @@ func (api *apiV1) UploadImageFileHandlerV1(w http.ResponseWriter, r *http.Reques
 	defer file.Close()
 
 	mimeType := header.Header.Get("Content-Type")
-	result, err := api.service.SetImageFile(ctx, id, file, mimeType, header.Filename)
+	result, err := api.service.SetImageData(ctx, id, file, mimeType, header.Filename)
 	if api.handleError(w, err) {
 		return
 	}
