@@ -135,27 +135,27 @@ func (svc *service) DeleteImage(ctx context.Context, id string) error {
 	return nil
 }
 
-func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser, string, error) {
+func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser, string, string, error) {
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 	if data == nil {
-		return nil, "", gallery.ErrImageNotFound
+		return nil, "", "", gallery.ErrImageNotFound
 	}
 
 	filePath := filepath.Join(data.StorageFolder, data.FileName)
 	_, err = os.Stat(filePath)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 
 	file, err := os.OpenFile(filePath, os.O_RDONLY, 0)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 
-	return file, data.MimeType, nil
+	return file, data.OriginalFileName, data.MimeType, nil
 }
 
 func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader, mimeType string, originalFileName string) (*model.Image, error) {

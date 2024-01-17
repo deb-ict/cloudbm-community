@@ -176,13 +176,14 @@ func (api *apiV1) DownloadImageFileHandlerV1(w http.ResponseWriter, r *http.Requ
 
 	id := mux.Vars(r)["id"]
 
-	file, mimeType, err := api.service.GetImageData(ctx, id)
+	file, originalFileName, mimeType, err := api.service.GetImageData(ctx, id)
 	if api.handleError(w, err) {
 		return
 	}
 	defer file.Close()
 
 	w.Header().Set("Content-Type", mimeType)
+	w.Header().Set("Content-Disposition", "attachment; filename="+originalFileName)
 	_, _ = io.Copy(w, file)
 }
 

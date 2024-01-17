@@ -22,6 +22,6 @@ type Service interface {
 	CreateImage(ctx context.Context, model *model.Image) (*model.Image, error)
 	UpdateImage(ctx context.Context, id string, model *model.Image) (*model.Image, error)
 	DeleteImage(ctx context.Context, id string) error
-	GetImageData(ctx context.Context, id string) (io.ReadCloser, string, error)
+	GetImageData(ctx context.Context, id string) (io.ReadCloser, string, string, error)
 	SetImageData(ctx context.Context, id string, file io.Reader, mimeType string, originalFileName string) (*model.Image, error)
 }
