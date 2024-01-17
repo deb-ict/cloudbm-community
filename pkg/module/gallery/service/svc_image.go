@@ -155,7 +155,7 @@ func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser,
 		return nil, "", "", err
 	}
 
-	return file, data.OriginalFileName, data.MimeType, nil
+	return file, data.MimeType, data.OriginalFileName, nil
 }
 
 func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader, mimeType string, originalFileName string) (*model.Image, error) {

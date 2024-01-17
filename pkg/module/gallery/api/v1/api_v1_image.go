@@ -176,7 +176,7 @@ func (api *apiV1) DownloadImageFileHandlerV1(w http.ResponseWriter, r *http.Requ
 
 	id := mux.Vars(r)["id"]
 
-	file, originalFileName, mimeType, err := api.service.GetImageData(ctx, id)
+	file, mimeType, originalFileName, err := api.service.GetImageData(ctx, id)
 	if api.handleError(w, err) {
 		return
 	}
