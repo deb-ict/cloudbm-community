@@ -22,11 +22,11 @@ func (env Environment) String() string {
 func (env Environment) ShortName() string {
 	name := strings.ToLower(env.String())
 	switch name {
-	case "production":
-		return "prd"
+	case "development":
+		return "dev"
 	case "staging":
 		return "stg"
 	default:
-		return "dev"
+		return "prd"
 	}
 }

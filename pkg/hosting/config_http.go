@@ -18,10 +18,6 @@ type HttpConfig struct {
 	Port int    `yaml:"port"`
 }
 
-func (cfg *HttpConfig) GetBaseUri() string {
-	return fmt.Sprintf("http://%s", cfg.GetBindAddress())
-}
-
 func (cfg *HttpConfig) GetBindAddress() string {
 	return fmt.Sprintf("%s:%d", cfg.Bind, cfg.Port)
 }

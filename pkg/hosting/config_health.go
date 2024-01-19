@@ -18,10 +18,6 @@ type HealthConfig struct {
 	Port int    `yaml:"port"`
 }
 
-func (cfg *HealthConfig) GetBaseUri() string {
-	return fmt.Sprintf("http://%s", cfg.GetBindAddress())
-}
-
 func (cfg *HealthConfig) GetBindAddress() string {
 	return fmt.Sprintf("%s:%d", cfg.Bind, cfg.Port)
 }

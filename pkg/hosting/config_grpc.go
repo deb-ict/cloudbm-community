@@ -18,10 +18,6 @@ type GrpcConfig struct {
 	Port int    `yaml:"port"`
 }
 
-func (cfg *GrpcConfig) GetBaseUri() string {
-	return fmt.Sprintf("http://%s", cfg.GetBindAddress())
-}
-
 func (cfg *GrpcConfig) GetBindAddress() string {
 	return fmt.Sprintf("%s:%d", cfg.Bind, cfg.Port)
 }
