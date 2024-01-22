@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type UserTokenType int
+type UserTokenType int8
 
 const (
 	UserTokenType_Undefined UserTokenType = iota
@@ -40,6 +40,10 @@ func (m *UserToken) HasExpired() bool {
 	return time.Now().UTC().After(m.Expiration)
 }
 
+func (m *UserToken) IsTransient() bool {
+	return m.Id == ""
+}
+
 func (m *UserToken) Clone() *UserToken {
 	if m == nil {
 		return nil
@@ -60,5 +64,16 @@ func (t UserTokenType) String() string {
 		return "PasswordResetToken"
 	default:
 		return "Undefined"
+	}
+}
+
+func ParseUserTokenType(value string) UserTokenType {
+	switch value {
+	case "ActivationToken":
+		return UserTokenType_ActivationToken
+	case "PasswordResetToken":
+		return UserTokenType_PasswordResetToken
+	default:
+		return UserTokenType_Undefined
 	}
 }

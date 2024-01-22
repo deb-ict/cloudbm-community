@@ -67,6 +67,10 @@ func (m *User) VerifyPassword(hasher security.PasswordHasher, password string) b
 	return valid
 }
 
+func (m *User) IsTransient() bool {
+	return m.Id == ""
+}
+
 func (m *User) Clone() *User {
 	if m == nil {
 		return nil
