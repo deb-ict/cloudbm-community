@@ -10,16 +10,16 @@ import (
 )
 
 type ContactAddressV1 struct {
-	Id         string               `json:"id"`
-	Type       ContactAddressTypeV1 `json:"type"`
-	Street     string               `json:"street"`
-	StreetNr   string               `json:"street_nr"`
-	Unit       string               `json:"unit"`
-	PostalCode string               `json:"postal_code"`
-	City       string               `json:"city"`
-	State      string               `json:"state"`
-	Country    string               `json:"country"`
-	IsDefault  bool                 `json:"is_default"`
+	Id           string               `json:"id"`
+	Type         ContactAddressTypeV1 `json:"type"`
+	Street       string               `json:"street"`
+	StreetNumber string               `json:"street_nr"`
+	Unit         string               `json:"unit"`
+	PostalCode   string               `json:"postal_code"`
+	City         string               `json:"city"`
+	State        string               `json:"state"`
+	Country      string               `json:"country"`
+	IsDefault    bool                 `json:"is_default"`
 }
 
 type ContactAddressTypeV1 struct {
@@ -35,40 +35,40 @@ type ContactAddressListV1 struct {
 }
 
 type ContactAddressListItemV1 struct {
-	Id         string               `json:"id"`
-	Type       ContactAddressTypeV1 `json:"type"`
-	Street     string               `json:"street"`
-	StreetNr   string               `json:"street_nr"`
-	Unit       string               `json:"unit"`
-	PostalCode string               `json:"postal_code"`
-	City       string               `json:"city"`
-	State      string               `json:"state"`
-	Country    string               `json:"country"`
-	IsDefault  bool                 `json:"is_default"`
+	Id           string               `json:"id"`
+	Type         ContactAddressTypeV1 `json:"type"`
+	Street       string               `json:"street"`
+	StreetNumber string               `json:"street_nr"`
+	Unit         string               `json:"unit"`
+	PostalCode   string               `json:"postal_code"`
+	City         string               `json:"city"`
+	State        string               `json:"state"`
+	Country      string               `json:"country"`
+	IsDefault    bool                 `json:"is_default"`
 }
 
 type CreateContactAddressV1 struct {
-	TypeId     string `json:"type_id"`
-	Street     string `json:"street"`
-	StreetNr   string `json:"street_nr"`
-	Unit       string `json:"unit"`
-	PostalCode string `json:"postal_code"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Country    string `json:"country"`
-	IsDefault  bool   `json:"is_default"`
+	TypeId       string `json:"type_id"`
+	Street       string `json:"street"`
+	StreetNumber string `json:"street_nr"`
+	Unit         string `json:"unit"`
+	PostalCode   string `json:"postal_code"`
+	City         string `json:"city"`
+	State        string `json:"state"`
+	Country      string `json:"country"`
+	IsDefault    bool   `json:"is_default"`
 }
 
 type UpdateContactAddressV1 struct {
-	TypeId     string `json:"type_id"`
-	Street     string `json:"street"`
-	StreetNr   string `json:"street_nr"`
-	Unit       string `json:"unit"`
-	PostalCode string `json:"postal_code"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	Country    string `json:"country"`
-	IsDefault  bool   `json:"is_default"`
+	TypeId       string `json:"type_id"`
+	Street       string `json:"street"`
+	StreetNumber string `json:"street_nr"`
+	Unit         string `json:"unit"`
+	PostalCode   string `json:"postal_code"`
+	City         string `json:"city"`
+	State        string `json:"state"`
+	Country      string `json:"country"`
+	IsDefault    bool   `json:"is_default"`
 }
 
 func (api *apiV1) GetContactAddressesHandlerV1(w http.ResponseWriter, r *http.Request) {
@@ -203,14 +203,14 @@ func ContactAddressToViewModelV1(model *model.Address, language string, defaultL
 			Name:        typeTranslation.Name,
 			Description: typeTranslation.Description,
 		},
-		Street:     model.Street,
-		StreetNr:   model.StreetNr,
-		Unit:       model.Unit,
-		PostalCode: model.PostalCode,
-		City:       model.City,
-		State:      model.State,
-		Country:    model.Country,
-		IsDefault:  model.IsDefault,
+		Street:       model.Street,
+		StreetNumber: model.StreetNumber,
+		Unit:         model.Unit,
+		PostalCode:   model.PostalCode,
+		City:         model.City,
+		State:        model.State,
+		Country:      model.Country,
+		IsDefault:    model.IsDefault,
 	}
 }
 
@@ -224,14 +224,14 @@ func ContactAddressToListItemViewModelV1(model *model.Address, language string, 
 			Name:        typeTranslation.Name,
 			Description: typeTranslation.Description,
 		},
-		Street:     model.Street,
-		StreetNr:   model.StreetNr,
-		Unit:       model.Unit,
-		PostalCode: model.PostalCode,
-		City:       model.City,
-		State:      model.State,
-		Country:    model.Country,
-		IsDefault:  model.IsDefault,
+		Street:       model.Street,
+		StreetNumber: model.StreetNumber,
+		Unit:         model.Unit,
+		PostalCode:   model.PostalCode,
+		City:         model.City,
+		State:        model.State,
+		Country:      model.Country,
+		IsDefault:    model.IsDefault,
 	}
 }
 
@@ -240,14 +240,14 @@ func ContactAddressFromCreateViewModelV1(viewModel *CreateContactAddressV1) *mod
 		Type: &model.AddressType{
 			Id: viewModel.TypeId,
 		},
-		Street:     viewModel.Street,
-		StreetNr:   viewModel.StreetNr,
-		Unit:       viewModel.Unit,
-		PostalCode: viewModel.PostalCode,
-		City:       viewModel.City,
-		State:      viewModel.State,
-		Country:    viewModel.Country,
-		IsDefault:  viewModel.IsDefault,
+		Street:       viewModel.Street,
+		StreetNumber: viewModel.StreetNumber,
+		Unit:         viewModel.Unit,
+		PostalCode:   viewModel.PostalCode,
+		City:         viewModel.City,
+		State:        viewModel.State,
+		Country:      viewModel.Country,
+		IsDefault:    viewModel.IsDefault,
 	}
 }
 
@@ -256,13 +256,13 @@ func ContactAddressFromUpdateViewModelV1(viewModel *UpdateContactAddressV1) *mod
 		Type: &model.AddressType{
 			Id: viewModel.TypeId,
 		},
-		Street:     viewModel.Street,
-		StreetNr:   viewModel.StreetNr,
-		Unit:       viewModel.Unit,
-		PostalCode: viewModel.PostalCode,
-		City:       viewModel.City,
-		State:      viewModel.State,
-		Country:    viewModel.Country,
-		IsDefault:  viewModel.IsDefault,
+		Street:       viewModel.Street,
+		StreetNumber: viewModel.StreetNumber,
+		Unit:         viewModel.Unit,
+		PostalCode:   viewModel.PostalCode,
+		City:         viewModel.City,
+		State:        viewModel.State,
+		Country:      viewModel.Country,
+		IsDefault:    viewModel.IsDefault,
 	}
 }

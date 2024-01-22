@@ -1,16 +1,16 @@
 package model
 
 type Address struct {
-	Id         string
-	Type       *AddressType
-	Street     string
-	StreetNr   string
-	Unit       string
-	PostalCode string
-	City       string
-	State      string
-	Country    string
-	IsDefault  bool
+	Id           string
+	Type         *AddressType
+	Street       string
+	StreetNumber string
+	Unit         string
+	PostalCode   string
+	City         string
+	State        string
+	Country      string
+	IsDefault    bool
 }
 
 type AddressFilter struct {
@@ -20,7 +20,7 @@ type AddressFilter struct {
 func (m *Address) UpdateModel(other *Address) {
 	m.Type = other.Type.Clone()
 	m.Street = other.Street
-	m.StreetNr = other.StreetNr
+	m.StreetNumber = other.StreetNumber
 	m.Unit = other.Unit
 	m.PostalCode = other.PostalCode
 	m.City = other.City
@@ -38,15 +38,15 @@ func (m *Address) Clone() *Address {
 		return nil
 	}
 	return &Address{
-		Id:         m.Id,
-		Type:       m.Type.Clone(),
-		Street:     m.Street,
-		StreetNr:   m.StreetNr,
-		Unit:       m.Unit,
-		PostalCode: m.PostalCode,
-		City:       m.City,
-		State:      m.State,
-		Country:    m.Country,
-		IsDefault:  m.IsDefault,
+		Id:           m.Id,
+		Type:         m.Type.Clone(),
+		Street:       m.Street,
+		StreetNumber: m.StreetNumber,
+		Unit:         m.Unit,
+		PostalCode:   m.PostalCode,
+		City:         m.City,
+		State:        m.State,
+		Country:      m.Country,
+		IsDefault:    m.IsDefault,
 	}
 }
