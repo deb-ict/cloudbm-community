@@ -25,10 +25,3 @@ jobs:
 
     - name: Run Test
       run: go test -race -cover -coverprofile=coverage -covermode=atomic -v ./...
-
-    - name: Codecov
-      uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      with:
-        files: ./coverage
