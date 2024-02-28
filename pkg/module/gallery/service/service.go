@@ -1,6 +1,10 @@
 package service
 
 import (
+	"os/user"
+	"path/filepath"
+	"strings"
+
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery"
@@ -31,6 +35,7 @@ func NewService(database gallery.Database, opts *ServiceOptions) gallery.Service
 		stringNormalizer: opts.StringNormalizer,
 		featureProvider:  opts.FeatureProvider,
 		languageProvider: opts.LanguageProvider,
+		storageFolder:    opts.StorageFolder,
 		database:         database,
 	}
 
@@ -65,5 +70,9 @@ func (opts *ServiceOptions) EnsureDefaults() {
 	}
 	if opts.StorageFolder == "" {
 		opts.StorageFolder = "/data/gallery"
+	}
+	if strings.HasPrefix(opts.StorageFolder, "~") {
+		usr, _ := user.Current()
+		opts.StorageFolder = filepath.Join(usr.HomeDir, opts.StorageFolder[2:])
 	}
 }

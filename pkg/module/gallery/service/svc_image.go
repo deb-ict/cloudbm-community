@@ -165,7 +165,7 @@ func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader,
 	case "image/jpeg":
 		fileExt = ".jpg"
 	case "image/png":
-		fileExt = ".pgn"
+		fileExt = ".png"
 	default:
 		return nil, gallery.ErrImageFormatNotSupported
 	}
@@ -173,7 +173,10 @@ func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader,
 	// Get the storage folder
 	now := time.Now().UTC()
 	localFolder := filepath.Join(svc.StorageFolder(), "images", fmt.Sprintf("%04d/%02d/", now.Year(), int(now.Month())))
-	core.EnsureFolder(localFolder)
+	err := core.EnsureFolder(localFolder)
+	if err != nil {
+		return nil, err
+	}
 
 	// Open the local file
 	localFileName := fmt.Sprintf("%s%s", id, fileExt)
