@@ -18,4 +18,6 @@ type Service interface {
 
 	LoadSession(ctx context.Context, id string) (*model.Session, error)
 	SaveSession(ctx context.Context, session *model.Session) (*model.Session, error)
+
+	CleanupExpiredSessions(ctx context.Context) error
 }
