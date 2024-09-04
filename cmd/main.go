@@ -13,6 +13,8 @@ import (
 	gallery_svc "github.com/deb-ict/cloudbm-community/pkg/module/gallery/service"
 	product_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/product/api/v1"
 	product_svc "github.com/deb-ict/cloudbm-community/pkg/module/product/service"
+	session_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/session/api/v1"
+	session_svc "github.com/deb-ict/cloudbm-community/pkg/module/session/service"
 	"github.com/gorilla/mux"
 )
 
@@ -34,6 +36,10 @@ func main() {
 	productSvc := product_svc.NewService(nil, &product_svc.ServiceOptions{})
 	productApiV1 := product_api_v1.NewApiV1(productSvc)
 	productApiV1.RegisterRoutes(r.PathPrefix("product").Subrouter())
+
+	sessionSvc := session_svc.NewService(nil, &session_svc.ServiceOptions{})
+	sessionApiV1 := session_api_v1.NewApiV1(sessionSvc)
+	sessionApiV1.RegisterRoutes(r.PathPrefix("session").Subrouter())
 
 	srv := &http.Server{
 		Handler:      r,
