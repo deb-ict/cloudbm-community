@@ -123,6 +123,9 @@ func (cfg *StaticAssetConfig) EnsureDefaults() {
 	if !strings.HasSuffix(cfg.Uri, "/") {
 		cfg.Uri = cfg.Uri + "/"
 	}
+	if cfg.Folder == "" {
+		cfg.Folder = "/var/www/html/static/"
+	}
 	if !strings.HasSuffix(cfg.Folder, "/") {
 		cfg.Folder = cfg.Folder + "/"
 	}
