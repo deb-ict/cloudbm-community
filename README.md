@@ -17,6 +17,17 @@ Cloud Business Management - Community Edition
 ## Products
 - Default quantity
 - Max quantity
+- Tax class
+- Dimensions
+- Dimenssions class (units)
+- Weight
+- Weight class (units)
+- Status (disable, draft, ...)
+- Attributes
+- Options
+- Discounts
+- Tier prices
+
 
 ## Orders
 - RecipientType (contact/company)
@@ -32,3 +43,54 @@ Cloud Business Management - Community Edition
 -- Description
 -- Quantity
 -- UnitPrice
+
+
+## Orders (opencart based)
+- Customer details
+- Payments details
+- Shipping details
+- Order items
+- Totals
+
+## Returns
+- Order ID
+- Order date
+- Customer
+- Products
+    - Id
+    - Quantity
+    - Reason
+    - State
+    - Info
+
+/cart/add
+{
+    product_id: 1
+    quantity: 1
+}
+/cart/update
+{
+    product_id: 1
+    quantity: 2
+}
+/cart/delete
+{
+    product_id: 1
+}
+
+
+https://admin-demo.nopcommerce.com/admin/
+
+shop config
+- Countries
+    - Name
+    - Allow billing
+    - Allow shipping
+    - ISO2 code (BE, NL, ...)
+    - ISO3 code (BEL, NED, ...)
+    - ISONr (840, 4, ...)
+    - SubjectToVat (true/false)
+- currencies
+    - name
+    - code
+    - rate
