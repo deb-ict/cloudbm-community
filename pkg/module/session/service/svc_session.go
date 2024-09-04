@@ -137,3 +137,30 @@ func (svc *service) getOrCreateSession(ctx context.Context, id string) (*model.S
 
 	return data, nil
 }
+
+func (svc *service) CleanupExpiredSessions(ctx context.Context) error {
+	filter := &model.SessionFilter{
+		ExpiresBefore: time.Now().UTC(),
+		ExcludeActive: true,
+	}
+
+	for {
+		sessions, _, err := svc.GetSessions(ctx, 0, 100, filter, nil)
+		if err != nil {
+			return err
+		}
+
+		if len(sessions) == 0 {
+			break
+		}
+
+		for _, session := range sessions {
+			err = svc.DeleteSession(ctx, session.Id)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
