@@ -103,16 +103,22 @@ func (svc *service) SaveSession(ctx context.Context, model *model.Session) (*mod
 }
 
 func (svc *service) getOrCreateSession(ctx context.Context, id string) (*model.Session, error) {
-	data, err := svc.GetSessionById(ctx, id)
+	var data *model.Session = nil
+	var err error = nil
 
-	if err != nil {
-		if err == session.ErrSessionNotFound {
-			// do nothing
-		} else if err == session.ErrSessionExpired {
-			err = svc.DeleteSession(ctx, id)
-			data = nil
+	if id != "" {
+		data, err = svc.GetSessionById(ctx, id)
+
+		if err != nil {
+			if err == session.ErrSessionExpired {
+				err = svc.DeleteSession(ctx, id)
+				data = nil
+			}
+
+			if err != session.ErrSessionNotFound {
+				return nil, err
+			}
 		}
-		return nil, err
 	}
 
 	if data == nil {
