@@ -29,7 +29,7 @@ func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/v1/session", api.CreateSessionHandlerV1).Methods(http.MethodPost).Name("session_api:CreateSessionHandlerV1")
 	r.HandleFunc("/v1/session/{id}", api.UpdateSessionHandlerV1).Methods(http.MethodPut).Name("session_api:UpdateSessionHandlerV1")
 	r.HandleFunc("/v1/session/{id}", api.DeleteSessionHandlerV1).Methods(http.MethodDelete).Name("session_api:DeleteSessionHandlerV1")
-	r.HandleFunc("/v1/session/cleanup", api.CleanupExpiredSessionsHandlerV1).Methods(http.MethodDelete).Name("session_api:CleanupExpiredSessionsHandlerV1")
+	r.HandleFunc("/v1/session/cleanup", api.CleanupExpiredSessionsHandlerV1).Methods(http.MethodPost).Name("session_api:CleanupExpiredSessionsHandlerV1")
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {
