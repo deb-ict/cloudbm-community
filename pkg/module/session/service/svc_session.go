@@ -147,7 +147,6 @@ func (svc *service) getOrCreateSession(ctx context.Context, id string) (*model.S
 func (svc *service) CleanupExpiredSessions(ctx context.Context) error {
 	filter := &model.SessionFilter{
 		ExpiresBefore: time.Now().UTC(),
-		ExcludeActive: true,
 	}
 
 	for {

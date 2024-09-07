@@ -16,14 +16,12 @@ type Session struct {
 }
 
 type SessionFilter struct {
-	CreatedBefore  time.Time
-	CreatedAfter   time.Time
-	UpdatedBefore  time.Time
-	UpdatedAfter   time.Time
-	ExpiresBefore  time.Time
-	ExpiresAfter   time.Time
-	ExcludeActive  bool
-	ExcludeExpired bool
+	CreatedBefore time.Time
+	CreatedAfter  time.Time
+	UpdatedBefore time.Time
+	UpdatedAfter  time.Time
+	ExpiresBefore time.Time
+	ExpiresAfter  time.Time
 }
 
 func (m *Session) UpdateModel(other *Session) {
