@@ -55,13 +55,14 @@ func (m *Session) Clone() *Session {
 		return nil
 	}
 	model := &Session{
-		Id:        m.Id,
-		UserId:    m.UserId,
-		CreatedAt: m.CreatedAt,
-		UpdatedAt: m.UpdatedAt,
-		ExpiresAt: m.ExpiresAt,
-		Lifetime:  m.Lifetime,
-		Data:      make(map[string]string),
+		Id:                   m.Id,
+		UserId:               m.UserId,
+		CreatedAt:            m.CreatedAt,
+		UpdatedAt:            m.UpdatedAt,
+		ExpiresAt:            m.ExpiresAt,
+		Lifetime:             m.Lifetime,
+		UseSlidingExpiration: m.UseSlidingExpiration,
+		Data:                 make(map[string]string),
 	}
 	for k, v := range m.Data {
 		model.Data[k] = v

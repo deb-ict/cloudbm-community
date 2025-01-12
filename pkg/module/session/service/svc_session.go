@@ -56,6 +56,9 @@ func (svc *service) UpdateSession(ctx context.Context, id string, model *model.S
 	if data == nil {
 		return nil, session.ErrSessionNotFound
 	}
+	if data.HasExpired() {
+		return data, session.ErrSessionExpired
+	}
 	data.UpdateModel(model)
 
 	err = svc.database.Sessions().UpdateSession(ctx, data)
