@@ -40,6 +40,9 @@ func (svc *service) GetProductByName(ctx context.Context, language string, name 
 		return nil, err
 	}
 	if data == nil {
+		if !svc.languageProvider.IsDefaultLanguage(ctx, normalizedLanguage) {
+			return svc.GetProductByName(ctx, svc.languageProvider.DefaultLanguage(ctx), name)
+		}
 		return nil, product.ErrProductNotFound
 	}
 
@@ -55,6 +58,9 @@ func (svc *service) GetProductBySlug(ctx context.Context, language string, slug 
 		return nil, err
 	}
 	if data == nil {
+		if !svc.languageProvider.IsDefaultLanguage(ctx, normalizedLanguage) {
+			return svc.GetProductBySlug(ctx, svc.languageProvider.DefaultLanguage(ctx), slug)
+		}
 		return nil, product.ErrProductNotFound
 	}
 
