@@ -48,6 +48,9 @@ func (svc *service) GetImageByName(ctx context.Context, language string, name st
 		return nil, err
 	}
 	if data == nil {
+		if !svc.languageProvider.IsDefaultLanguage(ctx, normalizedLanguage) {
+			return svc.GetImageByName(ctx, svc.languageProvider.DefaultLanguage(ctx), name)
+		}
 		return nil, gallery.ErrImageNotFound
 	}
 
@@ -63,6 +66,9 @@ func (svc *service) GetImageBySlug(ctx context.Context, language string, slug st
 		return nil, err
 	}
 	if data == nil {
+		if !svc.languageProvider.IsDefaultLanguage(ctx, normalizedLanguage) {
+			return svc.GetImageBySlug(ctx, svc.languageProvider.DefaultLanguage(ctx), slug)
+		}
 		return nil, gallery.ErrImageNotFound
 	}
 

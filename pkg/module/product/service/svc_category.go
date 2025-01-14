@@ -40,6 +40,9 @@ func (svc *service) GetCategoryByName(ctx context.Context, language string, name
 		return nil, err
 	}
 	if data == nil {
+		if !svc.languageProvider.IsDefaultLanguage(ctx, normalizedLanguage) {
+			return svc.GetCategoryByName(ctx, svc.languageProvider.DefaultLanguage(ctx), name)
+		}
 		return nil, product.ErrCategoryNotFound
 	}
 
@@ -55,6 +58,9 @@ func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug
 		return nil, err
 	}
 	if data == nil {
+		if !svc.languageProvider.IsDefaultLanguage(ctx, normalizedLanguage) {
+			return svc.GetCategoryBySlug(ctx, svc.languageProvider.DefaultLanguage(ctx), slug)
+		}
 		return nil, product.ErrCategoryNotFound
 	}
 
