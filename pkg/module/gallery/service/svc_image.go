@@ -15,6 +15,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery/model"
+	"github.com/sirupsen/logrus"
 )
 
 func (svc *service) GetImages(ctx context.Context, offset int64, limit int64, filter *model.ImageFilter, sort *core.Sort) ([]*model.Image, int64, error) {
@@ -150,13 +151,15 @@ func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser,
 		return nil, "", "", gallery.ErrImageNotFound
 	}
 
-	filePath := filepath.Join(data.StorageFolder, data.FileName)
-	_, err = os.Stat(filePath)
+	localFilePath := svc.StorageProvider().GetPath(ctx, data.StorageFolder, data.FileName)
+	logrus.Infof("Loading image file from %s", localFilePath)
+
+	_, err = os.Stat(localFilePath)
 	if err != nil {
 		return nil, "", "", err
 	}
 
-	file, err := os.OpenFile(filePath, os.O_RDONLY, 0)
+	file, err := os.OpenFile(localFilePath, os.O_RDONLY, 0)
 	if err != nil {
 		return nil, "", "", err
 	}
@@ -178,15 +181,16 @@ func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader,
 
 	// Get the storage folder
 	now := time.Now().UTC()
-	localFolder := filepath.Join(svc.StorageFolder(), "images", fmt.Sprintf("%04d/%02d/", now.Year(), int(now.Month())))
+	localFileName := fmt.Sprintf("%s%s", id, fileExt)
+	localFolder := filepath.Join("gallery", "images", fmt.Sprintf("%04d/%02d", now.Year(), int(now.Month())))
+	localFilePath := svc.storageProvider.GetPath(ctx, localFolder, localFileName)
 	err := core.EnsureFolder(localFolder)
 	if err != nil {
 		return nil, err
 	}
 
 	// Open the local file
-	localFileName := fmt.Sprintf("%s%s", id, fileExt)
-	localFilePath := filepath.Join(localFolder, localFileName)
+	logrus.Infof("Saving image file to %s", localFilePath)
 	localFile, err := os.OpenFile(localFilePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return nil, err
@@ -217,13 +221,13 @@ func (svc *service) setImageFileInfo(ctx context.Context, id string, localFolder
 		return nil, gallery.ErrImageNotFound
 	}
 
-	filePath := filepath.Join(localFolder, localFileName)
-	fileInfo, err := os.Stat(filePath)
+	localFilePath := svc.storageProvider.GetPath(ctx, localFolder, localFileName)
+	fileInfo, err := os.Stat(localFilePath)
 	if err != nil {
 		return nil, err
 	}
 
-	file, err := os.Open(filePath)
+	file, err := os.Open(localFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -290,4 +294,8 @@ func (svc *service) checkDuplicateImageSlug(ctx context.Context, model *model.Im
 		return gallery.ErrImageDuplicateSlug
 	}
 	return nil
+}
+
+func (svc *service) getRootFolder(ctx context.Context) string {
+	return svc.StorageProvider().GetPath(ctx, "gallery", "images")
 }
