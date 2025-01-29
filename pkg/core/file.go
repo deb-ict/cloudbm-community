@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"os"
+	"path/filepath"
 )
 
 func EnsureFolder(path string) error {
@@ -13,4 +14,15 @@ func EnsureFolder(path string) error {
 		}
 	}
 	return nil
+}
+
+func FixUserFolder(path string) string {
+	if path == "" {
+		return ""
+	}
+	if path[0] == '~' {
+		home, _ := os.UserHomeDir()
+		path = filepath.Join(home, path[1:])
+	}
+	return path
 }

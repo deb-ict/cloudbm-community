@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"os/user"
 	"path/filepath"
 	"strings"
 )
@@ -17,12 +16,8 @@ type defaultStorageProvider struct {
 }
 
 func DefaultStorageProvider(rootFolder string) StorageProvider {
-	if strings.HasPrefix(rootFolder, "~") {
-		usr, _ := user.Current()
-		rootFolder = filepath.Join(usr.HomeDir, rootFolder[2:])
-	}
 	return &defaultStorageProvider{
-		rootFolder: rootFolder,
+		rootFolder: FixUserFolder(rootFolder),
 	}
 }
 
