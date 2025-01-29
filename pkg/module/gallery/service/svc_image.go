@@ -295,7 +295,3 @@ func (svc *service) checkDuplicateImageSlug(ctx context.Context, model *model.Im
 	}
 	return nil
 }
-
-func (svc *service) getRootFolder(ctx context.Context) string {
-	return svc.StorageProvider().GetPath(ctx, "gallery", "images")
-}
