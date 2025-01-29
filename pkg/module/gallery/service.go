@@ -12,8 +12,8 @@ import (
 type Service interface {
 	StringNormalizer() core.StringNormalizer
 	FeatureProvider() core.FeatureProvider
+	StorageProvider() core.StorageProvider
 	LanguageProvider() localization.LanguageProvider
-	StorageFolder() string
 
 	GetImages(ctx context.Context, offset int64, limit int64, filter *model.ImageFilter, sort *core.Sort) ([]*model.Image, int64, error)
 	GetImageById(ctx context.Context, id string) (*model.Image, error)
