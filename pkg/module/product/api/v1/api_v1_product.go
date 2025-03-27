@@ -15,7 +15,7 @@ type ProductV1 struct {
 	CategoryIds  []string                `json:"category_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
-	Ean          string                  `json:"ean"`
+	Gtin         string                  `json:"gtin"`
 	Sku          string                  `json:"sku"`
 	Mpn          string                  `json:"mpn"`
 	RegularPrice string                  `json:"regular_price"`
@@ -42,7 +42,7 @@ type ProductListItemV1 struct {
 	Slug         string `json:"slug"`
 	Summary      string `json:"summary"`
 	ThumbnailId  string `json:"thumbnail_id"`
-	Ean          string `json:"ean"`
+	Gtin         string `json:"gtin"`
 	Sku          string `json:"sku"`
 	Mpn          string `json:"mpn"`
 	RegularPrice string `json:"regular_price"`
@@ -54,7 +54,7 @@ type CreateProductV1 struct {
 	CategoryIds  []string                `json:"category_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
-	Ean          string                  `json:"ean"`
+	Gtin         string                  `json:"gtin"`
 	Sku          string                  `json:"sku"`
 	Mpn          string                  `json:"mpn"`
 	RegularPrice string                  `json:"regular_price"`
@@ -66,7 +66,7 @@ type UpdateProductV1 struct {
 	CategoryIds  []string                `json:"category_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
-	Ean          string                  `json:"ean"`
+	Gtin         string                  `json:"gtin"`
 	Sku          string                  `json:"sku"`
 	Mpn          string                  `json:"mpn"`
 	RegularPrice string                  `json:"regular_price"`
@@ -199,7 +199,7 @@ func ProductToViewModelV1(model *model.Product, language string, defaultLanguage
 		CategoryIds:  model.CategoryIds,
 		Translations: make([]*ProductTranslationV1, 0),
 		ThumbnailId:  model.ThumbnailId,
-		Ean:          model.Ean,
+		Gtin:         model.Gtin,
 		Sku:          model.Sku,
 		Mpn:          model.Mpn,
 		RegularPrice: model.RegularPrice.String(),
@@ -220,7 +220,7 @@ func ProductToListItemViewModelV1(model *model.Product, language string, default
 		Slug:         translation.Slug,
 		Summary:      translation.Summary,
 		ThumbnailId:  model.ThumbnailId,
-		Ean:          model.Ean,
+		Gtin:         model.Gtin,
 		Sku:          model.Sku,
 		Mpn:          model.Mpn,
 		RegularPrice: model.RegularPrice.String(),
@@ -234,7 +234,7 @@ func ProductFromCreateViewModelV1(viewModel *CreateProductV1) *model.Product {
 		CategoryIds:  viewModel.CategoryIds,
 		Translations: make([]*model.ProductTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
-		Ean:          viewModel.Ean,
+		Gtin:         viewModel.Gtin,
 		Sku:          viewModel.Sku,
 		Mpn:          viewModel.Mpn,
 		RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
@@ -252,7 +252,7 @@ func ProductFromUpdateViewModelV1(viewModel *UpdateProductV1) *model.Product {
 		CategoryIds:  viewModel.CategoryIds,
 		Translations: make([]*model.ProductTranslation, 0),
 		ThumbnailId:  viewModel.ThumbnailId,
-		Ean:          viewModel.Ean,
+		Gtin:         viewModel.Gtin,
 		Sku:          viewModel.Sku,
 		Mpn:          viewModel.Mpn,
 		RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),

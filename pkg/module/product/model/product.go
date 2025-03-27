@@ -12,7 +12,7 @@ type Product struct {
 	CategoryIds  []string
 	Translations []*ProductTranslation
 	ThumbnailId  string
-	Ean          string
+	Gtin         string
 	Sku          string
 	Mpn          string
 	RegularPrice decimal.Decimal
@@ -51,7 +51,7 @@ func (m *Product) UpdateModel(other *Product) {
 	m.CategoryIds = append(m.CategoryIds, other.CategoryIds...)
 	m.Translations = make([]*ProductTranslation, 0)
 	m.ThumbnailId = other.ThumbnailId
-	m.Ean = other.Ean
+	m.Gtin = other.Gtin
 	m.Sku = other.Sku
 	m.Mpn = other.Mpn
 	m.RegularPrice = other.RegularPrice
@@ -102,7 +102,7 @@ func (m *Product) Clone() *Product {
 		CategoryIds:  make([]string, 0),
 		Translations: make([]*ProductTranslation, 0),
 		ThumbnailId:  m.ThumbnailId,
-		Ean:          m.Ean,
+		Gtin:         m.Gtin,
 		Sku:          m.Sku,
 		Mpn:          m.Mpn,
 		RegularPrice: m.RegularPrice,
