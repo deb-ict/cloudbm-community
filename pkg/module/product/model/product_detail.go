@@ -4,17 +4,21 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/gosimple/slug"
+	"github.com/shopspring/decimal"
 )
 
-type Category struct {
-	Id           string
-	ParentId     string
-	Translations []*CategoryTranslation
+type ProductDetail struct {
+	Translations []*ProductTranslation
 	ThumbnailId  string
+	Gtin         string
+	Sku          string
+	Mpn          string
+	RegularPrice decimal.Decimal
+	SalesPrice   decimal.Decimal
 	IsEnabled    bool
 }
 
-func (m *Category) Normalize(normalizer core.StringNormalizer) {
+func (m *ProductDetail) Normalize(normalizer core.StringNormalizer) {
 	for _, translation := range m.Translations {
 		translation.Language = localization.NormalizeLanguage(translation.Language)
 		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
@@ -25,19 +29,23 @@ func (m *Category) Normalize(normalizer core.StringNormalizer) {
 	}
 }
 
-func (m *Category) UpdateModel(other *Category) {
-	m.ParentId = other.ParentId
-	m.Translations = make([]*CategoryTranslation, 0)
+func (m *ProductDetail) UpdateModel(other *ProductDetail) {
+	m.Translations = make([]*ProductTranslation, 0)
 	m.ThumbnailId = other.ThumbnailId
+	m.Gtin = other.Gtin
+	m.Sku = other.Sku
+	m.Mpn = other.Mpn
+	m.RegularPrice = other.RegularPrice
+	m.SalesPrice = other.SalesPrice
 	m.IsEnabled = other.IsEnabled
 	for _, translation := range other.Translations {
 		m.Translations = append(m.Translations, translation.Clone())
 	}
 }
 
-func (m *Category) GetTranslation(language string, defaultLanguage string) *CategoryTranslation {
+func (m *ProductDetail) GetTranslation(language string, defaultLanguage string) *ProductTranslation {
 	if len(m.Translations) == 0 {
-		return &CategoryTranslation{}
+		return &ProductTranslation{}
 	}
 
 	translation, err := m.TryGetTranslation(language)
@@ -51,7 +59,7 @@ func (m *Category) GetTranslation(language string, defaultLanguage string) *Cate
 	return translation
 }
 
-func (m *Category) TryGetTranslation(language string) (*CategoryTranslation, error) {
+func (m *ProductDetail) TryGetTranslation(language string) (*ProductTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
@@ -61,23 +69,14 @@ func (m *Category) TryGetTranslation(language string) (*CategoryTranslation, err
 	return nil, core.ErrTranslationNotFound
 }
 
-func (m *Category) IsTransient() bool {
-	return m.Id == ""
-}
-
-func (m *Category) Clone() *Category {
-	if m == nil {
-		return nil
-	}
-	model := &Category{
-		Id:           m.Id,
-		ParentId:     m.ParentId,
-		Translations: make([]*CategoryTranslation, 0),
+func (m *ProductDetail) Clone() *ProductDetail {
+	return &ProductDetail{
 		ThumbnailId:  m.ThumbnailId,
+		Gtin:         m.Gtin,
+		Sku:          m.Sku,
+		Mpn:          m.Mpn,
+		RegularPrice: m.RegularPrice,
+		SalesPrice:   m.SalesPrice,
 		IsEnabled:    m.IsEnabled,
 	}
-	for _, translation := range m.Translations {
-		model.Translations = append(model.Translations, translation.Clone())
-	}
-	return model
 }

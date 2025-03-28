@@ -128,7 +128,7 @@ func (svc *service) DeleteProduct(ctx context.Context, id string) error {
 }
 
 func (svc *service) checkDuplicateProduct(ctx context.Context, model *model.Product) error {
-	for _, translation := range model.Translations {
+	for _, translation := range model.Details.Translations {
 		if err := svc.checkDuplicateProductName(ctx, model, translation); err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ func (svc *service) checkDuplicateProduct(ctx context.Context, model *model.Prod
 }
 
 func (svc *service) checkDuplicateProductName(ctx context.Context, model *model.Product, translation *model.ProductTranslation) error {
-	duplicate, err := svc.database.Categories().GetCategoryByName(ctx, translation.Language, translation.NormalizedName)
+	duplicate, err := svc.database.Products().GetProductByName(ctx, translation.Language, translation.NormalizedName)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (svc *service) checkDuplicateProductName(ctx context.Context, model *model.
 }
 
 func (svc *service) checkDuplicateProductSlug(ctx context.Context, model *model.Product, translation *model.ProductTranslation) error {
-	duplicate, err := svc.database.Categories().GetCategoryBySlug(ctx, translation.Language, translation.Slug)
+	duplicate, err := svc.database.Products().GetProductBySlug(ctx, translation.Language, translation.Slug)
 	if err != nil {
 		return err
 	}
