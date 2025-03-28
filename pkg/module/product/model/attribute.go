@@ -6,15 +6,13 @@ import (
 	"github.com/gosimple/slug"
 )
 
-type Category struct {
+type Attribute struct {
 	Id           string
-	ParentId     string
-	Translations []*CategoryTranslation
-	ThumbnailId  string
+	Translations []*AttributeTranslation
 	IsEnabled    bool
 }
 
-func (m *Category) Normalize(normalizer core.StringNormalizer) {
+func (m *Attribute) Normalize(normalizer core.StringNormalizer) {
 	for _, translation := range m.Translations {
 		translation.Language = localization.NormalizeLanguage(translation.Language)
 		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
@@ -25,19 +23,17 @@ func (m *Category) Normalize(normalizer core.StringNormalizer) {
 	}
 }
 
-func (m *Category) UpdateModel(other *Category) {
-	m.ParentId = other.ParentId
-	m.Translations = make([]*CategoryTranslation, 0)
-	m.ThumbnailId = other.ThumbnailId
+func (m *Attribute) UpdateModel(other *Attribute) {
+	m.Translations = make([]*AttributeTranslation, 0)
 	m.IsEnabled = other.IsEnabled
 	for _, translation := range other.Translations {
 		m.Translations = append(m.Translations, translation.Clone())
 	}
 }
 
-func (m *Category) GetTranslation(language string, defaultLanguage string) *CategoryTranslation {
+func (m *Attribute) GetTranslation(language string, defaultLanguage string) *AttributeTranslation {
 	if len(m.Translations) == 0 {
-		return &CategoryTranslation{}
+		return &AttributeTranslation{}
 	}
 
 	translation, err := m.TryGetTranslation(language)
@@ -51,29 +47,28 @@ func (m *Category) GetTranslation(language string, defaultLanguage string) *Cate
 	return translation
 }
 
-func (m *Category) TryGetTranslation(language string) (*CategoryTranslation, error) {
+func (m *Attribute) TryGetTranslation(language string) (*AttributeTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
 			return t, nil
 		}
 	}
+
 	return nil, core.ErrTranslationNotFound
 }
 
-func (m *Category) IsTransient() bool {
+func (m *Attribute) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Category) Clone() *Category {
+func (m *Attribute) Clone() *Attribute {
 	if m == nil {
 		return nil
 	}
-	model := &Category{
+	model := &Attribute{
 		Id:           m.Id,
-		ParentId:     m.ParentId,
-		Translations: make([]*CategoryTranslation, 0),
-		ThumbnailId:  m.ThumbnailId,
+		Translations: make([]*AttributeTranslation, 0),
 		IsEnabled:    m.IsEnabled,
 	}
 	for _, translation := range m.Translations {
