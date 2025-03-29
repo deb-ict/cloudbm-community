@@ -6,15 +6,15 @@ import (
 	"github.com/gosimple/slug"
 )
 
-type Category struct {
+type AttributeValue struct {
 	Id           string
-	ParentId     string
-	Translations []*CategoryTranslation
-	ThumbnailId  string
+	AttributeId  string
+	Translations []*AttributeValueTranslation
+	Value        string
 	IsEnabled    bool
 }
 
-func (m *Category) Normalize(normalizer core.StringNormalizer) {
+func (m *AttributeValue) Normalize(normalizer core.StringNormalizer) {
 	for _, translation := range m.Translations {
 		translation.Language = localization.NormalizeLanguage(translation.Language)
 		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
@@ -25,19 +25,18 @@ func (m *Category) Normalize(normalizer core.StringNormalizer) {
 	}
 }
 
-func (m *Category) UpdateModel(other *Category) {
-	m.ParentId = other.ParentId
-	m.Translations = make([]*CategoryTranslation, 0)
-	m.ThumbnailId = other.ThumbnailId
+func (m *AttributeValue) UpdateModel(other *AttributeValue) {
+	m.Translations = make([]*AttributeValueTranslation, 0)
 	m.IsEnabled = other.IsEnabled
 	for _, translation := range other.Translations {
 		m.Translations = append(m.Translations, translation.Clone())
 	}
+	m.Value = other.Value
 }
 
-func (m *Category) GetTranslation(language string, defaultLanguage string) *CategoryTranslation {
+func (m *AttributeValue) GetTranslation(language string, defaultLanguage string) *AttributeValueTranslation {
 	if len(m.Translations) == 0 {
-		return &CategoryTranslation{}
+		return &AttributeValueTranslation{}
 	}
 
 	translation, err := m.TryGetTranslation(language)
@@ -51,29 +50,30 @@ func (m *Category) GetTranslation(language string, defaultLanguage string) *Cate
 	return translation
 }
 
-func (m *Category) TryGetTranslation(language string) (*CategoryTranslation, error) {
+func (m *AttributeValue) TryGetTranslation(language string) (*AttributeValueTranslation, error) {
 	normalizedLanguage := localization.NormalizeLanguage(language)
 	for _, t := range m.Translations {
 		if t.Language == normalizedLanguage {
 			return t, nil
 		}
 	}
+
 	return nil, core.ErrTranslationNotFound
 }
 
-func (m *Category) IsTransient() bool {
+func (m *AttributeValue) IsTransient() bool {
 	return m.Id == ""
 }
 
-func (m *Category) Clone() *Category {
+func (m *AttributeValue) Clone() *AttributeValue {
 	if m == nil {
 		return nil
 	}
-	model := &Category{
+	model := &AttributeValue{
 		Id:           m.Id,
-		ParentId:     m.ParentId,
-		Translations: make([]*CategoryTranslation, 0),
-		ThumbnailId:  m.ThumbnailId,
+		AttributeId:  m.AttributeId,
+		Translations: make([]*AttributeValueTranslation, 0),
+		Value:        m.Value,
 		IsEnabled:    m.IsEnabled,
 	}
 	for _, translation := range m.Translations {
