@@ -12,7 +12,6 @@ type Database interface {
 	AttributeValues() AttributeValueRepository
 	Categories() CategoryRepository
 	Products() ProductRepository
-	ProductVariants() ProductVariantRepository
 }
 
 type AttributeRepository interface {
@@ -53,14 +52,4 @@ type ProductRepository interface {
 	CreateProduct(ctx context.Context, model *model.Product) (string, error)
 	UpdateProduct(ctx context.Context, model *model.Product) error
 	DeleteProduct(ctx context.Context, model *model.Product) error
-}
-
-type ProductVariantRepository interface {
-	GetProductVariants(ctx context.Context, productId string, offset int64, limit int64, filter *model.ProductVariantFilter, sort *core.Sort) ([]*model.ProductVariant, int64, error)
-	GetProductVariantById(ctx context.Context, productId string, id string) (*model.ProductVariant, error)
-	GetProductVariantByName(ctx context.Context, productId string, language string, name string) (*model.ProductVariant, error)
-	GetProductVariantBySlug(ctx context.Context, productId string, language string, slug string) (*model.ProductVariant, error)
-	CreateProductVariant(ctx context.Context, model *model.ProductVariant) (string, error)
-	UpdateProductVariant(ctx context.Context, model *model.ProductVariant) error
-	DeleteProductVariant(ctx context.Context, model *model.ProductVariant) error
 }

@@ -128,7 +128,7 @@ func (svc *service) DeleteProduct(ctx context.Context, id string) error {
 }
 
 func (svc *service) checkDuplicateProduct(ctx context.Context, model *model.Product) error {
-	for _, translation := range model.Details.Translations {
+	for _, translation := range model.Translations {
 		if err := svc.checkDuplicateProductName(ctx, model, translation); err != nil {
 			return err
 		}

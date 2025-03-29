@@ -1,7 +1,10 @@
 package model
 
 type ProductFilter struct {
-	Language   string
-	Name       string
-	CategoryId string
+	Type             *ProductType
+	Language         string
+	Name             string
+	CategoryId       string
+	IncludeTemplates bool
+	IncludeVariants  bool
 }

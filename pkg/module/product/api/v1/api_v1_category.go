@@ -167,12 +167,12 @@ func CategoryToViewModelV1(model *model.Category) *CategoryV1 {
 	viewModel := &CategoryV1{
 		Id:           model.Id,
 		ParentId:     model.ParentId,
-		Translations: make([]*CategoryTranslationV1, 0),
+		Translations: make([]*CategoryTranslationV1, len(model.Translations)),
 		ThumbnailId:  model.ThumbnailId,
 		IsEnabled:    model.IsEnabled,
 	}
-	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, CategoryTranslationToViewModelV1(translation))
+	for i, translation := range model.Translations {
+		viewModel.Translations[i] = CategoryTranslationToViewModelV1(translation)
 	}
 	return viewModel
 }
@@ -192,12 +192,12 @@ func CategoryToListItemViewModelV1(model *model.Category, language string, defau
 func CategoryFromCreateViewModelV1(viewModel *CreateCategoryV1) *model.Category {
 	model := &model.Category{
 		ParentId:     viewModel.ParentId,
-		Translations: make([]*model.CategoryTranslation, 0),
+		Translations: make([]*model.CategoryTranslation, len(viewModel.Translations)),
 		ThumbnailId:  viewModel.ThumbnailId,
 		IsEnabled:    viewModel.IsEnabled,
 	}
-	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, CategoryTranslationFromViewModelV1(translation))
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = CategoryTranslationFromViewModelV1(translation)
 	}
 	return model
 }
@@ -205,12 +205,12 @@ func CategoryFromCreateViewModelV1(viewModel *CreateCategoryV1) *model.Category 
 func CategoryFromUpdateViewModelV1(viewModel *UpdateCategoryV1) *model.Category {
 	model := &model.Category{
 		ParentId:     viewModel.ParentId,
-		Translations: make([]*model.CategoryTranslation, 0),
+		Translations: make([]*model.CategoryTranslation, len(viewModel.Translations)),
 		ThumbnailId:  viewModel.ThumbnailId,
 		IsEnabled:    viewModel.IsEnabled,
 	}
-	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, CategoryTranslationFromViewModelV1(translation))
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = CategoryTranslationFromViewModelV1(translation)
 	}
 	return model
 }

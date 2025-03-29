@@ -151,11 +151,11 @@ func (api *apiV1) parseAttributeFilterV1(r *http.Request) *model.AttributeFilter
 func AttributeToViewModelV1(model *model.Attribute) *AttributeV1 {
 	viewModel := &AttributeV1{
 		Id:           model.Id,
-		Translations: make([]*AttributeTranslationV1, 0),
+		Translations: make([]*AttributeTranslationV1, len(model.Translations)),
 		IsEnabled:    model.IsEnabled,
 	}
-	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, AttributeTranslationToViewModelV1(translation))
+	for i, translation := range model.Translations {
+		viewModel.Translations[i] = AttributeTranslationToViewModelV1(translation)
 	}
 	return viewModel
 }
@@ -173,22 +173,22 @@ func AttributeToListItemViewModelV1(model *model.Attribute, language string, def
 
 func AttributeFromCreateViewModelV1(viewModel *CreateAttributeV1) *model.Attribute {
 	model := &model.Attribute{
-		Translations: make([]*model.AttributeTranslation, 0),
+		Translations: make([]*model.AttributeTranslation, len(viewModel.Translations)),
 		IsEnabled:    viewModel.IsEnabled,
 	}
-	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, AttributeTranslationFromViewModelV1(translation))
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = AttributeTranslationFromViewModelV1(translation)
 	}
 	return model
 }
 
 func AttributeFromUpdateViewModelV1(viewModel *UpdateAttributeV1) *model.Attribute {
 	model := &model.Attribute{
-		Translations: make([]*model.AttributeTranslation, 0),
+		Translations: make([]*model.AttributeTranslation, len(viewModel.Translations)),
 		IsEnabled:    viewModel.IsEnabled,
 	}
-	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, AttributeTranslationFromViewModelV1(translation))
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = AttributeTranslationFromViewModelV1(translation)
 	}
 	return model
 }

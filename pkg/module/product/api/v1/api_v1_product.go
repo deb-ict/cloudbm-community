@@ -12,9 +12,11 @@ import (
 
 type ProductV1 struct {
 	Id           string                  `json:"id"`
+	Type         string                  `json:"type"`
+	TemplateId   string                  `json:"template_id,omitempty"`
 	CategoryIds  []string                `json:"category_ids"`
-	AttributeIds []string                `json:"attribute_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
+	Attributes   []*ProductAttributeV1   `json:"attributes,omitempty"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
 	Gtin         string                  `json:"gtin"`
 	Sku          string                  `json:"sku"`
@@ -32,6 +34,11 @@ type ProductTranslationV1 struct {
 	Description string `json:"description"`
 }
 
+type ProductAttributeV1 struct {
+	AttributeId string `json:"attribute_id"`
+	ValueId     string `json:"value_id"`
+}
+
 type ProductListV1 struct {
 	rest.PaginatedList
 	Items []*ProductListItemV1 `json:"items"`
@@ -39,6 +46,7 @@ type ProductListV1 struct {
 
 type ProductListItemV1 struct {
 	Id           string `json:"id"`
+	Type         string `json:"type"`
 	Name         string `json:"name"`
 	Slug         string `json:"slug"`
 	Summary      string `json:"summary"`
@@ -52,9 +60,11 @@ type ProductListItemV1 struct {
 }
 
 type CreateProductV1 struct {
+	Type         string                  `json:"type"`
+	TemplateId   string                  `json:"template_id,omitempty"`
 	CategoryIds  []string                `json:"category_ids"`
-	AttributeIds []string                `json:"attribute_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
+	Attributes   []*ProductAttributeV1   `json:"attributes,omitempty"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
 	Gtin         string                  `json:"gtin"`
 	Sku          string                  `json:"sku"`
@@ -65,9 +75,11 @@ type CreateProductV1 struct {
 }
 
 type UpdateProductV1 struct {
+	Type         string                  `json:"type"`
+	TemplateId   string                  `json:"template_id,omitempty"`
 	CategoryIds  []string                `json:"category_ids"`
-	AttributeIds []string                `json:"attribute_ids"`
 	Translations []*ProductTranslationV1 `json:"translations"`
+	Attributes   []*ProductAttributeV1   `json:"attributes,omitempty"`
 	ThumbnailId  string                  `json:"thumbnail_id"`
 	Gtin         string                  `json:"gtin"`
 	Sku          string                  `json:"sku"`
@@ -186,6 +198,14 @@ func (api *apiV1) DeleteProductHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) parseProductFilterV1(r *http.Request) *model.ProductFilter {
 	filter := &model.ProductFilter{}
 
+	productType := r.URL.Query().Get("type")
+	if productType != "" {
+		productTypeValue := model.ParseProductType(productType)
+		if productTypeValue.IsValid() {
+			filter.Type = &productTypeValue
+		}
+	}
+
 	filter.Language = r.URL.Query().Get("language")
 	if filter.Language == "" {
 		filter.Language = api.service.LanguageProvider().UserLanguage(r.Context())
@@ -193,27 +213,34 @@ func (api *apiV1) parseProductFilterV1(r *http.Request) *model.ProductFilter {
 	filter.Name = r.URL.Query().Get("name")
 	filter.CategoryId = r.URL.Query().Get("category")
 
+	//TODO: Include templates
+	//TODO: Include variants
+
 	return filter
 }
 
 func ProductToViewModelV1(model *model.Product, language string, defaultLanguage string) *ProductV1 {
 	viewModel := &ProductV1{
 		Id:           model.Id,
-		CategoryIds:  make([]string, 0),
-		AttributeIds: make([]string, 0),
-		Translations: make([]*ProductTranslationV1, 0),
-		ThumbnailId:  model.Details.ThumbnailId,
-		Gtin:         model.Details.Gtin,
-		Sku:          model.Details.Sku,
-		Mpn:          model.Details.Mpn,
-		RegularPrice: model.Details.RegularPrice.String(),
-		SalesPrice:   model.Details.SalesPrice.String(),
-		IsEnabled:    model.Details.IsEnabled,
+		Type:         model.Type.String(),
+		TemplateId:   model.TemplateId,
+		CategoryIds:  make([]string, len(model.CategoryIds)),
+		Translations: make([]*ProductTranslationV1, len(model.Translations)),
+		Attributes:   make([]*ProductAttributeV1, len(model.Attributes)),
+		ThumbnailId:  model.ThumbnailId,
+		Gtin:         model.Gtin,
+		Sku:          model.Sku,
+		Mpn:          model.Mpn,
+		RegularPrice: model.RegularPrice.String(),
+		SalesPrice:   model.SalesPrice.String(),
+		IsEnabled:    model.IsEnabled,
 	}
-	viewModel.CategoryIds = append(viewModel.CategoryIds, model.CategoryIds...)
-	viewModel.AttributeIds = append(viewModel.AttributeIds, model.AttributeIds...)
-	for _, translation := range model.Details.Translations {
-		viewModel.Translations = append(viewModel.Translations, ProductTranslationToViewModelV1(translation))
+	copy(viewModel.CategoryIds, model.CategoryIds)
+	for i, translation := range model.Translations {
+		viewModel.Translations[i] = ProductTranslationToViewModelV1(translation)
+	}
+	for i, attribute := range model.Attributes {
+		viewModel.Attributes[i] = ProductAttributeToViewModelV1(attribute)
 	}
 	return viewModel
 }
@@ -222,61 +249,66 @@ func ProductToListItemViewModelV1(model *model.Product, language string, default
 	translation := model.GetTranslation(language, defaultLanguage)
 	return &ProductListItemV1{
 		Id:           model.Id,
+		Type:         model.Type.String(),
 		Name:         translation.Name,
 		Slug:         translation.Slug,
 		Summary:      translation.Summary,
-		ThumbnailId:  model.Details.ThumbnailId,
-		Gtin:         model.Details.Gtin,
-		Sku:          model.Details.Sku,
-		Mpn:          model.Details.Mpn,
-		RegularPrice: model.Details.RegularPrice.String(),
-		SalesPrice:   model.Details.SalesPrice.String(),
-		IsEnabled:    model.Details.IsEnabled,
+		ThumbnailId:  model.ThumbnailId,
+		Gtin:         model.Gtin,
+		Sku:          model.Sku,
+		Mpn:          model.Mpn,
+		RegularPrice: model.RegularPrice.String(),
+		SalesPrice:   model.SalesPrice.String(),
+		IsEnabled:    model.IsEnabled,
 	}
 }
 
 func ProductFromCreateViewModelV1(viewModel *CreateProductV1) *model.Product {
 	model := &model.Product{
-		CategoryIds:  make([]string, 0),
-		AttributeIds: make([]string, 0),
-		Details: &model.ProductDetail{
-			Translations: make([]*model.ProductTranslation, 0),
-			ThumbnailId:  viewModel.ThumbnailId,
-			Gtin:         viewModel.Gtin,
-			Sku:          viewModel.Sku,
-			Mpn:          viewModel.Mpn,
-			RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
-			SalesPrice:   core.TryGetDecimalFromString(viewModel.SalesPrice),
-			IsEnabled:    viewModel.IsEnabled,
-		},
+		Type:         model.ParseProductType(viewModel.Type),
+		TemplateId:   viewModel.TemplateId,
+		CategoryIds:  make([]string, len(viewModel.CategoryIds)),
+		Translations: make([]*model.ProductTranslation, len(viewModel.Translations)),
+		Attributes:   make([]*model.ProductAttribute, len(viewModel.Attributes)),
+		ThumbnailId:  viewModel.ThumbnailId,
+		Gtin:         viewModel.Gtin,
+		Sku:          viewModel.Sku,
+		Mpn:          viewModel.Mpn,
+		RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
+		SalesPrice:   core.TryGetDecimalFromString(viewModel.SalesPrice),
+		IsEnabled:    viewModel.IsEnabled,
 	}
-	model.CategoryIds = append(model.CategoryIds, viewModel.CategoryIds...)
-	model.AttributeIds = append(model.AttributeIds, viewModel.AttributeIds...)
-	for _, translation := range viewModel.Translations {
-		model.Details.Translations = append(model.Details.Translations, ProductTranslationFromViewModelV1(translation))
+	copy(model.CategoryIds, viewModel.CategoryIds)
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = ProductTranslationFromViewModelV1(translation)
+	}
+	for i, attribute := range viewModel.Attributes {
+		model.Attributes[i] = ProductAttributeFromViewModelV1(attribute)
 	}
 	return model
 }
 
 func ProductFromUpdateViewModelV1(viewModel *UpdateProductV1) *model.Product {
 	model := &model.Product{
-		CategoryIds:  make([]string, 0),
-		AttributeIds: make([]string, 0),
-		Details: &model.ProductDetail{
-			Translations: make([]*model.ProductTranslation, 0),
-			ThumbnailId:  viewModel.ThumbnailId,
-			Gtin:         viewModel.Gtin,
-			Sku:          viewModel.Sku,
-			Mpn:          viewModel.Mpn,
-			RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
-			SalesPrice:   core.TryGetDecimalFromString(viewModel.SalesPrice),
-			IsEnabled:    viewModel.IsEnabled,
-		},
+		Type:         model.ParseProductType(viewModel.Type),
+		TemplateId:   viewModel.TemplateId,
+		CategoryIds:  make([]string, len(viewModel.CategoryIds)),
+		Translations: make([]*model.ProductTranslation, len(viewModel.Translations)),
+		Attributes:   make([]*model.ProductAttribute, len(viewModel.Attributes)),
+		ThumbnailId:  viewModel.ThumbnailId,
+		Gtin:         viewModel.Gtin,
+		Sku:          viewModel.Sku,
+		Mpn:          viewModel.Mpn,
+		RegularPrice: core.TryGetDecimalFromString(viewModel.RegularPrice),
+		SalesPrice:   core.TryGetDecimalFromString(viewModel.SalesPrice),
+		IsEnabled:    viewModel.IsEnabled,
 	}
-	model.CategoryIds = append(model.CategoryIds, viewModel.CategoryIds...)
-	model.AttributeIds = append(model.AttributeIds, viewModel.AttributeIds...)
-	for _, translation := range viewModel.Translations {
-		model.Details.Translations = append(model.Details.Translations, ProductTranslationFromViewModelV1(translation))
+	copy(model.CategoryIds, viewModel.CategoryIds)
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = ProductTranslationFromViewModelV1(translation)
+	}
+	for i, attribute := range viewModel.Attributes {
+		model.Attributes[i] = ProductAttributeFromViewModelV1(attribute)
 	}
 	return model
 }
@@ -298,5 +330,19 @@ func ProductTranslationFromViewModelV1(viewModel *ProductTranslationV1) *model.P
 		Slug:        viewModel.Slug,
 		Summary:     viewModel.Summary,
 		Description: viewModel.Description,
+	}
+}
+
+func ProductAttributeToViewModelV1(model *model.ProductAttribute) *ProductAttributeV1 {
+	return &ProductAttributeV1{
+		AttributeId: model.AttributeId,
+		ValueId:     model.ValueId,
+	}
+}
+
+func ProductAttributeFromViewModelV1(viewModel *ProductAttributeV1) *model.ProductAttribute {
+	return &model.ProductAttribute{
+		AttributeId: viewModel.AttributeId,
+		ValueId:     viewModel.ValueId,
 	}
 }
