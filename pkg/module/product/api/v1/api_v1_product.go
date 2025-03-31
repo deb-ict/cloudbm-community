@@ -198,23 +198,13 @@ func (api *apiV1) DeleteProductHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) parseProductFilterV1(r *http.Request) *model.ProductFilter {
 	filter := &model.ProductFilter{}
 
-	productType := r.URL.Query().Get("type")
-	if productType != "" {
-		productTypeValue := model.ParseProductType(productType)
-		if productTypeValue.IsValid() {
-			filter.Type = &productTypeValue
-		}
-	}
-
 	filter.Language = r.URL.Query().Get("language")
 	if filter.Language == "" {
 		filter.Language = api.service.LanguageProvider().UserLanguage(r.Context())
 	}
 	filter.Name = r.URL.Query().Get("name")
 	filter.CategoryId = r.URL.Query().Get("category")
-
-	//TODO: Include templates
-	//TODO: Include variants
+	filter.TemplateId = r.URL.Query().Get("template")
 
 	return filter
 }
