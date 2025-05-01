@@ -44,12 +44,4 @@ type Service interface {
 	CreateProduct(ctx context.Context, model *model.Product) (*model.Product, error)
 	UpdateProduct(ctx context.Context, id string, model *model.Product) (*model.Product, error)
 	DeleteProduct(ctx context.Context, id string) error
-
-	GetProductVariants(ctx context.Context, productId string, offset int64, limit int64, filter *model.ProductVariantFilter, sort *core.Sort) ([]*model.ProductVariant, int64, error)
-	GetProductVariantById(ctx context.Context, productId string, id string) (*model.ProductVariant, error)
-	GetProductVariantByName(ctx context.Context, productId string, language string, name string) (*model.ProductVariant, error)
-	GetProductVariantBySlug(ctx context.Context, productId string, language string, slug string) (*model.ProductVariant, error)
-	CreateProductVariant(ctx context.Context, productId string, model *model.ProductVariant) (*model.ProductVariant, error)
-	UpdateProductVariant(ctx context.Context, productId string, id string, model *model.ProductVariant) (*model.ProductVariant, error)
-	DeleteProductVariant(ctx context.Context, productId string, id string) error
 }

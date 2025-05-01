@@ -162,12 +162,12 @@ func (api *apiV1) parseAttributeValueFilterV1(r *http.Request) *model.AttributeV
 func AttributeValueToViewModelV1(model *model.AttributeValue) *AttributeValueV1 {
 	viewModel := &AttributeValueV1{
 		Id:           model.Id,
-		Translations: make([]*AttributeValueTranslationV1, 0),
+		Translations: make([]*AttributeValueTranslationV1, len(model.Translations)),
 		Value:        model.Value,
 		IsEnabled:    model.IsEnabled,
 	}
-	for _, translation := range model.Translations {
-		viewModel.Translations = append(viewModel.Translations, AttributeValueTranslationToViewModelV1(translation))
+	for i, translation := range model.Translations {
+		viewModel.Translations[i] = AttributeValueTranslationToViewModelV1(translation)
 	}
 	return viewModel
 }
@@ -186,24 +186,24 @@ func AttributeValueToListItemViewModelV1(model *model.AttributeValue, language s
 
 func AttributeValueFromCreateViewModelV1(viewModel *CreateAttributeValueV1) *model.AttributeValue {
 	model := &model.AttributeValue{
-		Translations: make([]*model.AttributeValueTranslation, 0),
+		Translations: make([]*model.AttributeValueTranslation, len(viewModel.Translations)),
 		Value:        viewModel.Value,
 		IsEnabled:    viewModel.IsEnabled,
 	}
-	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, AttributeValueTranslationFromViewModelV1(translation))
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = AttributeValueTranslationFromViewModelV1(translation)
 	}
 	return model
 }
 
 func AttributeValueFromUpdateViewModelV1(viewModel *UpdateAttributeValueV1) *model.AttributeValue {
 	model := &model.AttributeValue{
-		Translations: make([]*model.AttributeValueTranslation, 0),
+		Translations: make([]*model.AttributeValueTranslation, len(viewModel.Translations)),
 		Value:        viewModel.Value,
 		IsEnabled:    viewModel.IsEnabled,
 	}
-	for _, translation := range viewModel.Translations {
-		model.Translations = append(model.Translations, AttributeValueTranslationFromViewModelV1(translation))
+	for i, translation := range viewModel.Translations {
+		model.Translations[i] = AttributeValueTranslationFromViewModelV1(translation)
 	}
 	return model
 }
