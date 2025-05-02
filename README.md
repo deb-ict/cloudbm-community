@@ -14,6 +14,11 @@ Powershell
 `npm install`
 `ng build`
 
+# Add angular module
+`ng generate module module/<moduleName>`
+`ng generate component module/<moduleName>/view/Add<Model>`
+`ng generate component module/<moduleName>/view/Add<Model>`
+
 # TODO
 
 ## Contacts
