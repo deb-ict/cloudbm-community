@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Server",
+            "type": "go",
+            "mode": "auto",
+            "request": "launch",
+            "program": "${workspaceFolder}/cmd/server",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "GO_ENV": "development",
+                "HTTP_BIND": "127.0.0.1",
+                "HTTP_PORT": "8000"
+            },
+        }
+    ]
+}
