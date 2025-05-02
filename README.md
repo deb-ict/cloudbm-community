@@ -6,6 +6,14 @@
 # cloudbm-community
 Cloud Business Management - Community Edition
 
+# pre
+Powershell
+`Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
+
+## Build the web application
+`npm install`
+`ng build`
+
 # TODO
 
 ## Contacts
