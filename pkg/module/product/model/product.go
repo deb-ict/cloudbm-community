@@ -2,41 +2,83 @@ package model
 
 import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/localization"
+	"github.com/gosimple/slug"
+	"github.com/shopspring/decimal"
 )
 
 type Product struct {
 	Id           string
+	Type         ProductType
+	TemplateId   string
 	CategoryIds  []string
-	AttributeIds []string
-	Details      *ProductDetail
-	Variants     []*ProductVariant
+	Translations []*ProductTranslation
+	Attributes   []*ProductAttribute
+	ThumbnailId  string
+	Gtin         string
+	Sku          string
+	Mpn          string
+	RegularPrice decimal.Decimal
+	SalesPrice   decimal.Decimal
+	IsEnabled    bool
 }
 
 func (m *Product) Normalize(normalizer core.StringNormalizer) {
-	m.Details.Normalize(normalizer)
-	for _, variant := range m.Variants {
-		variant.Normalize(normalizer)
+	for _, translation := range m.Translations {
+		translation.Language = localization.NormalizeLanguage(translation.Language)
+		translation.NormalizedName = normalizer.NormalizeString(translation.Name)
+		if translation.Slug == "" {
+			translation.Slug = slug.MakeLang(translation.NormalizedName, translation.Language)
+		}
+		translation.Slug = normalizer.NormalizeString(translation.Slug)
 	}
 }
 
 func (m *Product) UpdateModel(other *Product) {
-	m.CategoryIds = make([]string, 0)
-	m.CategoryIds = append(m.CategoryIds, other.CategoryIds...)
-	m.AttributeIds = make([]string, 0)
-	m.AttributeIds = append(m.AttributeIds, other.AttributeIds...)
-	m.Variants = make([]*ProductVariant, 0)
-	m.Details = other.Details.Clone()
-	for _, variant := range other.Variants {
-		m.Variants = append(m.Variants, variant.Clone())
+	m.CategoryIds = make([]string, len(other.CategoryIds))
+	m.Translations = make([]*ProductTranslation, len(other.Translations))
+	m.Attributes = make([]*ProductAttribute, len(other.Attributes))
+	m.ThumbnailId = other.ThumbnailId
+	m.Gtin = other.Gtin
+	m.Sku = other.Sku
+	m.Mpn = other.Mpn
+	m.RegularPrice = other.RegularPrice
+	m.SalesPrice = other.SalesPrice
+	m.IsEnabled = other.IsEnabled
+
+	copy(m.CategoryIds, other.CategoryIds)
+	for i, translation := range other.Translations {
+		m.Translations[i] = translation.Clone()
+	}
+	for i, attribute := range other.Attributes {
+		m.Attributes[i] = attribute.Clone()
 	}
 }
 
 func (m *Product) GetTranslation(language string, defaultLanguage string) *ProductTranslation {
-	return m.Details.GetTranslation(language, defaultLanguage)
+	if len(m.Translations) == 0 {
+		return &ProductTranslation{}
+	}
+
+	translation, err := m.TryGetTranslation(language)
+	if err == core.ErrTranslationNotFound && language != defaultLanguage {
+		translation, err = m.TryGetTranslation(defaultLanguage)
+	}
+	if err == core.ErrTranslationNotFound {
+		translation = m.Translations[0]
+	}
+
+	return translation
 }
 
 func (m *Product) TryGetTranslation(language string) (*ProductTranslation, error) {
-	return m.Details.TryGetTranslation(language)
+	normalizedLanguage := localization.NormalizeLanguage(language)
+	for _, t := range m.Translations {
+		if t.Language == normalizedLanguage {
+			return t, nil
+		}
+	}
+	return nil, core.ErrTranslationNotFound
 }
 
 func (m *Product) IsTransient() bool {
@@ -49,15 +91,27 @@ func (m *Product) Clone() *Product {
 	}
 	model := &Product{
 		Id:           m.Id,
-		CategoryIds:  make([]string, 0),
-		AttributeIds: make([]string, 0),
-		Variants:     make([]*ProductVariant, 0),
-		Details:      m.Details.Clone(),
+		Type:         m.Type,
+		TemplateId:   m.TemplateId,
+		CategoryIds:  make([]string, len(m.CategoryIds)),
+		Translations: make([]*ProductTranslation, len(m.Translations)),
+		Attributes:   make([]*ProductAttribute, len(m.Attributes)),
+		ThumbnailId:  m.ThumbnailId,
+		Gtin:         m.Gtin,
+		Sku:          m.Sku,
+		Mpn:          m.Mpn,
+		RegularPrice: m.RegularPrice,
+		SalesPrice:   m.SalesPrice,
+		IsEnabled:    m.IsEnabled,
 	}
-	model.CategoryIds = append(model.CategoryIds, m.CategoryIds...)
-	model.AttributeIds = append(model.AttributeIds, m.AttributeIds...)
-	for _, variant := range m.Variants {
-		model.Variants = append(model.Variants, variant.Clone())
+
+	copy(model.CategoryIds, m.CategoryIds)
+	for i, translation := range m.Translations {
+		model.Translations[i] = translation.Clone()
 	}
+	for i, attribute := range m.Attributes {
+		model.Attributes[i] = attribute.Clone()
+	}
+
 	return model
 }

@@ -51,13 +51,6 @@ func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	r.HandleFunc("/v1/product", api.CreateProductHandlerV1).Methods(http.MethodPost).Name("product_api:CreateProductHandlerV1")
 	r.HandleFunc("/v1/product/{id}", api.UpdateProductHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateProductHandlerV1")
 	r.HandleFunc("/v1/product/{id}", api.DeleteProductHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteProductHandlerV1")
-
-	// Product variants
-	r.HandleFunc("/v1/product/{productId}/variant", api.GetProductVariantsHandlerV1).Methods(http.MethodGet).Name("product_api:GetProductVariantsHandlerV1")
-	r.HandleFunc("/v1/product/{productId}/variant/{id}", api.GetProductVariantByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetProductVariantByIdHandlerV1")
-	r.HandleFunc("/v1/product/{productId}/variant", api.CreateProductVariantHandlerV1).Methods(http.MethodPost).Name("product_api:CreateProductVariantHandlerV1")
-	r.HandleFunc("/v1/product/{productId}/variant/{id}", api.UpdateProductVariantHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateProductVariantHandlerV1")
-	r.HandleFunc("/v1/product/{productId}/variant/{id}", api.DeleteProductVariantHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteProductVariantHandlerV1")
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

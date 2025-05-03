@@ -1,15 +1,15 @@
 package model
 
-type ProductVariantValue struct {
+type ProductAttribute struct {
 	AttributeId string
 	ValueId     string
 }
 
-func (m *ProductVariantValue) Clone() *ProductVariantValue {
+func (m *ProductAttribute) Clone() *ProductAttribute {
 	if m == nil {
 		return nil
 	}
-	return &ProductVariantValue{
+	return &ProductAttribute{
 		AttributeId: m.AttributeId,
 		ValueId:     m.ValueId,
 	}
