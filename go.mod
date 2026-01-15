@@ -20,3 +20,11 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 )
+
+retract (
+	v0.0.1
+	v0.0.1-alpha
+	v0.0.2-alpha
+	v0.0.3-alpha
+	v0.0.4-alpha
+)
