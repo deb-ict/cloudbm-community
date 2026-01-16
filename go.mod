@@ -1,8 +1,6 @@
 module github.com/deb-ict/cloudbm-community
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.25.0
 
 require (
 	github.com/gorilla/mux v1.8.1
@@ -21,10 +19,3 @@ require (
 	golang.org/x/sys v0.39.0 // indirect
 )
 
-retract (
-	v0.0.1
-	v0.0.1-alpha
-	v0.0.2-alpha
-	v0.0.3-alpha
-	v0.0.4-alpha
-)
