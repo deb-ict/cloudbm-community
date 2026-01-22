@@ -1,16 +1,20 @@
 package service
 
 import (
+	"time"
+
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/module/session"
 )
 
 type ServiceOptions struct {
-	FeatureProvider core.FeatureProvider
+	FeatureProvider       core.FeatureProvider
+	SessionTimeoutMinutes int64
 }
 
 type service struct {
 	featureProvider core.FeatureProvider
+	sessionTimeout  time.Duration
 	database        session.Database
 }
 
@@ -22,6 +26,7 @@ func NewService(database session.Database, opts *ServiceOptions) session.Service
 
 	svc := &service{
 		featureProvider: opts.FeatureProvider,
+		sessionTimeout:  time.Duration(opts.SessionTimeoutMinutes) * time.Minute,
 		database:        database,
 	}
 
@@ -35,5 +40,8 @@ func (svc *service) FeatureProvider() core.FeatureProvider {
 func (opts *ServiceOptions) EnsureDefaults() {
 	if opts.FeatureProvider == nil {
 		opts.FeatureProvider = core.DefaultFeatureProvider()
+	}
+	if opts.SessionTimeoutMinutes == 0 {
+		opts.SessionTimeoutMinutes = 30
 	}
 }

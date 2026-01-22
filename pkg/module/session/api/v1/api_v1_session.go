@@ -192,7 +192,7 @@ func SessionFromCreateViewModelV1(viewModel *CreateSessionV1) *model.Session {
 		UseSlidingExpiration: viewModel.UseSlidingExpiration,
 		Data:                 make(map[string]string),
 	}
-	for key, value := range model.Data {
+	for key, value := range viewModel.Data {
 		model.Data[key] = value
 	}
 	return model
@@ -205,7 +205,7 @@ func SessionFromUpdateViewModelV1(viewModel *UpdateSessionV1) *model.Session {
 		UseSlidingExpiration: viewModel.UseSlidingExpiration,
 		Data:                 make(map[string]string),
 	}
-	for key, value := range model.Data {
+	for key, value := range viewModel.Data {
 		model.Data[key] = value
 	}
 	return model

@@ -126,7 +126,7 @@ func (svc *service) getOrCreateSession(ctx context.Context, id string) (*model.S
 
 	if data == nil {
 		data = &model.Session{
-			Lifetime:             15 * time.Minute,
+			Lifetime:             svc.sessionTimeout,
 			UseSlidingExpiration: true,
 			Data:                 make(map[string]string),
 		}
