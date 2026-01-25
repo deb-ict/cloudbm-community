@@ -16,6 +16,9 @@ type Service interface {
 	UpdateSession(ctx context.Context, id string, model *model.Session) (*model.Session, error)
 	DeleteSession(ctx context.Context, id string) error
 
+	GetSessionData(ctx context.Context, id string, key string) (string, error)
+	SetSessionData(ctx context.Context, id string, key string, value string) error
+
 	LoadSession(ctx context.Context, id string) (*model.Session, error)
 	SaveSession(ctx context.Context, session *model.Session) (*model.Session, error)
 

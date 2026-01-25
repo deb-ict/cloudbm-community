@@ -86,6 +86,36 @@ func (svc *service) DeleteSession(ctx context.Context, id string) error {
 	return nil
 }
 
+func (svc *service) GetSessionData(ctx context.Context, id string, key string) (string, error) {
+	data, err := svc.getOrCreateSession(ctx, id)
+	if err != nil {
+		return "", err
+	}
+
+	value, exists := data.Data[key]
+	if !exists {
+		return "", session.ErrSessionNotFound
+	}
+
+	return value, nil
+}
+
+func (svc *service) SetSessionData(ctx context.Context, id string, key string, value string) error {
+	data, err := svc.getOrCreateSession(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	data.Data[key] = value
+
+	_, err = svc.UpdateSession(ctx, data.Id, data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (svc *service) LoadSession(ctx context.Context, id string) (*model.Session, error) {
 	return svc.getOrCreateSession(ctx, id)
 }
