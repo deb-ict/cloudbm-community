@@ -1,9 +1,10 @@
 package hosting
 
 import (
+	"context"
+	"log/slog"
 	"os"
 
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -38,7 +39,7 @@ func (cfg *HostConfig) Load(configPath string) error {
 }
 
 func (cfg *HostConfig) loadYaml(configPath string) error {
-	logrus.Info("Loading host config")
+	slog.InfoContext(context.Background(), "Loading host config")
 
 	// Open the config file
 	if _, err := os.Stat(configPath); err == nil {
@@ -52,11 +53,17 @@ func (cfg *HostConfig) loadYaml(configPath string) error {
 		decoder := yaml.NewDecoder(file)
 		err = decoder.Decode(cfg)
 		if err != nil {
-			logrus.Errorf("Failed to parse config %s: %v", configPath, err)
+			slog.ErrorContext(context.Background(), "Failed to parse config",
+				slog.String("configPath", configPath),
+				slog.Any("error", err),
+			)
 			return err
 		}
 	} else if len(configPath) > 0 {
-		logrus.Warnf("Failed to load config %s: %v", configPath, err)
+		slog.WarnContext(context.Background(), "Failed to load config",
+			slog.String("configPath", configPath),
+			slog.Any("error", err),
+		)
 	}
 
 	return nil

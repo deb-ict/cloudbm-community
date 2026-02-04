@@ -7,21 +7,25 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery/model"
-	"github.com/sirupsen/logrus"
 )
 
 func (svc *service) GetImages(ctx context.Context, offset int64, limit int64, filter *model.ImageFilter, sort *core.Sort) ([]*model.Image, int64, error) {
 	filter.Language = localization.NormalizeLanguage(filter.Language)
 	data, count, err := svc.database.Images().GetImages(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get images from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -31,6 +35,10 @@ func (svc *service) GetImages(ctx context.Context, offset int64, limit int64, fi
 func (svc *service) GetImageById(ctx context.Context, id string) (*model.Image, error) {
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get image from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -46,6 +54,11 @@ func (svc *service) GetImageByName(ctx context.Context, language string, name st
 
 	data, err := svc.database.Images().GetImageByName(ctx, normalizedLanguage, normalizedName)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get image from database by name",
+			slog.String("language", normalizedLanguage),
+			slog.String("name", normalizedName),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -64,6 +77,11 @@ func (svc *service) GetImageBySlug(ctx context.Context, language string, slug st
 
 	data, err := svc.database.Images().GetImageBySlug(ctx, normalizedLanguage, normalizedSlug)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get image from database by slug",
+			slog.String("language", normalizedLanguage),
+			slog.String("slug", normalizedSlug),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -93,6 +111,9 @@ func (svc *service) CreateImage(ctx context.Context, model *model.Image) (*model
 
 	newId, err := svc.database.Images().CreateImage(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create image in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -119,6 +140,10 @@ func (svc *service) UpdateImage(ctx context.Context, id string, model *model.Ima
 
 	err = svc.database.Images().UpdateImage(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update image in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -136,6 +161,10 @@ func (svc *service) DeleteImage(ctx context.Context, id string) error {
 
 	err = svc.database.Images().DeleteImage(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete image in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 
@@ -143,6 +172,8 @@ func (svc *service) DeleteImage(ctx context.Context, id string) error {
 }
 
 func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser, string, string, error) {
+	logger := logging.GetLoggerFromContext(ctx)
+
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
 		return nil, "", "", err
@@ -152,15 +183,24 @@ func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser,
 	}
 
 	localFilePath := svc.StorageProvider().GetPath(ctx, data.StorageFolder, data.FileName)
-	logrus.Infof("Loading image file from %s", localFilePath)
 
 	_, err = os.Stat(localFilePath)
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to stat image file",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, "", "", err
 	}
 
 	file, err := os.OpenFile(localFilePath, os.O_RDONLY, 0)
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to open image file",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, "", "", err
 	}
 
@@ -168,6 +208,8 @@ func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser,
 }
 
 func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader, mimeType string, originalFileName string) (*model.Image, error) {
+	logger := logging.GetLoggerFromContext(ctx)
+
 	// Get the file extension based on the mime type
 	fileExt := ""
 	switch mimeType {
@@ -190,9 +232,13 @@ func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader,
 	}
 
 	// Open the local file
-	logrus.Infof("Saving image file to %s", localFilePath)
 	localFile, err := os.OpenFile(localFilePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to open image file",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	defer localFile.Close()
@@ -200,11 +246,16 @@ func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader,
 	// Copy the file data
 	_, err = io.Copy(localFile, file)
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to write image file",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	// Set the image file info
-	image, err := svc.setImageFileInfo(ctx, id, localFolder, localFileName, originalFileName, mimeType)
+	image, err := svc.setImageFileInfo(ctx, logger, id, localFolder, localFileName, originalFileName, mimeType)
 	if err != nil {
 		return nil, err
 	}
@@ -212,7 +263,7 @@ func (svc *service) SetImageData(ctx context.Context, id string, file io.Reader,
 	return image, nil
 }
 
-func (svc *service) setImageFileInfo(ctx context.Context, id string, localFolder string, localFileName string, originalFileName string, mimeType string) (*model.Image, error) {
+func (svc *service) setImageFileInfo(ctx context.Context, logger *slog.Logger, id string, localFolder string, localFileName string, originalFileName string, mimeType string) (*model.Image, error) {
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -224,11 +275,21 @@ func (svc *service) setImageFileInfo(ctx context.Context, id string, localFolder
 	localFilePath := svc.storageProvider.GetPath(ctx, localFolder, localFileName)
 	fileInfo, err := os.Stat(localFilePath)
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to stat image file",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	file, err := os.Open(localFilePath)
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to open image file",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	defer file.Close()
@@ -243,6 +304,11 @@ func (svc *service) setImageFileInfo(ctx context.Context, id string, localFolder
 		err = gallery.ErrImageFormatNotSupported
 	}
 	if err != nil {
+		logger.ErrorContext(ctx, "Failed to decode image config",
+			slog.String("id", id),
+			slog.String("path", localFilePath),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 

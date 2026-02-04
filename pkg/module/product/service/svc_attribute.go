@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
@@ -13,6 +14,9 @@ func (svc *service) GetAttributes(ctx context.Context, offset int64, limit int64
 	filter.Language = localization.NormalizeLanguage(filter.Language)
 	data, count, err := svc.database.Attributes().GetAttributes(ctx, offset, limit, filter, sort)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attributes from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -22,6 +26,10 @@ func (svc *service) GetAttributes(ctx context.Context, offset int64, limit int64
 func (svc *service) GetAttributeById(ctx context.Context, id string) (*model.Attribute, error) {
 	data, err := svc.database.Attributes().GetAttributeById(ctx, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -37,6 +45,11 @@ func (svc *service) GetAttributeByName(ctx context.Context, language string, nam
 
 	data, err := svc.database.Attributes().GetAttributeByName(ctx, normalizedLanguage, normalizedName)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute from database by name",
+			slog.String("language", normalizedLanguage),
+			slog.String("name", normalizedName),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -55,6 +68,11 @@ func (svc *service) GetAttributeBySlug(ctx context.Context, language string, slu
 
 	data, err := svc.database.Attributes().GetAttributeBySlug(ctx, normalizedLanguage, normalizedSlug)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute from database by slug",
+			slog.String("language", normalizedLanguage),
+			slog.String("slug", normalizedSlug),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -78,6 +96,9 @@ func (svc *service) CreateAttribute(ctx context.Context, model *model.Attribute)
 
 	newId, err := svc.database.Attributes().CreateAttribute(ctx, model)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to create attribute in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -104,6 +125,10 @@ func (svc *service) UpdateAttribute(ctx context.Context, id string, model *model
 
 	err = svc.database.Attributes().UpdateAttribute(ctx, data)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to update attribute in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -121,6 +146,10 @@ func (svc *service) DeleteAttribute(ctx context.Context, id string) error {
 
 	err = svc.database.Attributes().DeleteAttribute(ctx, data)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to delete attribute in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

@@ -1,11 +1,11 @@
 package hosting
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
-
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -25,14 +25,14 @@ func (cfg *HttpConfig) GetBindAddress() string {
 func (cfg *HttpConfig) LoadEnvironment() {
 	http_bind, ok := os.LookupEnv("HTTP_BIND")
 	if ok {
-		logrus.Info("Override http bind from environment")
+		slog.InfoContext(context.Background(), "Override http bind from environment")
 		cfg.Bind = http_bind
 	}
 	http_port, ok := os.LookupEnv("HTTP_PORT")
 	if ok {
 		port, err := strconv.Atoi(http_port)
 		if err == nil {
-			logrus.Info("Override http port from environment")
+			slog.InfoContext(context.Background(), "Override http port from environment")
 			cfg.Port = port
 		}
 	}

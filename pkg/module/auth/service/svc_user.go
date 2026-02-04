@@ -2,18 +2,21 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth/model"
-	"github.com/sirupsen/logrus"
 )
 
 func (svc *service) GetUsers(ctx context.Context, offset int64, limit int64, filter *model.UserFilter, sort *core.Sort) ([]*model.User, int64, error) {
 	data, count, err := svc.database.Users().GetUsers(ctx, offset, limit, filter, sort)
 	if err != nil {
-		logrus.Errorf("Failed to get users from database: %v", err)
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get users from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -26,7 +29,10 @@ func (svc *service) GetUserById(ctx context.Context, id string) (*model.User, er
 		err = auth.ErrUserNotFound
 	}
 	if err != nil {
-		logrus.Errorf("Failed to get user with id '%s' from database: %v", id, err)
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -40,7 +46,10 @@ func (svc *service) GetUserByUsername(ctx context.Context, username string) (*mo
 		err = auth.ErrUserNotFound
 	}
 	if err != nil {
-		logrus.Errorf("Failed to get user with username '%s' from database: %v", username, err)
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by username",
+			slog.String("username", username),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -54,7 +63,10 @@ func (svc *service) GetUserByEmail(ctx context.Context, email string) (*model.Us
 		err = auth.ErrUserNotFound
 	}
 	if err != nil {
-		logrus.Errorf("Failed to get user with email '%s' from database: %v", email, err)
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by email",
+			slog.String("email", email),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -66,15 +78,25 @@ func (svc *service) CreateUser(ctx context.Context, model *model.User) (*model.U
 	model.Id = ""
 
 	if err := svc.checkDuplicateUsername(ctx, model); err != nil {
+		slog.WarnContext(ctx, "Failed to create user cause of duplicate username",
+			slog.String("username", model.Username),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if err := svc.checkDuplicateEmail(ctx, model); err != nil {
+		slog.WarnContext(ctx, "Failed to create user cause of duplicate email",
+			slog.String("email", model.Email),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	newId, err := svc.database.Users().CreateUser(ctx, model)
 	if err != nil {
-		logrus.Errorf("Failed to create user in database: %v", err)
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create user in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -96,6 +118,10 @@ func (svc *service) UpdateUser(ctx context.Context, id string, model *model.User
 
 	err = svc.database.Users().UpdateUser(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update user in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -113,6 +139,10 @@ func (svc *service) DeleteUser(ctx context.Context, id string) error {
 
 	err = svc.database.Users().DeleteUser(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete user in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

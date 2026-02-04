@@ -48,5 +48,6 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 	}
 
+	//TODO: We need slog logging here
 	log.Fatal(srv.ListenAndServe())
 }

@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/session"
 	"github.com/deb-ict/cloudbm-community/pkg/module/session/model"
 )
@@ -12,6 +14,9 @@ import (
 func (svc *service) GetSessions(ctx context.Context, offset int64, limit int64, filter *model.SessionFilter, sort *core.Sort) ([]*model.Session, int64, error) {
 	data, count, err := svc.database.Sessions().GetSessions(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get sessions from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -21,6 +26,10 @@ func (svc *service) GetSessions(ctx context.Context, offset int64, limit int64, 
 func (svc *service) GetSessionById(ctx context.Context, id string) (*model.Session, error) {
 	data, err := svc.database.Sessions().GetSessionById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get session from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -40,6 +49,9 @@ func (svc *service) CreateSession(ctx context.Context, model *model.Session) (*m
 
 	newId, err := svc.database.Sessions().CreateSession(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create session in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -63,6 +75,10 @@ func (svc *service) UpdateSession(ctx context.Context, id string, model *model.S
 
 	err = svc.database.Sessions().UpdateSession(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update session in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -80,6 +96,10 @@ func (svc *service) DeleteSession(ctx context.Context, id string) error {
 
 	err = svc.database.Sessions().DeleteSession(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete session in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

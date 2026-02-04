@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
 )
@@ -13,6 +15,9 @@ func (svc *service) GetProducts(ctx context.Context, offset int64, limit int64, 
 	filter.Language = localization.NormalizeLanguage(filter.Language)
 	data, count, err := svc.database.Products().GetProducts(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get products from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -22,6 +27,10 @@ func (svc *service) GetProducts(ctx context.Context, offset int64, limit int64, 
 func (svc *service) GetProductById(ctx context.Context, id string) (*model.Product, error) {
 	data, err := svc.database.Products().GetProductById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get product from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -37,6 +46,11 @@ func (svc *service) GetProductByName(ctx context.Context, language string, name 
 
 	data, err := svc.database.Products().GetProductByName(ctx, normalizedLanguage, normalizedName)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get product from database by name",
+			slog.String("language", normalizedLanguage),
+			slog.String("name", normalizedName),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -55,6 +69,11 @@ func (svc *service) GetProductBySlug(ctx context.Context, language string, slug 
 
 	data, err := svc.database.Products().GetProductBySlug(ctx, normalizedLanguage, normalizedSlug)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get product from database by slug",
+			slog.String("language", normalizedLanguage),
+			slog.String("slug", normalizedSlug),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -78,6 +97,9 @@ func (svc *service) CreateProduct(ctx context.Context, model *model.Product) (*m
 
 	newId, err := svc.database.Products().CreateProduct(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create product in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -104,6 +126,10 @@ func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.P
 
 	err = svc.database.Products().UpdateProduct(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update product in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -121,6 +147,10 @@ func (svc *service) DeleteProduct(ctx context.Context, id string) error {
 
 	err = svc.database.Products().DeleteProduct(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete product in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

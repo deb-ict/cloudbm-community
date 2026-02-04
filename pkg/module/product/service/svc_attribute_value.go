@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
@@ -18,6 +19,10 @@ func (svc *service) GetAttributeValues(ctx context.Context, attributeId string, 
 	filter.Language = localization.NormalizeLanguage(filter.Language)
 	data, count, err := svc.database.AttributeValues().GetAttributeValues(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute values from the database",
+			slog.String("attributeId", attributeId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -32,6 +37,11 @@ func (svc *service) GetAttributeValueById(ctx context.Context, attributeId strin
 
 	data, err := svc.database.AttributeValues().GetAttributeValueById(ctx, parent, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute value from database by id",
+			slog.String("attributeId", attributeId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -52,6 +62,12 @@ func (svc *service) GetAttributeValueByName(ctx context.Context, attributeId str
 
 	data, err := svc.database.AttributeValues().GetAttributeValueByName(ctx, parent, normalizedLanguage, normalizedName)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute value from database by name",
+			slog.String("attributeId", attributeId),
+			slog.String("language", normalizedLanguage),
+			slog.String("name", normalizedName),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -75,6 +91,12 @@ func (svc *service) GetAttributeValueBySlug(ctx context.Context, attributeId str
 
 	data, err := svc.database.AttributeValues().GetAttributeValueBySlug(ctx, parent, normalizedLanguage, normalizedSlug)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute value from database by slug",
+			slog.String("attributeId", attributeId),
+			slog.String("language", normalizedLanguage),
+			slog.String("slug", normalizedSlug),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -104,6 +126,10 @@ func (svc *service) CreateAttributeValue(ctx context.Context, attributeId string
 
 	newId, err := svc.database.AttributeValues().CreateAttributeValue(ctx, parent, model)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to create attribute value in database",
+			slog.String("attributeId", attributeId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -136,6 +162,11 @@ func (svc *service) UpdateAttributeValue(ctx context.Context, attributeId string
 
 	err = svc.database.AttributeValues().UpdateAttributeValue(ctx, parent, data)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to update attribute value in database",
+			slog.String("attributeId", attributeId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -145,7 +176,7 @@ func (svc *service) UpdateAttributeValue(ctx context.Context, attributeId string
 func (svc *service) DeleteAttributeValue(ctx context.Context, attributeId string, id string) error {
 	parent, err := svc.GetAttributeById(ctx, attributeId)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	data, err := svc.database.AttributeValues().GetAttributeValueById(ctx, parent, id)
@@ -158,6 +189,11 @@ func (svc *service) DeleteAttributeValue(ctx context.Context, attributeId string
 
 	err = svc.database.AttributeValues().DeleteAttributeValue(ctx, parent, data)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to delete attribute value in database",
+			slog.String("attributeId", attributeId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

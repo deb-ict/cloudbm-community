@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
@@ -13,6 +14,9 @@ func (svc *service) GetCategories(ctx context.Context, offset int64, limit int64
 	filter.Language = localization.NormalizeLanguage(filter.Language)
 	data, count, err := svc.database.Categories().GetCategories(ctx, offset, limit, filter, sort)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get categories from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -22,6 +26,10 @@ func (svc *service) GetCategories(ctx context.Context, offset int64, limit int64
 func (svc *service) GetCategoryById(ctx context.Context, id string) (*model.Category, error) {
 	data, err := svc.database.Categories().GetCategoryById(ctx, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get category from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -37,6 +45,11 @@ func (svc *service) GetCategoryByName(ctx context.Context, language string, name
 
 	data, err := svc.database.Categories().GetCategoryByName(ctx, normalizedLanguage, normalizedName)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get category from database by name",
+			slog.String("language", normalizedLanguage),
+			slog.String("name", normalizedName),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -55,6 +68,11 @@ func (svc *service) GetCategoryBySlug(ctx context.Context, language string, slug
 
 	data, err := svc.database.Categories().GetCategoryBySlug(ctx, normalizedLanguage, normalizedSlug)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get category from database by slug",
+			slog.String("language", normalizedLanguage),
+			slog.String("slug", normalizedSlug),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -78,6 +96,9 @@ func (svc *service) CreateCategory(ctx context.Context, model *model.Category) (
 
 	newId, err := svc.database.Categories().CreateCategory(ctx, model)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to create category in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -104,6 +125,10 @@ func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.
 
 	err = svc.database.Categories().UpdateCategory(ctx, data)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to update category in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -121,6 +146,10 @@ func (svc *service) DeleteCategory(ctx context.Context, id string) error {
 
 	err = svc.database.Categories().DeleteCategory(ctx, data)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to delete category in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 
