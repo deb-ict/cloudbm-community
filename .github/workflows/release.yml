@@ -29,7 +29,9 @@ jobs:
           GOARCH: amd64
 
       - name: Create Release Artifacts
-        run: tar -czvf ./dist/cloudbm-linux-amd64.tgz -C ./target/release cloudbm-linux-amd64
+        run: |
+          mkdir -p ./dist
+          tar -czvf ./dist/cloudbm-linux-amd64.tgz -C ./target/release cloudbm-linux-amd64
       
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
