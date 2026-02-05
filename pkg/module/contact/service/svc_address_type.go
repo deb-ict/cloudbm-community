@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,9 @@ import (
 func (svc *service) GetAddressTypes(ctx context.Context, offset int64, limit int64, filter *model.AddressTypeFilter, sort *core.Sort) ([]*model.AddressType, int64, error) {
 	data, count, err := svc.database.AddressTypes().GetAddressTypes(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get address types from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -20,6 +25,10 @@ func (svc *service) GetAddressTypes(ctx context.Context, offset int64, limit int
 func (svc *service) GetAddressTypeById(ctx context.Context, id string) (*model.AddressType, error) {
 	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get address type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -35,18 +44,27 @@ func (svc *service) CreateAddressType(ctx context.Context, model *model.AddressT
 
 	err := svc.validateAddressTypeName(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate address type",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if model.IsDefault {
 		err = svc.resetDefaultAddressType(ctx, model)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default address type",
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	newId, err := svc.database.AddressTypes().CreateAddressType(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create address type in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -59,6 +77,10 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 
 	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get address type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -68,18 +90,30 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 
 	err = svc.validateAddressTypeName(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate address type",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if data.IsDefault {
 		err = svc.resetDefaultAddressType(ctx, data)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default address type",
+				slog.String("id", id),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	err = svc.database.AddressTypes().UpdateAddressType(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update address type in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetAddressTypeById(ctx, id)
@@ -88,6 +122,10 @@ func (svc *service) UpdateAddressType(ctx context.Context, id string, model *mod
 func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 	data, err := svc.database.AddressTypes().GetAddressTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get address type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -102,6 +140,10 @@ func (svc *service) DeleteAddressType(ctx context.Context, id string) error {
 
 	err = svc.database.AddressTypes().DeleteAddressType(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete address type in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil

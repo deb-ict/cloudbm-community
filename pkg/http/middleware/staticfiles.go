@@ -1,13 +1,14 @@
 package middleware
 
 import (
+	"context"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -103,12 +104,12 @@ func (cfg *StaticFileMiddlewareConfig) EnsureDefaults() {
 func (cfg *StaticAssetConfig) LoadEnvironment() {
 	uri, ok := os.LookupEnv("STATIC_URI")
 	if ok {
-		logrus.Info("Override static uri from environment")
+		slog.InfoContext(context.Background(), "Override static uri from environment")
 		cfg.Uri = uri
 	}
 	folder, ok := os.LookupEnv("STATIC_FOLDER")
 	if ok {
-		logrus.Info("Override static folder from environment")
+		slog.InfoContext(context.Background(), "Override static folder from environment")
 		cfg.Folder = folder
 	}
 }
@@ -134,7 +135,7 @@ func (cfg *StaticAssetConfig) EnsureDefaults() {
 func (cfg *GalleryAssetConfig) LoadEnvironment() {
 	uri, ok := os.LookupEnv("GALLERY_URI")
 	if ok {
-		logrus.Info("Override gallery uri from environment")
+		slog.InfoContext(context.Background(), "Override gallery uri from environment")
 		cfg.Uri = uri
 	}
 }

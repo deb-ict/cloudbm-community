@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,9 @@ import (
 func (svc *service) GetPhoneTypes(ctx context.Context, offset int64, limit int64, filter *model.PhoneTypeFilter, sort *core.Sort) ([]*model.PhoneType, int64, error) {
 	data, count, err := svc.database.PhoneTypes().GetPhoneTypes(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get phone types from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -20,6 +25,10 @@ func (svc *service) GetPhoneTypes(ctx context.Context, offset int64, limit int64
 func (svc *service) GetPhoneTypeById(ctx context.Context, id string) (*model.PhoneType, error) {
 	data, err := svc.database.PhoneTypes().GetPhoneTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get phone type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -35,18 +44,27 @@ func (svc *service) CreatePhoneType(ctx context.Context, model *model.PhoneType)
 
 	err := svc.validatePhoneTypeName(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate phone type",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if model.IsDefault {
 		err = svc.resetDefaultPhoneType(ctx, model)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default phone type",
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	newId, err := svc.database.PhoneTypes().CreatePhoneType(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create phone type in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -57,8 +75,12 @@ func (svc *service) UpdatePhoneType(ctx context.Context, id string, model *model
 	model.Normalize(svc.stringNormalizer)
 	model.Id = id
 
-	data, err := svc.GetPhoneTypeById(ctx, id)
+	data, err := svc.database.PhoneTypes().GetPhoneTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get phone type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -68,26 +90,42 @@ func (svc *service) UpdatePhoneType(ctx context.Context, id string, model *model
 
 	err = svc.validatePhoneTypeName(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate phone type",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if data.IsDefault {
 		err = svc.resetDefaultPhoneType(ctx, data)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default phone type",
+				slog.String("id", id),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	err = svc.database.PhoneTypes().UpdatePhoneType(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update phone type in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetPhoneTypeById(ctx, id)
 }
 
 func (svc *service) DeletePhoneType(ctx context.Context, id string) error {
-	data, err := svc.GetPhoneTypeById(ctx, id)
+	data, err := svc.database.PhoneTypes().GetPhoneTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get phone type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -102,6 +140,10 @@ func (svc *service) DeletePhoneType(ctx context.Context, id string) error {
 
 	err = svc.database.PhoneTypes().DeletePhoneType(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete phone type in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil

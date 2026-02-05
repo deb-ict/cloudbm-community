@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/metadata"
 	"github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
 )
@@ -11,6 +13,9 @@ import (
 func (svc *service) GetTaxRates(ctx context.Context, offset int64, limit int64, filter *model.TaxRateFilter, sort *core.Sort) ([]*model.TaxRate, int64, error) {
 	data, count, err := svc.database.TaxRates().GetTaxRates(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get tax rates from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 	return data, count, nil
@@ -19,6 +24,10 @@ func (svc *service) GetTaxRates(ctx context.Context, offset int64, limit int64, 
 func (svc *service) GetTaxRateById(ctx context.Context, id string) (*model.TaxRate, error) {
 	data, err := svc.database.TaxRates().GetTaxRateById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get tax rate from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -33,11 +42,17 @@ func (svc *service) CreateTaxRate(ctx context.Context, model *model.TaxRate) (*m
 
 	err := svc.validateTaxRate(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate tax rate",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	newId, err := svc.database.TaxRates().CreateTaxRate(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create tax rate in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -50,6 +65,10 @@ func (svc *service) UpdateTaxRate(ctx context.Context, id string, model *model.T
 
 	data, err := svc.database.TaxRates().GetTaxRateById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get tax rate from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -59,11 +78,19 @@ func (svc *service) UpdateTaxRate(ctx context.Context, id string, model *model.T
 
 	err = svc.validateTaxRate(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate tax rate",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	err = svc.database.TaxRates().UpdateTaxRate(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update tax rate in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -73,6 +100,10 @@ func (svc *service) UpdateTaxRate(ctx context.Context, id string, model *model.T
 func (svc *service) DeleteTaxRate(ctx context.Context, id string) error {
 	data, err := svc.database.TaxRates().GetTaxRateById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get tax rate from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -81,6 +112,10 @@ func (svc *service) DeleteTaxRate(ctx context.Context, id string) error {
 
 	err = svc.database.TaxRates().DeleteTaxRate(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete tax rate in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

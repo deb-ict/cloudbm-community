@@ -17,7 +17,7 @@ type ErrorInfo struct {
 
 type ValidationErrorInfo struct {
 	ErrorInfo
-	Errors map[string][]string
+	Errors map[string][]string `json:"errors"`
 }
 
 func WriteResult(w http.ResponseWriter, data any) {

@@ -1,11 +1,11 @@
 package hosting
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
-
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -25,14 +25,14 @@ func (cfg *GrpcConfig) GetBindAddress() string {
 func (cfg *GrpcConfig) LoadEnvironment() {
 	grpc_bind, ok := os.LookupEnv("GRPC_BIND")
 	if ok {
-		logrus.Info("Override grpc bind from environment")
+		slog.InfoContext(context.Background(), "Override grpc bind from environment")
 		cfg.Bind = grpc_bind
 	}
 	grpc_port, ok := os.LookupEnv("GRPC_PORT")
 	if ok {
 		port, err := strconv.Atoi(grpc_port)
 		if err == nil {
-			logrus.Info("Override grpc port from environment")
+			slog.InfoContext(context.Background(), "Override grpc port from environment")
 			cfg.Port = port
 		}
 	}

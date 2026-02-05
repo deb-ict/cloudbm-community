@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,10 @@ import (
 func (svc *service) GetContactAddresses(ctx context.Context, contactId string, offset int64, limit int64, filter *model.AddressFilter, sort *core.Sort) ([]*model.Address, int64, error) {
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 	if parent == nil {
@@ -19,6 +25,10 @@ func (svc *service) GetContactAddresses(ctx context.Context, contactId string, o
 
 	data, count, err := svc.database.ContactAddresses().GetContactAddresses(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact addresses from database",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -28,6 +38,10 @@ func (svc *service) GetContactAddresses(ctx context.Context, contactId string, o
 func (svc *service) GetContactAddressById(ctx context.Context, contactId string, id string) (*model.Address, error) {
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -36,6 +50,11 @@ func (svc *service) GetContactAddressById(ctx context.Context, contactId string,
 
 	data, err := svc.database.ContactAddresses().GetContactAddressById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact address from database by id",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -50,6 +69,10 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -58,18 +81,30 @@ func (svc *service) CreateContactAddress(ctx context.Context, contactId string, 
 
 	err = svc.validateContactAddress(ctx, parent, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate contact address",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if model.IsDefault {
 		err = svc.resetDefaultContactAddress(ctx, parent, model)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default contact address",
+				slog.String("contactId", contactId),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	newId, err := svc.database.ContactAddresses().CreateContactAddress(ctx, parent, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create contact address in database",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetContactAddressById(ctx, contactId, newId)
@@ -80,6 +115,10 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -88,6 +127,11 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 
 	data, err := svc.database.ContactAddresses().GetContactAddressById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact address from database by id",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -97,18 +141,33 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 
 	err = svc.validateContactAddress(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate contact address",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if data.IsDefault {
 		err = svc.resetDefaultContactAddress(ctx, parent, data)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default contact address",
+				slog.String("contactId", contactId),
+				slog.String("id", id),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	err = svc.database.ContactAddresses().UpdateContactAddress(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update contact address in database",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetContactAddressById(ctx, contactId, id)
@@ -117,6 +176,10 @@ func (svc *service) UpdateContactAddress(ctx context.Context, contactId string, 
 func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, id string) error {
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if parent == nil {
@@ -125,6 +188,11 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 
 	data, err := svc.database.ContactAddresses().GetContactAddressById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact address from database by id",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -136,6 +204,11 @@ func (svc *service) DeleteContactAddress(ctx context.Context, contactId string, 
 
 	err = svc.database.ContactAddresses().DeleteContactAddress(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete contact address in database",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil
