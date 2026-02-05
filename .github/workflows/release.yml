@@ -1,4 +1,4 @@
-name: build-and-release
+name: Release
 permissions:
   contents: read
 on:
@@ -22,13 +22,17 @@ jobs:
           cache: true
 
       - name: Build
-        run: go build -o target/release/cloudbm-linux-amd64 cmd/webhost/
+        run: go build -ldflags="-s -w" -o ./target/release/cloudbm-linux-amd64 ./cmd/webhost/
+        env:
+          CGO_ENABLED: 0
+          GOOS: linux
+          GOARCH: amd64
 
       - name: Create Release Artifacts
-        run: tar -czvf dist/cloudbm-linux-amd64.tgz -C target/release cloudbm-linux-amd64
+        run: tar -czvf ./dist/cloudbm-linux-amd64.tgz -C ./target/release cloudbm-linux-amd64
       
       - name: Upload Release Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cloudbm-linux-amd64.tgz
-          path: dist/cloudbm-linux-amd64.tgz
+          path: ./dist/cloudbm-linux-amd64.tgz
