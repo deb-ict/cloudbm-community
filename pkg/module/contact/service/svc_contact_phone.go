@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,10 @@ import (
 func (svc *service) GetContactPhones(ctx context.Context, contactId string, offset int64, limit int64, filter *model.PhoneFilter, sort *core.Sort) ([]*model.Phone, int64, error) {
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 	if parent == nil {
@@ -19,6 +25,10 @@ func (svc *service) GetContactPhones(ctx context.Context, contactId string, offs
 
 	data, count, err := svc.database.ContactPhones().GetContactPhones(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact phones from database",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -28,6 +38,10 @@ func (svc *service) GetContactPhones(ctx context.Context, contactId string, offs
 func (svc *service) GetContactPhoneById(ctx context.Context, contactId string, id string) (*model.Phone, error) {
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -36,6 +50,11 @@ func (svc *service) GetContactPhoneById(ctx context.Context, contactId string, i
 
 	data, err := svc.database.ContactPhones().GetContactPhoneById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact phone from database by id",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -50,6 +69,10 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, mo
 
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -58,18 +81,30 @@ func (svc *service) CreateContactPhone(ctx context.Context, contactId string, mo
 
 	err = svc.validateContactPhone(ctx, parent, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate contact phone",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if model.IsDefault {
 		err = svc.resetDefaultContactPhone(ctx, parent, model)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default contact phone",
+				slog.String("contactId", contactId),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	newId, err := svc.database.ContactPhones().CreateContactPhone(ctx, parent, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create contact phone in database",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetContactPhoneById(ctx, contactId, newId)
@@ -80,6 +115,10 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -88,6 +127,11 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 
 	data, err := svc.database.ContactPhones().GetContactPhoneById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact phone from database by id",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -97,18 +141,33 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 
 	err = svc.validateContactPhone(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate contact phone",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if data.IsDefault {
 		err = svc.resetDefaultContactPhone(ctx, parent, data)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default contact phone",
+				slog.String("contactId", contactId),
+				slog.String("id", id),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	err = svc.database.ContactPhones().UpdateContactPhone(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update contact phone in database",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetContactPhoneById(ctx, contactId, id)
@@ -117,6 +176,10 @@ func (svc *service) UpdateContactPhone(ctx context.Context, contactId string, id
 func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id string) error {
 	parent, err := svc.database.Contacts().GetContactById(ctx, contactId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("contactId", contactId),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if parent == nil {
@@ -125,6 +188,11 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 
 	data, err := svc.database.ContactPhones().GetContactPhoneById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact phone from database by id",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -136,6 +204,11 @@ func (svc *service) DeleteContactPhone(ctx context.Context, contactId string, id
 
 	err = svc.database.ContactPhones().DeleteContactPhone(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete contact phone in database",
+			slog.String("contactId", contactId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil

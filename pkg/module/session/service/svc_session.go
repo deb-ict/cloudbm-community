@@ -63,6 +63,10 @@ func (svc *service) UpdateSession(ctx context.Context, id string, model *model.S
 
 	data, err := svc.database.Sessions().GetSessionById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get session from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -88,6 +92,10 @@ func (svc *service) UpdateSession(ctx context.Context, id string, model *model.S
 func (svc *service) DeleteSession(ctx context.Context, id string) error {
 	data, err := svc.database.Sessions().GetSessionById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get session from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {

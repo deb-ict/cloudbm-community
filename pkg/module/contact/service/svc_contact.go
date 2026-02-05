@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,9 @@ import (
 func (svc *service) GetContacts(ctx context.Context, offset int64, limit int64, filter *model.ContactFilter, sort *core.Sort) ([]*model.Contact, int64, error) {
 	data, count, err := svc.database.Contacts().GetContacts(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contacts from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -20,6 +25,10 @@ func (svc *service) GetContacts(ctx context.Context, offset int64, limit int64, 
 func (svc *service) GetContactById(ctx context.Context, id string) (*model.Contact, error) {
 	data, err := svc.database.Contacts().GetContactById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -34,11 +43,17 @@ func (svc *service) CreateContact(ctx context.Context, model *model.Contact) (*m
 
 	err := svc.validateContact(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate contact",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	newId, err := svc.database.Contacts().CreateContact(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create contact in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -48,8 +63,12 @@ func (svc *service) CreateContact(ctx context.Context, model *model.Contact) (*m
 func (svc *service) UpdateContact(ctx context.Context, id string, model *model.Contact) (*model.Contact, error) {
 	model.Id = id
 
-	data, err := svc.GetContactById(ctx, id)
+	data, err := svc.database.Contacts().GetContactById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -59,19 +78,31 @@ func (svc *service) UpdateContact(ctx context.Context, id string, model *model.C
 
 	err = svc.validateContact(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate contact",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	err = svc.database.Contacts().UpdateContact(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update contact in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetContactById(ctx, id)
 }
 
 func (svc *service) DeleteContact(ctx context.Context, id string) error {
-	data, err := svc.GetContactById(ctx, id)
+	data, err := svc.database.Contacts().GetContactById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get contact from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -83,6 +114,10 @@ func (svc *service) DeleteContact(ctx context.Context, id string) error {
 
 	err = svc.database.Contacts().DeleteContact(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete contact in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil

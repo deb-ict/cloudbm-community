@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,9 @@ import (
 func (svc *service) GetEmailTypes(ctx context.Context, offset int64, limit int64, filter *model.EmailTypeFilter, sort *core.Sort) ([]*model.EmailType, int64, error) {
 	data, count, err := svc.database.EmailTypes().GetEmailTypes(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get email types from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -20,6 +25,10 @@ func (svc *service) GetEmailTypes(ctx context.Context, offset int64, limit int64
 func (svc *service) GetEmailTypeById(ctx context.Context, id string) (*model.EmailType, error) {
 	data, err := svc.database.EmailTypes().GetEmailTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get email type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -35,18 +44,27 @@ func (svc *service) CreateEmailType(ctx context.Context, model *model.EmailType)
 
 	err := svc.validateEmailTypeName(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate email type",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if model.IsDefault {
 		err = svc.resetDefaultEmailType(ctx, model)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default email type",
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	newId, err := svc.database.EmailTypes().CreateEmailType(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create email type in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -57,8 +75,12 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model
 	model.Normalize(svc.stringNormalizer)
 	model.Id = id
 
-	data, err := svc.GetEmailTypeById(ctx, id)
+	data, err := svc.database.EmailTypes().GetEmailTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get email type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -68,26 +90,42 @@ func (svc *service) UpdateEmailType(ctx context.Context, id string, model *model
 
 	err = svc.validateEmailTypeName(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate email type",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if data.IsDefault {
 		err = svc.resetDefaultEmailType(ctx, data)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default email type",
+				slog.String("id", id),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	err = svc.database.EmailTypes().UpdateEmailType(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update email type in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetEmailTypeById(ctx, id)
 }
 
 func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
-	data, err := svc.GetEmailTypeById(ctx, id)
+	data, err := svc.database.EmailTypes().GetEmailTypeById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get email type from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -102,6 +140,10 @@ func (svc *service) DeleteEmailType(ctx context.Context, id string) error {
 
 	err = svc.database.EmailTypes().DeleteEmailType(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete email type in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil

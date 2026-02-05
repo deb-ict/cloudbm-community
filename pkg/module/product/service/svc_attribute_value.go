@@ -153,6 +153,11 @@ func (svc *service) UpdateAttributeValue(ctx context.Context, attributeId string
 
 	data, err := svc.database.AttributeValues().GetAttributeValueById(ctx, parent, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute value from database by id",
+			slog.String("attributeId", attributeId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -181,6 +186,11 @@ func (svc *service) DeleteAttributeValue(ctx context.Context, attributeId string
 
 	data, err := svc.database.AttributeValues().GetAttributeValueById(ctx, parent, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get attribute value from database by id",
+			slog.String("attributeId", attributeId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {

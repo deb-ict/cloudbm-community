@@ -131,6 +131,10 @@ func (svc *service) UpdateImage(ctx context.Context, id string, model *model.Ima
 
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get image from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -153,6 +157,10 @@ func (svc *service) UpdateImage(ctx context.Context, id string, model *model.Ima
 func (svc *service) DeleteImage(ctx context.Context, id string) error {
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get image from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -176,6 +184,10 @@ func (svc *service) GetImageData(ctx context.Context, id string) (io.ReadCloser,
 
 	data, err := svc.database.Images().GetImageById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get image from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, "", "", err
 	}
 	if data == nil {

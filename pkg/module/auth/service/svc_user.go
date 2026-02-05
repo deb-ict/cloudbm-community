@@ -25,15 +25,15 @@ func (svc *service) GetUsers(ctx context.Context, offset int64, limit int64, fil
 
 func (svc *service) GetUserById(ctx context.Context, id string) (*model.User, error) {
 	data, err := svc.database.Users().GetUserById(ctx, id)
-	if err == nil && data == nil {
-		err = auth.ErrUserNotFound
-	}
 	if err != nil {
 		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by id",
 			slog.String("id", id),
 			slog.Any("error", err),
 		)
 		return nil, err
+	}
+	if data == nil {
+		return nil, auth.ErrUserNotFound
 	}
 
 	return data, nil
@@ -42,15 +42,15 @@ func (svc *service) GetUserById(ctx context.Context, id string) (*model.User, er
 func (svc *service) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {
 	normalizedUsername := svc.userNormalizer.NormalizeUsername(username)
 	data, err := svc.database.Users().GetUserByUsername(ctx, normalizedUsername)
-	if err == nil && data == nil {
-		err = auth.ErrUserNotFound
-	}
 	if err != nil {
 		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by username",
 			slog.String("username", username),
 			slog.Any("error", err),
 		)
 		return nil, err
+	}
+	if data == nil {
+		return nil, auth.ErrUserNotFound
 	}
 
 	return data, nil
@@ -59,15 +59,15 @@ func (svc *service) GetUserByUsername(ctx context.Context, username string) (*mo
 func (svc *service) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	normalizedEmail := svc.userNormalizer.NormalizeEmail(email)
 	data, err := svc.database.Users().GetUserByEmail(ctx, normalizedEmail)
-	if err == nil && data == nil {
-		err = auth.ErrUserNotFound
-	}
 	if err != nil {
 		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by email",
 			slog.String("email", email),
 			slog.Any("error", err),
 		)
 		return nil, err
+	}
+	if data == nil {
+		return nil, auth.ErrUserNotFound
 	}
 
 	return data, nil
@@ -109,6 +109,10 @@ func (svc *service) UpdateUser(ctx context.Context, id string, model *model.User
 
 	data, err := svc.database.Users().GetUserById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -131,6 +135,10 @@ func (svc *service) UpdateUser(ctx context.Context, id string, model *model.User
 func (svc *service) DeleteUser(ctx context.Context, id string) error {
 	data, err := svc.database.Users().GetUserById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get user from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {

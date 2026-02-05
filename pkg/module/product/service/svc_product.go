@@ -117,6 +117,10 @@ func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.P
 
 	data, err := svc.database.Products().GetProductById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get product from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -139,6 +143,10 @@ func (svc *service) UpdateProduct(ctx context.Context, id string, model *model.P
 func (svc *service) DeleteProduct(ctx context.Context, id string) error {
 	data, err := svc.database.Products().GetProductById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get product from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {

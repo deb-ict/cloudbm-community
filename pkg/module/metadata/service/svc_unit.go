@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/metadata"
 	"github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
 )
@@ -11,6 +13,9 @@ import (
 func (svc *service) GetUnits(ctx context.Context, offset int64, limit int64, filter *model.UnitFilter, sort *core.Sort) ([]*model.Unit, int64, error) {
 	data, count, err := svc.database.Units().GetUnits(ctx, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get units from database",
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 	return data, count, nil
@@ -19,6 +24,10 @@ func (svc *service) GetUnits(ctx context.Context, offset int64, limit int64, fil
 func (svc *service) GetUnitById(ctx context.Context, id string) (*model.Unit, error) {
 	data, err := svc.database.Units().GetUnitById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get unit from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -33,11 +42,17 @@ func (svc *service) CreateUnit(ctx context.Context, model *model.Unit) (*model.U
 
 	err := svc.validateUnit(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate unit",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	newId, err := svc.database.Units().CreateUnit(ctx, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create unit in database",
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -50,6 +65,10 @@ func (svc *service) UpdateUnit(ctx context.Context, id string, model *model.Unit
 
 	data, err := svc.database.Units().GetUnitById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get unit from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -59,11 +78,19 @@ func (svc *service) UpdateUnit(ctx context.Context, id string, model *model.Unit
 
 	err = svc.validateUnit(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate unit",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	err = svc.database.Units().UpdateUnit(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update unit in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
@@ -73,6 +100,10 @@ func (svc *service) UpdateUnit(ctx context.Context, id string, model *model.Unit
 func (svc *service) DeleteUnit(ctx context.Context, id string) error {
 	data, err := svc.database.Units().GetUnitById(ctx, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get unit from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -81,6 +112,10 @@ func (svc *service) DeleteUnit(ctx context.Context, id string) error {
 
 	err = svc.database.Units().DeleteUnit(ctx, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete unit in database",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 

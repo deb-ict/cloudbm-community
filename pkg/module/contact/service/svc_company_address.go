@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/deb-ict/cloudbm-community/pkg/core"
+	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
 )
@@ -11,6 +13,10 @@ import (
 func (svc *service) GetCompanyAddresses(ctx context.Context, companyId string, offset int64, limit int64, filter *model.AddressFilter, sort *core.Sort) ([]*model.Address, int64, error) {
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company from database by id",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 	if parent == nil {
@@ -19,6 +25,10 @@ func (svc *service) GetCompanyAddresses(ctx context.Context, companyId string, o
 
 	data, count, err := svc.database.CompanyAddresses().GetCompanyAddresses(ctx, parent, offset, limit, filter, sort)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company addresses from database",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, 0, err
 	}
 
@@ -28,6 +38,10 @@ func (svc *service) GetCompanyAddresses(ctx context.Context, companyId string, o
 func (svc *service) GetCompanyAddressById(ctx context.Context, companyId string, id string) (*model.Address, error) {
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company from database by id",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -36,6 +50,11 @@ func (svc *service) GetCompanyAddressById(ctx context.Context, companyId string,
 
 	data, err := svc.database.CompanyAddresses().GetCompanyAddressById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company address from database by id",
+			slog.String("companyId", companyId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -50,6 +69,10 @@ func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, 
 
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company from database by id",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -58,18 +81,30 @@ func (svc *service) CreateCompanyAddress(ctx context.Context, companyId string, 
 
 	err = svc.validateCompanyAddress(ctx, parent, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate company address",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if model.IsDefault {
 		err = svc.resetDefaultCompanyAddress(ctx, parent, model)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default company address",
+				slog.String("companyId", companyId),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	newId, err := svc.database.CompanyAddresses().CreateCompanyAddress(ctx, parent, model)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to create company address in database",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetCompanyAddressById(ctx, companyId, newId)
@@ -80,6 +115,10 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company from database by id",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if parent == nil {
@@ -88,6 +127,11 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 
 	data, err := svc.database.CompanyAddresses().GetCompanyAddressById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company address from database by id",
+			slog.String("companyId", companyId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -97,18 +141,33 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 
 	err = svc.validateCompanyAddress(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to validate company address",
+			slog.String("companyId", companyId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 
 	if data.IsDefault {
 		err = svc.resetDefaultCompanyAddress(ctx, parent, data)
 		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to reset default company address",
+				slog.String("companyId", companyId),
+				slog.String("id", id),
+				slog.Any("error", err),
+			)
 			return nil, err
 		}
 	}
 
 	err = svc.database.CompanyAddresses().UpdateCompanyAddress(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to update company address in database",
+			slog.String("companyId", companyId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	return svc.GetCompanyAddressById(ctx, companyId, id)
@@ -117,6 +176,10 @@ func (svc *service) UpdateCompanyAddress(ctx context.Context, companyId string, 
 func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, id string) error {
 	parent, err := svc.database.Companies().GetCompanyById(ctx, companyId)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company from database by id",
+			slog.String("companyId", companyId),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if parent == nil {
@@ -125,6 +188,11 @@ func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, 
 
 	data, err := svc.database.CompanyAddresses().GetCompanyAddressById(ctx, parent, id)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get company address from database by id",
+			slog.String("companyId", companyId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
@@ -136,6 +204,11 @@ func (svc *service) DeleteCompanyAddress(ctx context.Context, companyId string, 
 
 	err = svc.database.CompanyAddresses().DeleteCompanyAddress(ctx, parent, data)
 	if err != nil {
+		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to delete company address in database",
+			slog.String("companyId", companyId),
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	return nil

@@ -116,6 +116,10 @@ func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.
 
 	data, err := svc.database.Categories().GetCategoryById(ctx, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get category from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return nil, err
 	}
 	if data == nil {
@@ -138,6 +142,10 @@ func (svc *service) UpdateCategory(ctx context.Context, id string, model *model.
 func (svc *service) DeleteCategory(ctx context.Context, id string) error {
 	data, err := svc.database.Categories().GetCategoryById(ctx, id)
 	if err != nil {
+		slog.ErrorContext(ctx, "Failed to get category from database by id",
+			slog.String("id", id),
+			slog.Any("error", err),
+		)
 		return err
 	}
 	if data == nil {
