@@ -9,6 +9,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	RouteGetSessionsV1            = "session_api:GetSessions:v1"
+	RouteGetSessionByIdV1         = "session_api:GetSessionById:v1"
+	RouteCreateSessionV1          = "session_api:CreateSession:v1"
+	RouteUpdateSessionV1          = "session_api:UpdateSession:v1"
+	RouteDeleteSessionV1          = "session_api:DeleteSession:v1"
+	RouteCleanupExpiredSessionsV1 = "session_api:CleanupExpiredSessions:v1"
+)
+
 type ApiV1 interface {
 	RegisterRoutes(r *mux.Router)
 }
@@ -24,12 +33,12 @@ func NewApiV1(service session.Service) ApiV1 {
 }
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
-	r.HandleFunc("/v1/session", api.GetSessionsHandlerV1).Methods(http.MethodGet).Name("session_api:GetSessionsHandlerV1")
-	r.HandleFunc("/v1/session/{id}", api.GetSessionByIdHandlerV1).Methods(http.MethodGet).Name("session_api:GetSessionByIdHandlerV1")
-	r.HandleFunc("/v1/session", api.CreateSessionHandlerV1).Methods(http.MethodPost).Name("session_api:CreateSessionHandlerV1")
-	r.HandleFunc("/v1/session/{id}", api.UpdateSessionHandlerV1).Methods(http.MethodPut).Name("session_api:UpdateSessionHandlerV1")
-	r.HandleFunc("/v1/session/{id}", api.DeleteSessionHandlerV1).Methods(http.MethodDelete).Name("session_api:DeleteSessionHandlerV1")
-	r.HandleFunc("/v1/session/cleanup", api.CleanupExpiredSessionsHandlerV1).Methods(http.MethodPost).Name("session_api:CleanupExpiredSessionsHandlerV1")
+	r.HandleFunc("/v1/session", api.GetSessionsHandlerV1).Methods(http.MethodGet).Name(RouteGetSessionsV1)
+	r.HandleFunc("/v1/session/{id}", api.GetSessionByIdHandlerV1).Methods(http.MethodGet).Name(RouteGetSessionByIdV1)
+	r.HandleFunc("/v1/session", api.CreateSessionHandlerV1).Methods(http.MethodPost).Name(RouteCreateSessionV1)
+	r.HandleFunc("/v1/session/{id}", api.UpdateSessionHandlerV1).Methods(http.MethodPut).Name(RouteUpdateSessionV1)
+	r.HandleFunc("/v1/session/{id}", api.DeleteSessionHandlerV1).Methods(http.MethodDelete).Name(RouteDeleteSessionV1)
+	r.HandleFunc("/v1/session/cleanup", api.CleanupExpiredSessionsHandlerV1).Methods(http.MethodPost).Name(RouteCleanupExpiredSessionsV1)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

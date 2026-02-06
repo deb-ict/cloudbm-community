@@ -9,6 +9,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	RouteGetUsersV1    = "auth_api:GetUsers:v1"
+	RouteGetUserByIdV1 = "auth_api:GetUserById:v1"
+	RouteCreateUserV1  = "auth_api:CreateUser:v1"
+	RouteUpdateUserV1  = "auth_api:UpdateUser:v1"
+	RouteDeleteUserV1  = "auth_api:DeleteUser:v1"
+)
+
 type ApiV1 interface {
 	RegisterRoutes(r *mux.Router)
 }
@@ -25,11 +33,11 @@ func NewApiV1(service auth.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Users
-	r.HandleFunc("/v1/user", api.GetUsersHandlerV1).Methods(http.MethodGet).Name("auth_api:GetUsersHandlerV1")
-	r.HandleFunc("/v1/user/{id}", api.GetUserByIdHandlerV1).Methods(http.MethodGet).Name("auth_api:GetUserByIdHandlerV1")
-	r.HandleFunc("/v1/user", api.CreateUserHandlerV1).Methods(http.MethodPost).Name("auth_api:CreateUserHandlerV1")
-	r.HandleFunc("/v1/user/{id}", api.UpdateUserHandlerV1).Methods(http.MethodPut).Name("auth_api:UpdateUserHandlerV1")
-	r.HandleFunc("/v1/user/{id}", api.DeleteUserHandlerV1).Methods(http.MethodDelete).Name("auth_api:DeleteUserHandlerV1")
+	r.HandleFunc("/v1/user", api.GetUsersHandlerV1).Methods(http.MethodGet).Name(RouteGetUsersV1)
+	r.HandleFunc("/v1/user/{id}", api.GetUserByIdHandlerV1).Methods(http.MethodGet).Name(RouteGetUserByIdV1)
+	r.HandleFunc("/v1/user", api.CreateUserHandlerV1).Methods(http.MethodPost).Name(RouteCreateUserV1)
+	r.HandleFunc("/v1/user/{id}", api.UpdateUserHandlerV1).Methods(http.MethodPut).Name(RouteUpdateUserV1)
+	r.HandleFunc("/v1/user/{id}", api.DeleteUserHandlerV1).Methods(http.MethodDelete).Name(RouteDeleteUserV1)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

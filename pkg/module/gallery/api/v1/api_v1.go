@@ -9,6 +9,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	RouteGetImagesV1         = "gallery_api:GetImages:v1"
+	RouteGetImageByIdV1      = "gallery_api:GetImageById:v1"
+	RouteCreateImageV1       = "gallery_api:CreateImage:v1"
+	RouteUpdateImageV1       = "gallery_api:UpdateImage:v1"
+	RouteDeleteImageV1       = "gallery_api:DeleteImage:v1"
+	RouteUploadImageFileV1   = "gallery_api:UploadImageFile:v1"
+	RouteDownloadImageFileV1 = "gallery_api:DownloadImageFile:v1"
+)
+
 type ApiV1 interface {
 	RegisterRoutes(r *mux.Router)
 }
@@ -25,13 +35,13 @@ func NewApiV1(service gallery.Service) ApiV1 {
 
 func (api *apiV1) RegisterRoutes(r *mux.Router) {
 	// Images
-	r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet).Name("gallery_api:GetImagesHandlerV1")
-	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet).Name("gallery_api:GetImageByIdHandlerV1")
-	r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost).Name("gallery_api:CreateImageHandlerV1")
-	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut).Name("gallery_api:UpdateImageHandlerV1")
-	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete).Name("gallery_api:DeleteImageHandlerV1")
-	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1).Methods(http.MethodPost).Name("gallery_api:UploadImageFileHandlerV1")
-	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1).Methods(http.MethodGet).Name("gallery_api:DownloadImageFileHandlerV1")
+	r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet).Name(RouteGetImagesV1)
+	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet).Name(RouteGetImageByIdV1)
+	r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost).Name(RouteCreateImageV1)
+	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut).Name(RouteUpdateImageV1)
+	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete).Name(RouteDeleteImageV1)
+	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1).Methods(http.MethodPost).Name(RouteUploadImageFileV1)
+	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1).Methods(http.MethodGet).Name(RouteDownloadImageFileV1)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

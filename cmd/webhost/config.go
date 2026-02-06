@@ -16,22 +16,22 @@ import (
 )
 
 type config struct {
-	Http                  hosting.HttpConfig         `yaml:"http"`
-	AuthenticationService auth_svc.ServiceOptions    `yaml:"authentication_service"`
-	ContactService        contact_svc.ServiceOptions `yaml:"contact_service"`
-	GalleryService        gallery_svc.ServiceOptions `yaml:"gallery_service"`
-	ProductService        product_svc.ServiceOptions `yaml:"product_service"`
-	SessionService        session_svc.ServiceOptions `yaml:"session_service"`
+	Http           hosting.HttpConfig         `yaml:"http"`
+	AuthService    auth_svc.ServiceOptions    `yaml:"auth_service"`
+	ContactService contact_svc.ServiceOptions `yaml:"contact_service"`
+	GalleryService gallery_svc.ServiceOptions `yaml:"gallery_service"`
+	ProductService product_svc.ServiceOptions `yaml:"product_service"`
+	SessionService session_svc.ServiceOptions `yaml:"session_service"`
 }
 
 func LoadConfig(configPath string) (*config, error) {
 	cfg := &config{
-		Http:                  hosting.HttpConfig{},
-		AuthenticationService: auth_svc.ServiceOptions{},
-		ContactService:        contact_svc.ServiceOptions{},
-		GalleryService:        gallery_svc.ServiceOptions{},
-		ProductService:        product_svc.ServiceOptions{},
-		SessionService:        session_svc.ServiceOptions{},
+		Http:           hosting.HttpConfig{},
+		AuthService:    auth_svc.ServiceOptions{},
+		ContactService: contact_svc.ServiceOptions{},
+		GalleryService: gallery_svc.ServiceOptions{},
+		ProductService: product_svc.ServiceOptions{},
+		SessionService: session_svc.ServiceOptions{},
 	}
 	err := cfg.loadYaml(configPath)
 	cfg.loadEnvironment()
@@ -78,7 +78,7 @@ func (cfg *config) loadEnvironment() {
 
 func (cfg *config) ensureDefaults() {
 	cfg.Http.EnsureDefaults()
-	cfg.AuthenticationService.EnsureDefaults()
+	cfg.AuthService.EnsureDefaults()
 	cfg.ContactService.EnsureDefaults()
 	cfg.GalleryService.EnsureDefaults()
 	cfg.ProductService.EnsureDefaults()

@@ -3,6 +3,7 @@ module github.com/deb-ict/cloudbm-community
 go 1.25.0
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gorilla/mux v1.8.1
 	github.com/gosimple/slug v1.15.0
 	github.com/shopspring/decimal v1.4.0
