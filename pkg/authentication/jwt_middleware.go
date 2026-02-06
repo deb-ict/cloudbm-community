@@ -91,7 +91,8 @@ func (m *JwtAuthenticationMiddleware) Middleware(next http.Handler) http.Handler
 			return
 		}
 
-		logger = logger.With("user.id", identity.GetID())
+		logger = logger.With("user.id", identity.GetId())
+		logger.InfoContext(ctx, "User authenticated")
 
 		// Call the next handler in the chain
 		ctx = logging.WithLoggerInContext(ctx, logger)
@@ -114,5 +115,5 @@ func (m *JwtAuthenticationMiddleware) EnsureDefaults() {
 }
 
 func UnauthorizedResponse(w http.ResponseWriter) {
-	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	http.Error(w, "Access denied", http.StatusUnauthorized)
 }

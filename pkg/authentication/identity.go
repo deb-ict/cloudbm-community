@@ -8,7 +8,7 @@ import (
 )
 
 type Identity interface {
-	GetID() string
+	GetId() string
 	GetUsername() string
 	GetEmail() string
 	IsEmailVerified() bool
@@ -37,7 +37,7 @@ type identity struct {
 	claims        jwt.MapClaims
 }
 
-func (i *identity) GetID() string {
+func (i *identity) GetId() string {
 	return i.id
 }
 

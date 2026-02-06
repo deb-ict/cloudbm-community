@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/authentication"
+	"github.com/deb-ict/cloudbm-community/pkg/authorization"
 	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	auth_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/auth/api/v1"
 	auth_svc "github.com/deb-ict/cloudbm-community/pkg/module/auth/service"
@@ -88,7 +89,7 @@ func main() {
 	// Setup the middlewares
 	//router.Use(logging.NewMiddleware().Middleware)
 	router.Use(authentication.NewMiddleware(nil).Middleware)
-	//router.Use(authorization)
+	router.Use(authorization.NewMiddleware().Middleware)
 	//router.Use(metrics) // prometheus metrics middleware
 	//router.Use(cors)
 	//router.Use(tracing) // otel tracing middleware
