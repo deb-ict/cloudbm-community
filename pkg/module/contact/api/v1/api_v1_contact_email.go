@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type ContactEmailV1 struct {
@@ -49,7 +49,7 @@ type UpdateContactEmailV1 struct {
 
 func (api *apiV1) GetContactEmailsHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
 	filter := api.parseContactEmailFilterV1(r)
 	paging := rest.GetPaging(r)
@@ -82,9 +82,9 @@ func (api *apiV1) GetContactEmailsHandlerV1(w http.ResponseWriter, r *http.Reque
 
 func (api *apiV1) GetContactEmailByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetContactEmailById(ctx, contactId, id)
 	if api.handleError(w, err) {
 		return
@@ -101,7 +101,7 @@ func (api *apiV1) GetContactEmailByIdHandlerV1(w http.ResponseWriter, r *http.Re
 
 func (api *apiV1) CreateContactEmailHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
 	var model *CreateContactEmailV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -125,9 +125,9 @@ func (api *apiV1) CreateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 
 func (api *apiV1) UpdateContactEmailHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateContactEmailV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -151,9 +151,9 @@ func (api *apiV1) UpdateContactEmailHandlerV1(w http.ResponseWriter, r *http.Req
 
 func (api *apiV1) DeleteContactEmailHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteContactEmail(ctx, contactId, id)
 	if api.handleError(w, err) {

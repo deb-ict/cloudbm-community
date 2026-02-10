@@ -7,7 +7,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type ProductV1 struct {
@@ -119,7 +119,7 @@ func (api *apiV1) GetProductsHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetProductByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetProductById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -160,7 +160,7 @@ func (api *apiV1) CreateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateProductV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -185,7 +185,7 @@ func (api *apiV1) UpdateProductHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) DeleteProductHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteProduct(ctx, id)
 	if api.handleError(w, err) {

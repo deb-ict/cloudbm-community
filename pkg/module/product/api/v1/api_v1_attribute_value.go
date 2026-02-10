@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type AttributeValueV1 struct {
@@ -52,7 +52,7 @@ type UpdateAttributeValueV1 struct {
 func (api *apiV1) GetAttributeValuesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	attributeId := mux.Vars(r)["attributeId"]
+	attributeId := router.Param(r, "attributeId")
 	filter := api.parseAttributeValueFilterV1(r)
 	paging := rest.GetPaging(r)
 	sort := rest.GetSorting(r)
@@ -80,8 +80,8 @@ func (api *apiV1) GetAttributeValuesHandlerV1(w http.ResponseWriter, r *http.Req
 func (api *apiV1) GetAttributeValueByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	attributeId := mux.Vars(r)["attributeId"]
-	id := mux.Vars(r)["id"]
+	attributeId := router.Param(r, "attributeId")
+	id := router.Param(r, "id")
 	result, err := api.service.GetAttributeValueById(ctx, attributeId, id)
 	if api.handleError(w, err) {
 		return
@@ -95,7 +95,7 @@ func (api *apiV1) GetAttributeValueByIdHandlerV1(w http.ResponseWriter, r *http.
 func (api *apiV1) CreateAttributeValueHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	attributeId := mux.Vars(r)["attributeId"]
+	attributeId := router.Param(r, "attributeId")
 
 	var model *CreateAttributeValueV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -115,8 +115,8 @@ func (api *apiV1) CreateAttributeValueHandlerV1(w http.ResponseWriter, r *http.R
 func (api *apiV1) UpdateAttributeValueHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	attributeId := mux.Vars(r)["attributeId"]
-	id := mux.Vars(r)["id"]
+	attributeId := router.Param(r, "attributeId")
+	id := router.Param(r, "id")
 
 	var model *UpdateAttributeValueV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -136,8 +136,8 @@ func (api *apiV1) UpdateAttributeValueHandlerV1(w http.ResponseWriter, r *http.R
 func (api *apiV1) DeleteAttributeValueHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	attributeId := mux.Vars(r)["attributeId"]
-	id := mux.Vars(r)["id"]
+	attributeId := router.Param(r, "attributeId")
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteAttributeValue(ctx, attributeId, id)
 	if api.handleError(w, err) {

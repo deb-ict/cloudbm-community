@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type AttributeV1 struct {
@@ -75,7 +75,7 @@ func (api *apiV1) GetAttributesHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) GetAttributeByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetAttributeById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -106,7 +106,7 @@ func (api *apiV1) CreateAttributeHandlerV1(w http.ResponseWriter, r *http.Reques
 func (api *apiV1) UpdateAttributeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateAttributeV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -126,7 +126,7 @@ func (api *apiV1) UpdateAttributeHandlerV1(w http.ResponseWriter, r *http.Reques
 func (api *apiV1) DeleteAttributeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteAttribute(ctx, id)
 	if api.handleError(w, err) {

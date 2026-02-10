@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type ContactV1 struct {
@@ -82,7 +82,7 @@ func (api *apiV1) GetContactsHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetContactByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetContactById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -113,7 +113,7 @@ func (api *apiV1) CreateContactHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) UpdateContactHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateContactV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -133,7 +133,7 @@ func (api *apiV1) UpdateContactHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) DeleteContactHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteContact(ctx, id)
 	if api.handleError(w, err) {

@@ -6,11 +6,20 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/product"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
+	"github.com/deb-ict/go-router/authorization"
+)
+
+const (
+	PolicyReadProductsV1   = "product_api:ReadProducts:v1"
+	PolicyCreateProductsV1 = "product_api:CreateProducts:v1"
+	PolicyUpdateProductsV1 = "product_api:UpdateProducts:v1"
+	PolicyDeleteProductsV1 = "product_api:DeleteProducts:v1"
 )
 
 type ApiV1 interface {
-	RegisterRoutes(r *mux.Router)
+	RegisterAuthorizationPolicies(middleware *authorization.Middleware)
+	RegisterRoutes(r *router.Router)
 }
 
 type apiV1 struct {
@@ -23,34 +32,109 @@ func NewApiV1(service product.Service) ApiV1 {
 	}
 }
 
-func (api *apiV1) RegisterRoutes(r *mux.Router) {
+func (api *apiV1) RegisterAuthorizationPolicies(middleware *authorization.Middleware) {
+	middleware.SetPolicy(authorization.NewPolicy(PolicyReadProductsV1,
+		authorization.NewScopeRequirement("product.read"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyCreateProductsV1,
+		authorization.NewScopeRequirement("product.create"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyUpdateProductsV1,
+		authorization.NewScopeRequirement("product.update"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyDeleteProductsV1,
+		authorization.NewScopeRequirement("product.delete"),
+	))
+}
+
+func (api *apiV1) RegisterRoutes(r *router.Router) {
 	// Attributes
-	r.HandleFunc("/v1/attribute", api.GetAttributesHandlerV1).Methods(http.MethodGet).Name("product_api:GetAttributesHandlerV1")
-	r.HandleFunc("/v1/attribute/{id}", api.GetAttributeByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetAttributeByIdHandlerV1")
-	r.HandleFunc("/v1/attribute", api.CreateAttributeHandlerV1).Methods(http.MethodPost).Name("product_api:CreateAttributeHandlerV1")
-	r.HandleFunc("/v1/attribute/{id}", api.UpdateAttributeHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateAttributeHandlerV1")
-	r.HandleFunc("/v1/attribute/{id}", api.DeleteAttributeHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteAttributeHandlerV1")
+	r.HandleFunc("/v1/attribute", api.GetAttributesHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{id}", api.GetAttributeByIdHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/attribute", api.CreateAttributeHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyCreateProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{id}", api.UpdateAttributeHandlerV1,
+		router.AllowedMethod(http.MethodPut),
+		router.Authorized(PolicyUpdateProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{id}", api.DeleteAttributeHandlerV1,
+		router.AllowedMethod(http.MethodDelete),
+		router.Authorized(PolicyDeleteProductsV1),
+	)
 
 	// Attribute Values
-	r.HandleFunc("/v1/attribute/{attributeId}/value", api.GetAttributeValuesHandlerV1).Methods(http.MethodGet).Name("product_api:GetAttributeValuesHandlerV1")
-	r.HandleFunc("/v1/attribute/{attributeId}/value/{id}", api.GetAttributeValueByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetAttributeValueByIdHandlerV1")
-	r.HandleFunc("/v1/attribute/{attributeId}/value", api.CreateAttributeValueHandlerV1).Methods(http.MethodPost).Name("product_api:CreateAttributeValueHandlerV1")
-	r.HandleFunc("/v1/attribute/{attributeId}/value/{id}", api.UpdateAttributeValueHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateAttributeValueHandlerV1")
-	r.HandleFunc("/v1/attribute/{attributeId}/value/{id}", api.DeleteAttributeValueHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteAttributeValueHandlerV1")
+	r.HandleFunc("/v1/attribute/{attributeId}/value", api.GetAttributeValuesHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{attributeId}/value/{id}", api.GetAttributeValueByIdHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{attributeId}/value", api.CreateAttributeValueHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyCreateProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{attributeId}/value/{id}", api.UpdateAttributeValueHandlerV1,
+		router.AllowedMethod(http.MethodPut),
+		router.Authorized(PolicyUpdateProductsV1),
+	)
+	r.HandleFunc("/v1/attribute/{attributeId}/value/{id}", api.DeleteAttributeValueHandlerV1,
+		router.AllowedMethod(http.MethodDelete),
+		router.Authorized(PolicyDeleteProductsV1),
+	)
 
 	// Categories
-	r.HandleFunc("/v1/category", api.GetCategoriesHandlerV1).Methods(http.MethodGet).Name("product_api:GetCategoriesHandlerV1")
-	r.HandleFunc("/v1/category/{id}", api.GetCategoryByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetCategoryByIdHandlerV1")
-	r.HandleFunc("/v1/category", api.CreateCategoryHandlerV1).Methods(http.MethodPost).Name("product_api:CreateCategoryHandlerV1")
-	r.HandleFunc("/v1/category/{id}", api.UpdateCategoryHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateCategoryHandlerV1")
-	r.HandleFunc("/v1/category/{id}", api.DeleteCategoryHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteCategoryHandlerV1")
+	r.HandleFunc("/v1/category", api.GetCategoriesHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/category/{id}", api.GetCategoryByIdHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/category", api.CreateCategoryHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyCreateProductsV1),
+	)
+	r.HandleFunc("/v1/category/{id}", api.UpdateCategoryHandlerV1,
+		router.AllowedMethod(http.MethodPut),
+		router.Authorized(PolicyUpdateProductsV1),
+	)
+	r.HandleFunc("/v1/category/{id}", api.DeleteCategoryHandlerV1,
+		router.AllowedMethod(http.MethodDelete),
+		router.Authorized(PolicyDeleteProductsV1),
+	)
 
 	// Products
-	r.HandleFunc("/v1/product", api.GetProductsHandlerV1).Methods(http.MethodGet).Name("product_api:GetProductsHandlerV1")
-	r.HandleFunc("/v1/product/{id}", api.GetProductByIdHandlerV1).Methods(http.MethodGet).Name("product_api:GetProductByIdHandlerV1")
-	r.HandleFunc("/v1/product", api.CreateProductHandlerV1).Methods(http.MethodPost).Name("product_api:CreateProductHandlerV1")
-	r.HandleFunc("/v1/product/{id}", api.UpdateProductHandlerV1).Methods(http.MethodPut).Name("product_api:UpdateProductHandlerV1")
-	r.HandleFunc("/v1/product/{id}", api.DeleteProductHandlerV1).Methods(http.MethodDelete).Name("product_api:DeleteProductHandlerV1")
+	r.HandleFunc("/v1/product", api.GetProductsHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/product/{id}", api.GetProductByIdHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadProductsV1),
+	)
+	r.HandleFunc("/v1/product", api.CreateProductHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyCreateProductsV1),
+	)
+	r.HandleFunc("/v1/product/{id}", api.UpdateProductHandlerV1,
+		router.AllowedMethod(http.MethodPut),
+		router.Authorized(PolicyUpdateProductsV1),
+	)
+	r.HandleFunc("/v1/product/{id}", api.DeleteProductHandlerV1,
+		router.AllowedMethod(http.MethodDelete),
+		router.Authorized(PolicyDeleteProductsV1),
+	)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

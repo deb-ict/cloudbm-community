@@ -7,7 +7,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type CompanyTypeV1 struct {
@@ -80,7 +80,7 @@ func (api *apiV1) GetCompanyTypesHandlerV1(w http.ResponseWriter, r *http.Reques
 func (api *apiV1) GetCompanyTypeByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetCompanyTypeById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -111,7 +111,7 @@ func (api *apiV1) CreateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 func (api *apiV1) UpdateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateCompanyTypeV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -131,7 +131,7 @@ func (api *apiV1) UpdateCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Requ
 func (api *apiV1) DeleteCompanyTypeHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteCompanyType(ctx, id)
 	if api.handleError(w, err) {

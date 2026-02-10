@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type ContactAddressV1 struct {
@@ -73,7 +73,7 @@ type UpdateContactAddressV1 struct {
 
 func (api *apiV1) GetContactAddressesHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
 	filter := api.parseContactAddressFilterV1(r)
 	paging := rest.GetPaging(r)
@@ -106,9 +106,9 @@ func (api *apiV1) GetContactAddressesHandlerV1(w http.ResponseWriter, r *http.Re
 
 func (api *apiV1) GetContactAddressByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetContactAddressById(ctx, contactId, id)
 	if api.handleError(w, err) {
 		return
@@ -125,7 +125,7 @@ func (api *apiV1) GetContactAddressByIdHandlerV1(w http.ResponseWriter, r *http.
 
 func (api *apiV1) CreateContactAddressHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
 	var model *CreateContactAddressV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -149,9 +149,9 @@ func (api *apiV1) CreateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 
 func (api *apiV1) UpdateContactAddressHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateContactAddressV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -175,9 +175,9 @@ func (api *apiV1) UpdateContactAddressHandlerV1(w http.ResponseWriter, r *http.R
 
 func (api *apiV1) DeleteContactAddressHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	contactId := mux.Vars(r)["contactId"]
+	contactId := router.Param(r, "contactId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteContactAddress(ctx, contactId, id)
 	if api.handleError(w, err) {

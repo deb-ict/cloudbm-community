@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Webhost",
+            "type": "go",
+            "mode": "auto",
+            "request": "launch",
+            "program": "${workspaceFolder}/cmd/webhost",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "-config",
+                "${workspaceFolder}/config/cloudbm.yaml"
+            ]
+        }
+    ]
+}
