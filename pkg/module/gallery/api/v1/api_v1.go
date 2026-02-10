@@ -6,21 +6,22 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
+	"github.com/deb-ict/go-router/authorization"
 )
 
 const (
-	RouteGetImagesV1         = "gallery_api:GetImages:v1"
-	RouteGetImageByIdV1      = "gallery_api:GetImageById:v1"
-	RouteCreateImageV1       = "gallery_api:CreateImage:v1"
-	RouteUpdateImageV1       = "gallery_api:UpdateImage:v1"
-	RouteDeleteImageV1       = "gallery_api:DeleteImage:v1"
-	RouteUploadImageFileV1   = "gallery_api:UploadImageFile:v1"
-	RouteDownloadImageFileV1 = "gallery_api:DownloadImageFile:v1"
+	PolicyReadImages     = "gallery_api:ReadImages"
+	PolicyCreateImages   = "gallery_api:CreateImages"
+	PolicyUpdateImages   = "gallery_api:UpdateImages"
+	PolicyDeleteImages   = "gallery_api:DeleteImages"
+	PolicyUploadImages   = "gallery_api:UploadImages"
+	PolicyDownloadImages = "gallery_api:DownloadImages"
 )
 
 type ApiV1 interface {
-	RegisterRoutes(r *mux.Router)
+	RegisterAuthorizationPolicies(middleware *authorization.Middleware)
+	RegisterRoutes(r *router.Router)
 }
 
 type apiV1 struct {
@@ -33,15 +34,57 @@ func NewApiV1(service gallery.Service) ApiV1 {
 	}
 }
 
-func (api *apiV1) RegisterRoutes(r *mux.Router) {
+func (api *apiV1) RegisterAuthorizationPolicies(middleware *authorization.Middleware) {
+	middleware.SetPolicy(authorization.NewPolicy(PolicyReadImages,
+		authorization.NewScopeRequirement("gallery.image.read"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyCreateImages,
+		authorization.NewScopeRequirement("gallery.image.create"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyUpdateImages,
+		authorization.NewScopeRequirement("gallery.image.update"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyDeleteImages,
+		authorization.NewScopeRequirement("gallery.image.delete"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyUploadImages,
+		authorization.NewScopeRequirement("gallery.image.upload"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyDownloadImages,
+		authorization.NewScopeRequirement("gallery.image.download"),
+	))
+}
+
+func (api *apiV1) RegisterRoutes(r *router.Router) {
 	// Images
-	r.HandleFunc("/v1/image", api.GetImagesHandlerV1).Methods(http.MethodGet).Name(RouteGetImagesV1)
-	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1).Methods(http.MethodGet).Name(RouteGetImageByIdV1)
-	r.HandleFunc("/v1/image", api.CreateImageHandlerV1).Methods(http.MethodPost).Name(RouteCreateImageV1)
-	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1).Methods(http.MethodPut).Name(RouteUpdateImageV1)
-	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1).Methods(http.MethodDelete).Name(RouteDeleteImageV1)
-	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1).Methods(http.MethodPost).Name(RouteUploadImageFileV1)
-	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1).Methods(http.MethodGet).Name(RouteDownloadImageFileV1)
+	r.HandleFunc("/v1/image", api.GetImagesHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadImages),
+	)
+	r.HandleFunc("/v1/image/{id}", api.GetImageByIdHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadImages),
+	)
+	r.HandleFunc("/v1/image", api.CreateImageHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyCreateImages),
+	)
+	r.HandleFunc("/v1/image/{id}", api.UpdateImageHandlerV1,
+		router.AllowedMethod(http.MethodPut),
+		router.Authorized(PolicyUpdateImages),
+	)
+	r.HandleFunc("/v1/image/{id}", api.DeleteImageHandlerV1,
+		router.AllowedMethod(http.MethodDelete),
+		router.Authorized(PolicyDeleteImages),
+	)
+	r.HandleFunc("/v1/image/{id}/upload", api.UploadImageFileHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyUploadImages),
+	)
+	r.HandleFunc("/v1/image/{id}/download", api.DownloadImageFileHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyDownloadImages),
+	)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

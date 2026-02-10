@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/metadata/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 	"github.com/shopspring/decimal"
 )
 
@@ -95,7 +95,7 @@ func (api *apiV1) GetTaxRatesHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetTaxRateByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetTaxRateById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -132,7 +132,7 @@ func (api *apiV1) CreateTaxRateHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) UpdateTaxRateHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateTaxRateV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -152,7 +152,7 @@ func (api *apiV1) UpdateTaxRateHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) DeleteTaxRateHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteTaxRate(ctx, id)
 	if api.handleError(w, err) {

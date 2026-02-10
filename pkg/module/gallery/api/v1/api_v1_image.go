@@ -8,7 +8,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/gallery/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type ImageV1 struct {
@@ -84,7 +84,7 @@ func (api *apiV1) GetImagesHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetImageByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetImageById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -115,7 +115,7 @@ func (api *apiV1) CreateImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) UpdateImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateImageV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -135,7 +135,7 @@ func (api *apiV1) UpdateImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) DeleteImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteImage(ctx, id)
 	if api.handleError(w, err) {
@@ -148,7 +148,7 @@ func (api *apiV1) DeleteImageHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) UploadImageFileHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := r.ParseMultipartForm(10 << 20)
 	if api.handleError(w, err) {
@@ -174,7 +174,7 @@ func (api *apiV1) UploadImageFileHandlerV1(w http.ResponseWriter, r *http.Reques
 func (api *apiV1) DownloadImageFileHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	file, mimeType, originalFileName, err := api.service.GetImageData(ctx, id)
 	if api.handleError(w, err) {

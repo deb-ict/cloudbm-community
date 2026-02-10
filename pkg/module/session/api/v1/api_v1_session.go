@@ -7,7 +7,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/session/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type SessionV1 struct {
@@ -80,7 +80,7 @@ func (api *apiV1) GetSessionsHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetSessionByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetSessionById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -111,7 +111,7 @@ func (api *apiV1) CreateSessionHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) UpdateSessionHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateSessionV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -131,7 +131,7 @@ func (api *apiV1) UpdateSessionHandlerV1(w http.ResponseWriter, r *http.Request)
 func (api *apiV1) DeleteSessionHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteSession(ctx, id)
 	if api.handleError(w, err) {

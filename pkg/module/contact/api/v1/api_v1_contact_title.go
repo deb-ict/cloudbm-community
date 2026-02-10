@@ -7,7 +7,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type ContactTitleV1 struct {
@@ -80,7 +80,7 @@ func (api *apiV1) GetContactTitlesHandlerV1(w http.ResponseWriter, r *http.Reque
 func (api *apiV1) GetContactTitleByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetContactTitleById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -111,7 +111,7 @@ func (api *apiV1) CreateContactTitleHandlerV1(w http.ResponseWriter, r *http.Req
 func (api *apiV1) UpdateContactTitleHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateContactTitleV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -131,7 +131,7 @@ func (api *apiV1) UpdateContactTitleHandlerV1(w http.ResponseWriter, r *http.Req
 func (api *apiV1) DeleteContactTitleHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteContactTitle(ctx, id)
 	if api.handleError(w, err) {

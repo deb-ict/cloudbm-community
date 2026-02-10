@@ -6,19 +6,20 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/core"
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
+	"github.com/deb-ict/go-router/authorization"
 )
 
 const (
-	RouteGetUsersV1    = "auth_api:GetUsers:v1"
-	RouteGetUserByIdV1 = "auth_api:GetUserById:v1"
-	RouteCreateUserV1  = "auth_api:CreateUser:v1"
-	RouteUpdateUserV1  = "auth_api:UpdateUser:v1"
-	RouteDeleteUserV1  = "auth_api:DeleteUser:v1"
+	PolicyReadUsersV1   = "auth_api:ReadUsers:v1"
+	PolicyCreateUsersV1 = "auth_api:CreateUsers:v1"
+	PolicyUpdateUsersV1 = "auth_api:UpdateUsers:v1"
+	PolicyDeleteUsersV1 = "auth_api:DeleteUsers:v1"
 )
 
 type ApiV1 interface {
-	RegisterRoutes(r *mux.Router)
+	RegisterAuthorizationPolicies(middleware *authorization.Middleware)
+	RegisterRoutes(r *router.Router)
 }
 
 type apiV1 struct {
@@ -31,13 +32,43 @@ func NewApiV1(service auth.Service) ApiV1 {
 	}
 }
 
-func (api *apiV1) RegisterRoutes(r *mux.Router) {
+func (api *apiV1) RegisterAuthorizationPolicies(middleware *authorization.Middleware) {
+	middleware.SetPolicy(authorization.NewPolicy(PolicyReadUsersV1,
+		authorization.NewScopeRequirement("user.read"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyCreateUsersV1,
+		authorization.NewScopeRequirement("user.create"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyUpdateUsersV1,
+		authorization.NewScopeRequirement("user.update"),
+	))
+	middleware.SetPolicy(authorization.NewPolicy(PolicyDeleteUsersV1,
+		authorization.NewScopeRequirement("user.delete"),
+	))
+}
+
+func (api *apiV1) RegisterRoutes(r *router.Router) {
 	// Users
-	r.HandleFunc("/v1/user", api.GetUsersHandlerV1).Methods(http.MethodGet).Name(RouteGetUsersV1)
-	r.HandleFunc("/v1/user/{id}", api.GetUserByIdHandlerV1).Methods(http.MethodGet).Name(RouteGetUserByIdV1)
-	r.HandleFunc("/v1/user", api.CreateUserHandlerV1).Methods(http.MethodPost).Name(RouteCreateUserV1)
-	r.HandleFunc("/v1/user/{id}", api.UpdateUserHandlerV1).Methods(http.MethodPut).Name(RouteUpdateUserV1)
-	r.HandleFunc("/v1/user/{id}", api.DeleteUserHandlerV1).Methods(http.MethodDelete).Name(RouteDeleteUserV1)
+	r.HandleFunc("/v1/user", api.GetUsersHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadUsersV1),
+	)
+	r.HandleFunc("/v1/user/{id}", api.GetUserByIdHandlerV1,
+		router.AllowedMethod(http.MethodGet),
+		router.Authorized(PolicyReadUsersV1),
+	)
+	r.HandleFunc("/v1/user", api.CreateUserHandlerV1,
+		router.AllowedMethod(http.MethodPost),
+		router.Authorized(PolicyCreateUsersV1),
+	)
+	r.HandleFunc("/v1/user/{id}", api.UpdateUserHandlerV1,
+		router.AllowedMethod(http.MethodPut),
+		router.Authorized(PolicyUpdateUsersV1),
+	)
+	r.HandleFunc("/v1/user/{id}", api.DeleteUserHandlerV1,
+		router.AllowedMethod(http.MethodDelete),
+		router.Authorized(PolicyDeleteUsersV1),
+	)
 }
 
 func (api *apiV1) handleError(w http.ResponseWriter, err error) bool {

@@ -7,7 +7,7 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/localization"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type JobTitleV1 struct {
@@ -80,7 +80,7 @@ func (api *apiV1) GetJobTitlesHandlerV1(w http.ResponseWriter, r *http.Request) 
 func (api *apiV1) GetJobTitleByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetJobTitleById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -111,7 +111,7 @@ func (api *apiV1) CreateJobTitleHandlerV1(w http.ResponseWriter, r *http.Request
 func (api *apiV1) UpdateJobTitleHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateJobTitleV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -131,7 +131,7 @@ func (api *apiV1) UpdateJobTitleHandlerV1(w http.ResponseWriter, r *http.Request
 func (api *apiV1) DeleteJobTitleHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteJobTitle(ctx, id)
 	if api.handleError(w, err) {

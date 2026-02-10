@@ -3,8 +3,6 @@ package logging
 import (
 	"log/slog"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type LoggingMiddleware struct {
@@ -33,11 +31,6 @@ func (m *LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 			slog.String("http.request.host", r.Host),
 			slog.String("http.request.url", r.URL.Path),
 		)
-
-		routeName := mux.CurrentRoute(r).GetName()
-		if routeName != "" {
-			logger = logger.With(slog.String("route.name", routeName))
-		}
 
 		ctx = WithLoggerInContext(ctx, logger)
 		logWriter := &loggingResponseWriter{ResponseWriter: w}

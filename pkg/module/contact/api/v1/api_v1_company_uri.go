@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/contact/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type CompanyUriV1 struct {
@@ -49,7 +49,7 @@ type UpdateCompanyUriV1 struct {
 
 func (api *apiV1) GetCompanyUrisHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := mux.Vars(r)["companyId"]
+	companyId := router.Param(r, "companyId")
 
 	filter := api.parseCompanyUriFilterV1(r)
 	paging := rest.GetPaging(r)
@@ -82,9 +82,9 @@ func (api *apiV1) GetCompanyUrisHandlerV1(w http.ResponseWriter, r *http.Request
 
 func (api *apiV1) GetCompanyUriByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := mux.Vars(r)["companyId"]
+	companyId := router.Param(r, "companyId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetCompanyUriById(ctx, companyId, id)
 	if api.handleError(w, err) {
 		return
@@ -101,7 +101,7 @@ func (api *apiV1) GetCompanyUriByIdHandlerV1(w http.ResponseWriter, r *http.Requ
 
 func (api *apiV1) CreateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := mux.Vars(r)["companyId"]
+	companyId := router.Param(r, "companyId")
 
 	var model *CreateCompanyUriV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -125,9 +125,9 @@ func (api *apiV1) CreateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 
 func (api *apiV1) UpdateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := mux.Vars(r)["companyId"]
+	companyId := router.Param(r, "companyId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateCompanyUriV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -151,9 +151,9 @@ func (api *apiV1) UpdateCompanyUriHandlerV1(w http.ResponseWriter, r *http.Reque
 
 func (api *apiV1) DeleteCompanyUriHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	companyId := mux.Vars(r)["companyId"]
+	companyId := router.Param(r, "companyId")
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteCompanyUri(ctx, companyId, id)
 	if api.handleError(w, err) {

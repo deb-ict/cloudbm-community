@@ -6,7 +6,7 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/http/rest"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth/model"
-	"github.com/gorilla/mux"
+	"github.com/deb-ict/go-router"
 )
 
 type UserV1 struct {
@@ -82,7 +82,7 @@ func (api *apiV1) GetUsersHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) GetUserByIdHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 	result, err := api.service.GetUserById(ctx, id)
 	if api.handleError(w, err) {
 		return
@@ -113,7 +113,7 @@ func (api *apiV1) CreateUserHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) UpdateUserHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	var model *UpdateUserV1
 	err := json.NewDecoder(r.Body).Decode(&model)
@@ -133,7 +133,7 @@ func (api *apiV1) UpdateUserHandlerV1(w http.ResponseWriter, r *http.Request) {
 func (api *apiV1) DeleteUserHandlerV1(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	id := mux.Vars(r)["id"]
+	id := router.Param(r, "id")
 
 	err := api.service.DeleteUser(ctx, id)
 	if api.handleError(w, err) {
