@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 
 	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	auth_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/auth/api/v1"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/oauth"
 	auth_svc "github.com/deb-ict/cloudbm-community/pkg/module/auth/service"
 	contact_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/contact/api/v1"
 	contact_svc "github.com/deb-ict/cloudbm-community/pkg/module/contact/service"
@@ -24,65 +24,7 @@ import (
 	"github.com/deb-ict/go-router"
 	"github.com/deb-ict/go-router/authentication"
 	"github.com/deb-ict/go-router/authorization"
-	"github.com/golang-jwt/jwt/v5"
 )
-
-type jwtValidator struct {
-}
-
-func (v *jwtValidator) GetBearerAuthenticationData(token string) (authentication.ClaimMap, error) {
-	jwtClaims := jwt.MapClaims{}
-	parsedToken, err := jwt.ParseWithClaims(token, jwtClaims, func(token *jwt.Token) (interface{}, error) {
-		// Validate the signing method
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, jwt.ErrSignatureInvalid
-		}
-		return []byte("your-256-bit-secret"), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if !parsedToken.Valid {
-		return nil, jwt.ErrSignatureInvalid
-	}
-
-	claims := make(authentication.ClaimMap)
-	for key, value := range jwtClaims {
-		//TODO: We need to write a claims mapper
-		//	Roles and scopes must be split into string array
-		if key == "role" || key == "scope" {
-			stringArrayValue, ok := value.([]string)
-			if ok {
-				claims[key] = &authentication.Claim{
-					Name:   key,
-					Values: stringArrayValue,
-				}
-				continue
-			}
-			stringValue, ok := value.(string)
-			if ok {
-				claims[key] = &authentication.Claim{
-					Name:   key,
-					Values: strings.Split(stringValue, " "),
-				}
-				continue
-			}
-		}
-
-		stringValue, ok := value.(string)
-		if !ok {
-			// Handle non-string claim values as needed (e.g., log a warning, skip, etc.)
-			slog.WarnContext(context.Background(), "Skipping non-string claim",
-				slog.String("key", key),
-				slog.Any("value", value),
-			)
-			continue
-		}
-		claims.SetClaimSingleValue(key, stringValue)
-	}
-
-	return claims, nil
-}
 
 func main() {
 	// Parse arguments
@@ -97,30 +39,6 @@ func main() {
 	slog.SetDefault(slog.New(slogJsonHandler))
 	slog.SetLogLoggerLevel(slog.LevelInfo)
 
-	claims := jwt.MapClaims{}
-	claims["sub"] = "1234567890"
-	claims["iss"] = "https://localhost:8000"
-	claims["aud"] = "cloudbm-users"
-	claims["name"] = "John Doe"
-	claims["iat"] = jwt.NewNumericDate(time.Now().UTC())
-	claims["nbf"] = jwt.NewNumericDate(time.Now().UTC())
-	claims["exp"] = jwt.NewNumericDate(time.Now().UTC().Add(1 * time.Hour))
-	claims["jti"] = "unique-token-id"
-	claims["role"] = "user admin"
-	claims["scope"] = "product:read product:write"
-	claims["email"] = "john.doe@deb-ict.com"
-	claims["email_verified"] = true
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte("your-256-bit-secret"))
-	if err != nil {
-		slog.ErrorContext(context.Background(), "Failed to generate JWT token",
-			slog.Any("error", err),
-		)
-	}
-	slog.InfoContext(context.Background(), "Generated JWT token",
-		slog.String("token", tokenString),
-	)
-
 	// Load configuration
 	config, err := LoadConfig(configPath)
 	if err != nil {
@@ -132,7 +50,7 @@ func main() {
 	defer stop()
 
 	// Initialize the middlewares
-	authenticationValidator := &jwtValidator{}
+	authenticationValidator := oauth.NewTokenValidator()
 	authenticationHandler := authentication.NewBearerAuthenticationHandler(authenticationValidator)
 	authenticationMiddleware := authentication.NewMiddleware(authenticationHandler)
 	authorizationMiddleware := authorization.NewMiddleware()

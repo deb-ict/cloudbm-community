@@ -14,7 +14,7 @@ import (
 
 const TokenLifetimeSeconds = 3600
 
-var TokenSecret = []byte("your-256-bit-secret")
+var tokenSecret = []byte("your-256-bit-secret")
 
 type TokenResponse struct {
 	AccessToken  string `json:"access_token"`
@@ -47,17 +47,18 @@ func (e *ErrorResponse) Send(w http.ResponseWriter) error {
 	return json.NewEncoder(w).Encode(e)
 }
 
-type TokenHandler struct {
-	service auth.Service
+type tokenHandler struct {
+	service   auth.Service
+	issuerUri string
 }
 
-func (api *TokenHandler) RegisterRoutes(r *router.Router) {
+func (api *tokenHandler) RegisterRoutes(r *router.Router) {
 	r.HandleFunc("/oauth/token", api.TokenEndpoint,
 		router.AllowedMethod(http.MethodPost),
 	)
 }
 
-func (h *TokenHandler) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
+func (h *tokenHandler) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	// Validate the method
 	if r.Method != http.MethodPost {
 		h.tokenHandlerError(w, "invalid_request")
@@ -115,7 +116,7 @@ func (h *TokenHandler) TokenEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *TokenHandler) passwordTokenHandler(w http.ResponseWriter, r *http.Request) {
+func (h *tokenHandler) passwordTokenHandler(w http.ResponseWriter, r *http.Request) {
 	usernameParam := r.Form["username"]
 	if len(usernameParam) != 1 {
 		h.tokenHandlerError(w, "invalid_request")
@@ -159,18 +160,19 @@ func (h *TokenHandler) passwordTokenHandler(w http.ResponseWriter, r *http.Reque
 	response.Send(w)
 }
 
-func (h *TokenHandler) tokenHandlerError(w http.ResponseWriter, e string) {
+func (h *tokenHandler) tokenHandlerError(w http.ResponseWriter, e string) {
 	errorResponse := &ErrorResponse{
 		Error: e,
 	}
 	errorResponse.Send(w)
 }
 
-func (h *TokenHandler) generateJwtToken(user *model.User) (string, error) {
+func (h *tokenHandler) generateJwtToken(user *model.User) (string, error) {
 	tokenId := uuid.New().String()
 
 	claims := jwt.MapClaims{}
-	claims["iss"] = "https://localhost:8000"
+	claims["jti"] = tokenId
+	claims["iss"] = h.issuerUri
 	claims["aud"] = "cloudbm"
 	claims["iat"] = jwt.NewNumericDate(time.Now().UTC())
 	claims["nbf"] = jwt.NewNumericDate(time.Now().UTC())
@@ -181,12 +183,11 @@ func (h *TokenHandler) generateJwtToken(user *model.User) (string, error) {
 	claims["email_verified"] = user.EmailVerified
 	claims["phone"] = user.Phone
 	claims["phone_verified"] = user.PhoneVerified
-	claims["jti"] = tokenId
 	claims["role"] = "user admin"
 	claims["scope"] = "product:read product:write"
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(TokenSecret)
+	tokenString, err := token.SignedString(tokenSecret)
 	if err != nil {
 		return "", err
 	}
