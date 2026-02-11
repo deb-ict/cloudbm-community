@@ -47,13 +47,24 @@ func (e *ErrorResponse) Send(w http.ResponseWriter) error {
 	return json.NewEncoder(w).Encode(e)
 }
 
+type TokenHandler interface {
+	RegisterRoutes(r *router.Router)
+}
+
+func NewTokenHandler(service auth.Service, issuerUri string) TokenHandler {
+	return &tokenHandler{
+		service:   service,
+		issuerUri: issuerUri,
+	}
+}
+
 type tokenHandler struct {
 	service   auth.Service
 	issuerUri string
 }
 
 func (api *tokenHandler) RegisterRoutes(r *router.Router) {
-	r.HandleFunc("/oauth/token", api.TokenEndpoint,
+	r.HandleFunc("/token", api.TokenEndpoint,
 		router.AllowedMethod(http.MethodPost),
 	)
 }
@@ -184,7 +195,7 @@ func (h *tokenHandler) generateJwtToken(user *model.User) (string, error) {
 	claims["phone"] = user.Phone
 	claims["phone_verified"] = user.PhoneVerified
 	claims["role"] = "user admin"
-	claims["scope"] = "product:read product:write"
+	claims["scope"] = "user.read user.create user.update user.delete"
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(tokenSecret)

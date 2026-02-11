@@ -11,7 +11,10 @@ import (
 
 	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	auth_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/auth/api/v1"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/database"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/model"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth/oauth"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/security"
 	auth_svc "github.com/deb-ict/cloudbm-community/pkg/module/auth/service"
 	contact_api_v1 "github.com/deb-ict/cloudbm-community/pkg/module/contact/api/v1"
 	contact_svc "github.com/deb-ict/cloudbm-community/pkg/module/contact/service"
@@ -140,10 +143,60 @@ func main() {
 }
 
 func registerAuthService(router *router.Router, authorization *authorization.Middleware, opts *auth_svc.ServiceOptions) {
-	authSvc := auth_svc.NewService(nil, opts)
+	authDb, err := database.NewDatabase()
+	if err != nil {
+		slog.ErrorContext(context.Background(), "Failed to initialize auth database",
+			slog.Any("error", err),
+		)
+		os.Exit(1)
+	}
+
+	authSvc := auth_svc.NewService(authDb, opts)
 	authApiV1 := auth_api_v1.NewApiV1(authSvc)
 	authApiV1.RegisterAuthorizationPolicies(authorization)
 	authApiV1.RegisterRoutes(router.PathPrefix("/api/auth").SubRouter())
+
+	tokenHandler := oauth.NewTokenHandler(authSvc, "http://localhost:8000")
+	tokenHandler.RegisterRoutes(router.PathPrefix("/oauth").SubRouter())
+
+	_, count, err := authSvc.GetUsers(context.Background(), 0, 1, nil, nil)
+	if err != nil {
+		slog.ErrorContext(context.Background(), "Failed to get users from auth service",
+			slog.Any("error", err),
+		)
+		os.Exit(1)
+	}
+	if count == 0 {
+		password := security.GeneratePassword(16)
+		hash, err := authSvc.PasswordHasher().HashPassword(password)
+		if err != nil {
+			slog.ErrorContext(context.Background(), "Failed to hash password",
+				slog.Any("error", err),
+			)
+			os.Exit(1)
+		}
+		user := &model.User{
+			Username:      "admin",
+			Email:         "admin@cloudbm.eu",
+			EmailVerified: true,
+			PasswordHash:  hash,
+			IsEnabled:     true,
+			LockEnd:       time.Now().UTC(),
+		}
+		_, err = authSvc.CreateUser(context.Background(), user)
+		if err != nil {
+			slog.ErrorContext(context.Background(), "Failed to create admin user",
+				slog.Any("error", err),
+			)
+			os.Exit(1)
+		}
+
+		slog.WarnContext(context.Background(), "Admin user created. Store the password in a safe place and change it after first login.",
+			slog.String("username", user.Username),
+			slog.String("email", user.Email),
+			slog.String("password", password),
+		)
+	}
 }
 
 func registerGalleryService(router *router.Router, authorization *authorization.Middleware, opts *gallery_svc.ServiceOptions) {

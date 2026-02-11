@@ -9,14 +9,14 @@ import (
 
 type User struct {
 	Id                 string
+	NormalizedUsername string
+	NormalizedEmail    string
 	Username           string
 	PasswordHash       string
 	Email              string
 	EmailVerified      bool
 	Phone              string
 	PhoneVerified      bool
-	NormalizedUsername string
-	NormalizedEmail    string
 	LoginFailures      int32
 	IsLocked           bool
 	IsEnabled          bool

@@ -9,9 +9,24 @@ import (
 	"github.com/deb-ict/cloudbm-community/pkg/logging"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth"
 	"github.com/deb-ict/cloudbm-community/pkg/module/auth/model"
+	"github.com/deb-ict/cloudbm-community/pkg/module/auth/security"
 )
 
 func (svc *service) GetUsers(ctx context.Context, offset int64, limit int64, filter *model.UserFilter, sort *core.Sort) ([]*model.User, int64, error) {
+	if filter == nil {
+		filter = &model.UserFilter{}
+	}
+	if sort == nil {
+		sort = &core.Sort{}
+	}
+	if len(sort.Fields) == 0 {
+		sort.Fields = []core.SortField{
+			{Name: "username", Order: core.SortAscending},
+		}
+	}
+	filter.Username = svc.userNormalizer.NormalizeUsername(filter.Username)
+	filter.Email = svc.userNormalizer.NormalizeEmail(filter.Email)
+
 	data, count, err := svc.database.Users().GetUsers(ctx, offset, limit, filter, sort)
 	if err != nil {
 		logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to get users from database",
@@ -76,6 +91,20 @@ func (svc *service) GetUserByEmail(ctx context.Context, email string) (*model.Us
 func (svc *service) CreateUser(ctx context.Context, model *model.User) (*model.User, error) {
 	model.Normalize(svc.userNormalizer)
 	model.Id = ""
+	model.IsLocked = false
+	model.LockEnd = time.Now().UTC()
+
+	if model.PasswordHash == "" {
+		password := security.GeneratePassword(16)
+		passwordHash, err := svc.passwordHasher.HashPassword(password)
+		if err != nil {
+			logging.GetLoggerFromContext(ctx).ErrorContext(ctx, "Failed to hash password",
+				slog.Any("error", err),
+			)
+			return nil, err
+		}
+		model.PasswordHash = passwordHash
+	}
 
 	if err := svc.checkDuplicateUsername(ctx, model); err != nil {
 		slog.WarnContext(ctx, "Failed to create user cause of duplicate username",
